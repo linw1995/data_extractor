@@ -1,0 +1,21 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+rope = "*"
+flake8 = "*"
+isort = "*"
+black = "==19.3b0"
+pytest = "*"
+pytest-coverage = "*"
+mypy = "*"
+
+[packages]
+lxml = "*"
+cssselect = "*"
+jsonpath-rw = "*"
+
+[requires]
+python_version = "3.7"

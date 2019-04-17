@@ -1,0 +1,13 @@
+
+include CHANGES.md
+include HISTORY.md
+include LICENSE
+include Makefile
+include Pipfile
+include Pipfile.lock
+include README.md
+graft data_extractor
+graft tests
+global-exclude *.pyc
+global-exclude *.pyd
+global-exclude *.pyo

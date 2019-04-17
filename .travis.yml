@@ -1,0 +1,71 @@
+language: python
+
+cache: pip
+
+dist: xenial
+
+os:
+  - linux
+
+python:
+  - &mainstream_python 3.7
+  - 3.7-dev
+
+env:
+  global:
+    - PIPENV_IGNORE_VIRTUALENVS=1
+
+install:
+  - &install_deps make install-deps
+  - .venv/bin/pip install codecov
+
+before_script:
+  - &activate_venv source .venv/bin/activate
+
+script:
+  - make cov
+
+after_success:
+  - .venv/bin/codecov
+
+_helpers:
+  - &_mainstream_python_base
+    python: *mainstream_python
+  - &_reset_steps
+    env: []
+    before_install: skip
+    install: skip
+    script: skip
+    after_success: []
+  - &_lint_base
+    stage: &pre_test_stage_name Linting and pre-test checks
+    <<: *_mainstream_python_base
+    <<: *_reset_steps
+    install:
+      - *install_deps
+    before_script:
+      - *activate_venv
+
+jobs:
+  include:
+    - <<: *_lint_base
+      name: Linting source code with flake8
+      script:
+      - make flake
+    - <<: *_lint_base
+      name: Linting source code with mypy
+      script:
+      - make mypy
+    - <<: *_mainstream_python_base
+      <<: *_reset_steps
+      stage: deploy
+      install:
+        - *install_deps
+      before_deploy:
+        - *activate_venv
+
+stages:
+  - *pre_test_stage_name
+  - test
+  - name: deploy
+    if: (tag =~ ^v) AND (branch = master)
