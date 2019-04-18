@@ -1,8 +1,10 @@
 # Third Party Library
 import pytest
 
+from lxml.html import fromstring
+
 # Dsipder Module
-from data_extractor.html import XPathExtractor, fromstring
+from data_extractor.lxml import XPathExtractor
 from data_extractor.item import Field, Item
 
 

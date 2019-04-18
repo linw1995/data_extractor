@@ -1,13 +1,10 @@
 # Third Party Library
 import pytest
 
+from lxml.html import fromstring
+
 # Dsipder Module
-from data_extractor.html import (
-    AttrCSSExtractor,
-    TextCSSExtractor,
-    XPathExtractor,
-    fromstring,
-)
+from data_extractor.lxml import AttrCSSExtractor, TextCSSExtractor, XPathExtractor
 
 
 @pytest.fixture(scope="module")
