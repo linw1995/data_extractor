@@ -2,10 +2,12 @@
 from typing import List, Union
 
 # Third Party Library
+from lxml.etree import XPathEvalError
 from lxml.etree import _Element as Element
 
 # Local Folder
 from .abc import AbstractExtractor
+from .exceptions import ExprError
 
 
 class CSSExtractor(AbstractExtractor):
@@ -36,7 +38,10 @@ class AttrCSSExtractor(AbstractExtractor):
 
 class XPathExtractor(AbstractExtractor):
     def extract(self, element: Element) -> Union[List["Element"], List[str]]:
-        return element.xpath(self.expr)
+        try:
+            return element.xpath(self.expr)
+        except XPathEvalError as exc:
+            raise ExprError(extractor=self, exc=exc)
 
 
 __all__ = (

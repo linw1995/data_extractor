@@ -1,9 +1,10 @@
 # Third Party Library
 import pytest
 
-from lxml.html import fromstring
+from lxml.etree import XPathEvalError
 
 # Dsipder Module
+from data_extractor.exceptions import ExprError
 from data_extractor.lxml import AttrCSSExtractor, TextCSSExtractor, XPathExtractor
 
 
@@ -34,6 +35,8 @@ def text():
 
 @pytest.fixture(scope="module")
 def element(text):
+    from lxml.html import fromstring
+
     return fromstring(text)
 
 
@@ -127,3 +130,13 @@ def test_attr_css_extract_first_without_default(element, expr, attr):
     extractor = AttrCSSExtractor(expr=expr, attr=attr)
     with pytest.raises(ValueError):
         extractor.extract_first(element)
+
+
+@pytest.mark.parametrize("expr", ["///", "/text(", ""])
+def test_invalid_xpath_expr(element, expr):
+    extractor = XPathExtractor(expr)
+    with pytest.raises(ExprError) as exc_info:
+        extractor.extract(element)
+
+    assert exc_info.value.extractor is extractor
+    assert isinstance(exc_info.value.exc, XPathEvalError)
