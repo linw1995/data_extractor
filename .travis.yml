@@ -67,6 +67,7 @@ jobs:
     - <<: *_mainstream_python_base
       <<: *_reset_steps
       stage: deploy
+      name: deploy pypi
       install:
         - *install_deps
       before_deploy:
@@ -83,4 +84,4 @@ stages:
   - *pre_test_stage_name
   - test
   - name: deploy
-    if: (tag =~ ^v) AND (branch = master)
+    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch))
