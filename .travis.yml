@@ -37,9 +37,8 @@ _helpers:
     install: skip
     before_script: skip
     script: skip
-    before_deploy: skip
-    deploy: skip
     after_success: []
+    before_deploy: skip
   - &_lint_base
     stage: &pre_test_stage_name Linting and pre-test checks
     <<: *_mainstream_python_base
