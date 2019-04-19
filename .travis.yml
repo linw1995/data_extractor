@@ -49,6 +49,14 @@ _helpers:
 jobs:
   include:
     - <<: *_lint_base
+      name: Linting source code with isort
+      script:
+      - make check_isort
+    - <<: *_lint_base
+      name: Linting source code with black
+      script:
+      - make check_black
+    - <<: *_lint_base
       name: Linting source code with flake8
       script:
       - make flake
