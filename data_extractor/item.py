@@ -23,6 +23,9 @@ class Field(metaclass=FieldMeta):
         default: Any = sentinel,
         is_many: bool = False,
     ):
+        if default is not sentinel and is_many:
+            raise ValueError(f"can't set default={default} when is_many=True")
+
         self.extractor = extractor
         self.default = default
         self.is_many = is_many
