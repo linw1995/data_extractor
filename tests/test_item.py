@@ -3,7 +3,7 @@ import pytest
 
 from lxml.html import fromstring
 
-# Dsipder Module
+# First Party Library
 from data_extractor.item import Field, Item
 from data_extractor.lxml import XPathExtractor
 

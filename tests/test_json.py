@@ -4,7 +4,7 @@ import json
 # Third Party Library
 import pytest
 
-# Dsipder Module
+# First Party Library
 from data_extractor.json import JSONExtractor
 
 

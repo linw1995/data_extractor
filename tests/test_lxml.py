@@ -3,7 +3,7 @@ import pytest
 
 from lxml.etree import XPathEvalError
 
-# Dsipder Module
+# First Party Library
 from data_extractor.exceptions import ExprError
 from data_extractor.lxml import AttrCSSExtractor, TextCSSExtractor, XPathExtractor
 
