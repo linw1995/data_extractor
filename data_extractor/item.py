@@ -46,9 +46,8 @@ class Field(metaclass=FieldMeta):
 
             return rv
 
-        rv = [self._extract(r) for r in rv]
         if self.is_many:
-            return rv
+            return [self._extract(r) for r in rv]
 
         if not rv:
             if self.default is sentinel:
@@ -56,7 +55,7 @@ class Field(metaclass=FieldMeta):
 
             return self.default
 
-        return rv[0]
+        return self._extract(rv[0])
 
     def _extract(self, element: Any) -> Any:
         return element
