@@ -1,4 +1,6 @@
 # Standard Library
+import warnings
+
 from typing import Any, Dict, Iterator, List, Tuple
 
 # Local Folder
@@ -36,7 +38,12 @@ class Field(metaclass=FieldMeta):
     def extract(self, element: Any) -> Any:
         rv = self.extractor.extract(element)
         if not isinstance(rv, list):
-            assert not self.is_many, "Invalid parameter is_many=True"
+            if self.is_many:
+                warnings.warn(
+                    f"Expr of {self!r} conflict wiht parameter is_many=True",
+                    UserWarning,
+                )
+
             return rv
 
         rv = [self._extract(r) for r in rv]
