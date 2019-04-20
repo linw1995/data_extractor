@@ -1,4 +1,6 @@
 # Standard Library
+import warnings
+
 from typing import Any, Dict, Iterator, List, Tuple
 
 # Local Folder
@@ -23,6 +25,9 @@ class Field(metaclass=FieldMeta):
         default: Any = sentinel,
         is_many: bool = False,
     ):
+        if default is not sentinel and is_many:
+            raise ValueError(f"can't set default={default} when is_many=True")
+
         self.extractor = extractor
         self.default = default
         self.is_many = is_many
@@ -33,12 +38,16 @@ class Field(metaclass=FieldMeta):
     def extract(self, element: Any) -> Any:
         rv = self.extractor.extract(element)
         if not isinstance(rv, list):
-            assert not self.is_many, "Invalid parameter is_many=True"
+            if self.is_many:
+                warnings.warn(
+                    f"Expr of {self!r} conflict wiht parameter is_many=True",
+                    UserWarning,
+                )
+
             return rv
 
-        rv = [self._extract(r) for r in rv]
         if self.is_many:
-            return rv
+            return [self._extract(r) for r in rv]
 
         if not rv:
             if self.default is sentinel:
@@ -46,7 +55,7 @@ class Field(metaclass=FieldMeta):
 
             return self.default
 
-        return rv[0]
+        return self._extract(rv[0])
 
     def _extract(self, element: Any) -> Any:
         return element

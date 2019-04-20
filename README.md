@@ -9,7 +9,7 @@
 
 # Data Extractor
 
-Combine XPath, CSS Selector and JSONPath for Web data extracting.
+Combine **XPath**, **CSS Selector** and **JSONPath** for Web data extracting.
 
 ## Installation
 
@@ -33,8 +33,6 @@ import json
 from pathlib import Path
 
 from data_extractor.item import Field, Item
-from data_extractor.lxml import XPathExtractor, TextCSSExtractor
-
 from lxml.etree import fromstring
 
 
@@ -44,6 +42,9 @@ root = fromstring(Path("sample-rss-2.xml").read_text())
 Using `XPathExtractor` to extract rss channel title
 
 ```python
+from data_extractor.lxml import XPathExtractor
+
+
 XPathExtractor("//channel/title/text()").extract_first(root)
 # 'Liftoff News'
 ```
@@ -51,6 +52,9 @@ XPathExtractor("//channel/title/text()").extract_first(root)
 Using `TextCSSExtractor` to extract all rss item link
 
 ```python
+from data_extractor.lxml import TextCSSExtractor
+
+
 TextCSSExtractor("item>link").extract(root)
 # ['http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp',
 #  'http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp',
@@ -60,6 +64,9 @@ TextCSSExtractor("item>link").extract(root)
 Using `AttrRSSExtractor` to extract rss version
 
 ```python
+from data_extractor.lxml import AttrCSSExtractor
+
+
 AttrCSSExtractor("rss", attr="version").extract_first(root)
 # '2.0'
 ```

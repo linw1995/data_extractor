@@ -140,3 +140,12 @@ def test_invalid_xpath_expr(element, expr):
 
     assert exc_info.value.extractor is extractor
     assert isinstance(exc_info.value.exc, XPathEvalError)
+
+
+def test_xpath_result_not_list(element):
+    extractor = XPathExtractor("normalize-space(//span)")
+
+    assert extractor.extract(element) == "a"
+
+    with pytest.warns(UserWarning):
+        extractor.extract_first(element) == "a"

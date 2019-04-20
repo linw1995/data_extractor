@@ -1,4 +1,6 @@
 # Standard Library
+import warnings
+
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -24,7 +26,11 @@ class AbstractExtractor(ABC):
 
     def extract_first(self, element: Any, default: Any = sentinel) -> Any:
         rv = self.extract(element)
-        assert isinstance(rv, list), f"Can't extract first item from result {rv!r}"
+        if not isinstance(rv, list):
+            warnings.warn(
+                f"{self!r} can't extract first item from result {rv!r}", UserWarning
+            )
+            return rv
 
         if not rv:
             if default is sentinel:
