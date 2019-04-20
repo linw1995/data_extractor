@@ -70,10 +70,6 @@ jobs:
       <<: *_reset_steps
       stage: deploy
       name: deploy pypi
-      install:
-        - *install_deps
-      before_deploy:
-        - *activate_venv
       deploy:
         provider: pypi
         user: linw
