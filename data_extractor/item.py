@@ -1,5 +1,5 @@
 """
-Complex Extractor for data extracting
+Complex Extractor for data extracting.
 """
 # Standard Library
 import warnings
