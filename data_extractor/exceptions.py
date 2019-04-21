@@ -1,3 +1,6 @@
+"""
+Exceptions
+"""
 # Local Folder
 from .abc import AbstractExtractor
 

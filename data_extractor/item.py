@@ -1,3 +1,6 @@
+"""
+Complex Extractor for data extracting
+"""
 # Standard Library
 import warnings
 
@@ -8,6 +11,10 @@ from .abc import AbstractExtractor, sentinel
 
 
 class FieldMeta(type):
+    """
+    Complex Extractor Meta Class.
+    """
+
     def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
         super().__init__(name, bases, attr_dict)
         field_names: List[str] = []
@@ -19,6 +26,10 @@ class FieldMeta(type):
 
 
 class Field(metaclass=FieldMeta):
+    """
+    Extract data by cooperating with extractor.
+    """
+
     def __init__(
         self,
         extractor: AbstractExtractor,
@@ -36,6 +47,9 @@ class Field(metaclass=FieldMeta):
         return f"{self.__class__.__name__}(extractor={self.extractor!r}, default={self.default!r}, is_many={self.is_many})"
 
     def extract(self, element: Any) -> Any:
+        """
+        Extract the wanted data.
+        """
         rv = self.extractor.extract(element)
         if not isinstance(rv, list):
             if self.is_many:
@@ -60,19 +74,26 @@ class Field(metaclass=FieldMeta):
     def _extract(self, element: Any) -> Any:
         return element
 
-    @classmethod
-    def field_names(cls) -> Iterator[str]:
-        for name in cls._field_names:
-            yield name
-
 
 class Item(Field):
+    """
+    Extract data by cooperating with extractors, fields and items.
+    """
+
     def _extract(self, element: Any) -> Any:
         rv = {}
         for field in self.field_names():
             rv[field] = getattr(self, field).extract(element)
 
         return rv
+
+    @classmethod
+    def field_names(cls) -> Iterator[str]:
+        """
+        Iterate all `Item` or `Field` type attributes' name.
+        """
+        for name in cls._field_names:
+            yield name
 
 
 __all__ = ("Field", "FieldMeta", "Item")

@@ -1,3 +1,6 @@
+"""
+Abstract Base Classes
+"""
 # Standard Library
 import warnings
 
@@ -22,9 +25,11 @@ class AbstractExtractor(ABC):
 
     @abstractmethod
     def extract(self, element: Any) -> Any:
+        """ Extract data or subelement from element """
         raise NotImplementedError
 
     def extract_first(self, element: Any, default: Any = sentinel) -> Any:
+        """ Extract the first data or subelement from `extract` method call result """
         rv = self.extract(element)
         if not isinstance(rv, list):
             warnings.warn(
