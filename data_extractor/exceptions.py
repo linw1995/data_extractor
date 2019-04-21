@@ -1,9 +1,14 @@
+"""
+Exceptions.
+"""
 # Local Folder
 from .abc import AbstractExtractor
 
 
 class ExprError(Exception):
-    """ Invalid Expr """
+    """
+    Invalid Expr
+    """
 
     def __init__(self, extractor: AbstractExtractor, exc: Exception):
         self.extractor = extractor
