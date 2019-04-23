@@ -4,10 +4,11 @@ Exceptions.
 # Standard Library
 import reprlib
 
-from typing import Any, Callable
+from typing import Any
 
 # Local Folder
 from .abc import AbstractExtractor
+from .utils import LazyStr
 
 
 class ExprError(Exception):
@@ -28,19 +29,8 @@ class ExtractError(Exception):
     ExtractError thrown by extractor extracting data.
     """
 
-    class LazyStr:
-        """
-        Lazy String
-        """
-
-        def __init__(self, func: Callable[[], str]):
-            self.func = func
-
-        def __str__(self) -> str:
-            return self.func()
-
     def __init__(self, extractor: AbstractExtractor, element: Any):
-        super().__init__(self.LazyStr(func=lambda: self._trace_repr))
+        super().__init__(LazyStr(func=lambda: self._trace_repr))
         self.element = element
         self.extractors = [extractor]
 

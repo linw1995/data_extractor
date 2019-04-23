@@ -7,8 +7,9 @@ import warnings
 from typing import Any, Iterator
 
 # Local Folder
-from .abc import AbstractExtractor, sentinel
+from .abc import AbstractExtractor
 from .exceptions import ExtractError
+from .utils import sentinel
 
 
 class Field(AbstractExtractor):

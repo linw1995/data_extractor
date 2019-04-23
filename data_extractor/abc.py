@@ -7,13 +7,8 @@ import warnings
 from abc import abstractmethod
 from typing import Any, Dict, List, Tuple
 
-
-class __Sentinel:
-    def __repr__(self) -> str:
-        return "sentinel"
-
-
-sentinel = __Sentinel()
+# Local Folder
+from .utils import sentinel
 
 
 class ComplexExtractorMeta(type):
@@ -69,4 +64,4 @@ class ExtractFirstMixin(AbstractExtractor):
         return rv[0]
 
 
-__all__ = ("AbstractExtractor", "ComplexExtractorMeta", "ExtractFirstMixin", "sentinel")
+__all__ = ("AbstractExtractor", "ComplexExtractorMeta", "ExtractFirstMixin")

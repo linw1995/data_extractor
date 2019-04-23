@@ -36,7 +36,7 @@ def test_exception_trace(json0):
     assert exc.element == {"id": 3, "name": "Janine Gross"}
 
     assert (
-        exc._trace_repr
+        str(exc.args[0])
         == textwrap.dedent(
             """
             ExtractError(Field(JSONExtractor('gender'), default=sentinel, is_many=False), element={'id': 3, 'name': 'Janine Gross'})
