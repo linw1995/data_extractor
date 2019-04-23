@@ -1,6 +1,7 @@
 # Changelog
 
-## v0.1.4
+## v0.1.5
 
-- f4267fe Modify docstr
-- 6f2f8d1 Add more docstr
+- cabfac3 Add utils.py
+- 9e1c005 Make all extractor class inherit the same ABC.
+- 7828a1a Make easy to trace exception thrown by complex extractor extracting data.

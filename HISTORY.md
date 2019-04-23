@@ -1,3 +1,8 @@
+## v0.1.4
+
+- f4267fe Modify docstr
+- 6f2f8d1 Add more docstr
+
 ## v0.1.3
 
 - 5f4b0e0 Update README.md
