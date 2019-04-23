@@ -4,7 +4,7 @@ import pytest
 from lxml.etree import XPathEvalError
 
 # First Party Library
-from data_extractor.exceptions import ExprError
+from data_extractor.exceptions import ExprError, ExtractError
 from data_extractor.lxml import AttrCSSExtractor, TextCSSExtractor, XPathExtractor
 
 
@@ -87,8 +87,13 @@ def test_extract_first(element, Extractor, expr, expect):
 )
 def test_extract_first_without_default(element, Extractor, expr):
     extractor = Extractor(expr)
-    with pytest.raises(ValueError):
+    with pytest.raises(ExtractError) as catch:
         extractor.extract_first(element)
+
+    exc = catch.value
+    assert len(exc.extractors) == 1
+    assert exc.extractors[0] is extractor
+    assert exc.element is element
 
 
 @pytest.mark.parametrize(
@@ -128,18 +133,24 @@ def test_attr_css_extract_first(element, expr, attr, expect):
 )
 def test_attr_css_extract_first_without_default(element, expr, attr):
     extractor = AttrCSSExtractor(expr=expr, attr=attr)
-    with pytest.raises(ValueError):
+    with pytest.raises(ExtractError) as catch:
         extractor.extract_first(element)
+
+    exc = catch.value
+    assert len(exc.extractors) == 1
+    assert exc.extractors[0] is extractor
+    assert exc.element is element
 
 
 @pytest.mark.parametrize("expr", ["///", "/text(", ""])
 def test_invalid_xpath_expr(element, expr):
     extractor = XPathExtractor(expr)
-    with pytest.raises(ExprError) as exc_info:
+    with pytest.raises(ExprError) as catch:
         extractor.extract(element)
 
-    assert exc_info.value.extractor is extractor
-    assert isinstance(exc_info.value.exc, XPathEvalError)
+    exc = catch.value
+    assert exc.extractor is extractor
+    assert isinstance(exc.exc, XPathEvalError)
 
 
 def test_xpath_result_not_list(element):

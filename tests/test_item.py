@@ -5,6 +5,7 @@ from pathlib import Path
 import pytest
 
 # First Party Library
+from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
 from data_extractor.lxml import CSSExtractor, TextCSSExtractor, XPathExtractor
@@ -81,8 +82,14 @@ def test_field_extract_with_default(element0, Extractor, expr, expect):
     ids=repr,
 )
 def test_field_extract_without_default(element0, Extractor, expr):
-    with pytest.raises(ValueError):
-        Field(Extractor(expr)).extract(element0)
+    extractor = Field(Extractor(expr))
+    with pytest.raises(ExtractError) as catch:
+        extractor.extract(element0)
+
+    exc = catch.value
+    assert len(exc.extractors) == 1
+    assert exc.extractors[0] is extractor
+    assert exc.element is element0
 
 
 def test_field_parameters_conflict():
@@ -167,8 +174,15 @@ def element2():
 
 
 def test_item_extract_failure_when_last_field_missing(element2, Article0):
-    with pytest.raises(ValueError):
-        Article0(CSSExtractor("li.article"), is_many=True).extract(element2)
+    extractor = Article0(CSSExtractor("li.article"), is_many=True)
+    with pytest.raises(ExtractError) as catch:
+        extractor.extract(element2)
+
+    exc = catch.value
+    assert len(exc.extractors) == 2
+    assert exc.extractors[0] is Article0.content
+    assert exc.extractors[1] is extractor
+    assert exc.element is element2.xpath("//li[@class='article'][2]")[0]
 
 
 def test_item_extract_success_without_is_many_when_last_field_missing(
@@ -258,8 +272,9 @@ def test_complex_item_extract_xml_data():
     }
 
 
-def test_complex_item_extract_json_data():
-    data = {
+@pytest.fixture
+def json0():
+    return {
         "data": {
             "users": [
                 {"id": 0, "name": "Vang Stout", "gender": "female"},
@@ -275,6 +290,10 @@ def test_complex_item_extract_json_data():
         },
         "status": 0,
     }
+
+
+def test_complex_item_extract_json_data(json0):
+    data = json0
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
@@ -305,3 +324,29 @@ def test_complex_item_extract_json_data():
         "total": 100,
         "data": users_result,
     }
+
+
+def test_exception_trace(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        name = Field(JSONExtractor("name"))
+        gender = Field(JSONExtractor("gender"))
+
+    class UserResponse(Item):
+        start = Field(JSONExtractor("start"), default=0)
+        size = Field(JSONExtractor("size"))
+        total = Field(JSONExtractor("total"))
+        data = User(JSONExtractor("users[*]"), is_many=True)
+
+    extractor = UserResponse(JSONExtractor("data"))
+    with pytest.raises(ExtractError) as catch:
+        extractor.extract(data)
+
+    exc = catch.value
+    assert len(exc.extractors) == 3
+    assert exc.extractors[0] is User.gender
+    assert exc.extractors[1] is UserResponse.data
+    assert exc.extractors[2] is extractor
+    assert exc.element == {"id": 3, "name": "Janine Gross"}

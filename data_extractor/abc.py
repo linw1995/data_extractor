@@ -43,7 +43,9 @@ class AbstractExtractor(ABC):
 
         if not rv:
             if default is sentinel:
-                raise ValueError(f"Invalid {self!r}")
+                from .exceptions import ExtractError
+
+                raise ExtractError(self, element)
 
             return default
 

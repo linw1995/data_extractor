@@ -8,6 +8,7 @@ from typing import Any, Dict, Iterator, List, Tuple
 
 # Local Folder
 from .abc import AbstractExtractor, sentinel
+from .exceptions import ExtractError
 
 
 class FieldMeta(type):
@@ -44,7 +45,7 @@ class Field(metaclass=FieldMeta):
         self.is_many = is_many
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(extractor={self.extractor!r}, default={self.default!r}, is_many={self.is_many})"
+        return f"{self.__class__.__name__}({self.extractor!r}, default={self.default!r}, is_many={self.is_many})"
 
     def extract(self, element: Any) -> Any:
         """
@@ -65,7 +66,7 @@ class Field(metaclass=FieldMeta):
 
         if not rv:
             if self.default is sentinel:
-                raise ValueError(f"Invalid {self!r}")
+                raise ExtractError(self, element)
 
             return self.default
 
@@ -83,7 +84,11 @@ class Item(Field):
     def _extract(self, element: Any) -> Any:
         rv = {}
         for field in self.field_names():
-            rv[field] = getattr(self, field).extract(element)
+            try:
+                rv[field] = getattr(self, field).extract(element)
+            except ExtractError as exc:
+                exc._append(extractor=self)
+                raise exc
 
         return rv
 
