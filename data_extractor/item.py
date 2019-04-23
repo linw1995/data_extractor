@@ -4,29 +4,14 @@ Complex Extractor for data extracting.
 # Standard Library
 import warnings
 
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Iterator
 
 # Local Folder
 from .abc import AbstractExtractor, sentinel
 from .exceptions import ExtractError
 
 
-class FieldMeta(type):
-    """
-    Complex Extractor Meta Class.
-    """
-
-    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
-        super().__init__(name, bases, attr_dict)
-        field_names: List[str] = []
-        for key, attr in attr_dict.items():
-            if isinstance(type(attr), FieldMeta):
-                field_names.append(key)
-
-        cls._field_names = field_names
-
-
-class Field(metaclass=FieldMeta):
+class Field(AbstractExtractor):
     """
     Extract data by cooperating with extractor.
     """
@@ -101,4 +86,4 @@ class Item(Field):
             yield name
 
 
-__all__ = ("Field", "FieldMeta", "Item")
+__all__ = ("Field", "Item")

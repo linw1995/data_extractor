@@ -8,10 +8,10 @@ from typing import Any
 import jsonpath_rw
 
 # Local Folder
-from .abc import AbstractExtractor
+from .abc import ExtractFirstMixin
 
 
-class JSONExtractor(AbstractExtractor):
+class JSONExtractor(ExtractFirstMixin):
     """
     Use JSONPath expression for JSON data extracting.
 

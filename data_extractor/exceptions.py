@@ -4,7 +4,7 @@ Exceptions.
 # Standard Library
 import reprlib
 
-from typing import Any
+from typing import Any, Callable
 
 # Local Folder
 from .abc import AbstractExtractor
@@ -33,7 +33,7 @@ class ExtractError(Exception):
         Lazy String
         """
 
-        def __init__(self, func):
+        def __init__(self, func: Callable[[], str]):
             self.func = func
 
         def __str__(self) -> str:
@@ -47,7 +47,7 @@ class ExtractError(Exception):
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.extractors[0]!r}, element={reprlib.repr(self.element)})"
 
-    def _append(self, extractor) -> None:
+    def _append(self, extractor: AbstractExtractor) -> None:
         self.extractors.append(extractor)
 
     @property

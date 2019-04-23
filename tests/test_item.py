@@ -272,26 +272,6 @@ def test_complex_item_extract_xml_data():
     }
 
 
-@pytest.fixture
-def json0():
-    return {
-        "data": {
-            "users": [
-                {"id": 0, "name": "Vang Stout", "gender": "female"},
-                {"id": 1, "name": "Jeannie Gaines", "gender": "male"},
-                {"id": 2, "name": "Guzman Hunter", "gender": "female"},
-                {"id": 3, "name": "Janine Gross"},
-                {"id": 4, "name": "Clarke Patrick", "gender": "male"},
-                {"id": 5, "name": "Whitney Mcfadden"},
-            ],
-            "start": 0,
-            "size": 5,
-            "total": 100,
-        },
-        "status": 0,
-    }
-
-
 def test_complex_item_extract_json_data(json0):
     data = json0
 
@@ -324,29 +304,3 @@ def test_complex_item_extract_json_data(json0):
         "total": 100,
         "data": users_result,
     }
-
-
-def test_exception_trace(json0):
-    data = json0
-
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        name = Field(JSONExtractor("name"))
-        gender = Field(JSONExtractor("gender"))
-
-    class UserResponse(Item):
-        start = Field(JSONExtractor("start"), default=0)
-        size = Field(JSONExtractor("size"))
-        total = Field(JSONExtractor("total"))
-        data = User(JSONExtractor("users[*]"), is_many=True)
-
-    extractor = UserResponse(JSONExtractor("data"))
-    with pytest.raises(ExtractError) as catch:
-        extractor.extract(data)
-
-    exc = catch.value
-    assert len(exc.extractors) == 3
-    assert exc.extractors[0] is User.gender
-    assert exc.extractors[1] is UserResponse.data
-    assert exc.extractors[2] is extractor
-    assert exc.element == {"id": 3, "name": "Janine Gross"}
