@@ -4,28 +4,15 @@ Complex Extractor for data extracting.
 # Standard Library
 import warnings
 
-from typing import Any, Dict, Iterator, List, Tuple
+from typing import Any, Iterator
 
 # Local Folder
-from .abc import AbstractExtractor, sentinel
+from .abc import AbstractExtractor
+from .exceptions import ExtractError
+from .utils import sentinel
 
 
-class FieldMeta(type):
-    """
-    Complex Extractor Meta Class.
-    """
-
-    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
-        super().__init__(name, bases, attr_dict)
-        field_names: List[str] = []
-        for key, attr in attr_dict.items():
-            if isinstance(type(attr), FieldMeta):
-                field_names.append(key)
-
-        cls._field_names = field_names
-
-
-class Field(metaclass=FieldMeta):
+class Field(AbstractExtractor):
     """
     Extract data by cooperating with extractor.
     """
@@ -44,7 +31,7 @@ class Field(metaclass=FieldMeta):
         self.is_many = is_many
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(extractor={self.extractor!r}, default={self.default!r}, is_many={self.is_many})"
+        return f"{self.__class__.__name__}({self.extractor!r}, default={self.default!r}, is_many={self.is_many})"
 
     def extract(self, element: Any) -> Any:
         """
@@ -65,7 +52,7 @@ class Field(metaclass=FieldMeta):
 
         if not rv:
             if self.default is sentinel:
-                raise ValueError(f"Invalid {self!r}")
+                raise ExtractError(self, element)
 
             return self.default
 
@@ -83,7 +70,11 @@ class Item(Field):
     def _extract(self, element: Any) -> Any:
         rv = {}
         for field in self.field_names():
-            rv[field] = getattr(self, field).extract(element)
+            try:
+                rv[field] = getattr(self, field).extract(element)
+            except ExtractError as exc:
+                exc._append(extractor=self)
+                raise exc
 
         return rv
 
@@ -96,4 +87,4 @@ class Item(Field):
             yield name
 
 
-__all__ = ("Field", "FieldMeta", "Item")
+__all__ = ("Field", "Item")

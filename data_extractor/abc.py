@@ -4,19 +4,29 @@ Abstract Base Classes.
 # Standard Library
 import warnings
 
-from abc import ABC, abstractmethod
-from typing import Any
+from abc import abstractmethod
+from typing import Any, Dict, List, Tuple
+
+# Local Folder
+from .utils import sentinel
 
 
-class __Sentinel:
-    def __repr__(self) -> str:
-        return "sentinel"
+class ComplexExtractorMeta(type):
+    """
+    Complex Extractor Meta Class.
+    """
+
+    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
+        super().__init__(name, bases, attr_dict)
+        field_names: List[str] = []
+        for key, attr in attr_dict.items():
+            if isinstance(type(attr), ComplexExtractorMeta):
+                field_names.append(key)
+
+        cls._field_names = field_names
 
 
-sentinel = __Sentinel()
-
-
-class AbstractExtractor(ABC):
+class AbstractExtractor(metaclass=ComplexExtractorMeta):
     def __init__(self, expr: str):
         self.expr = expr
 
@@ -30,6 +40,8 @@ class AbstractExtractor(ABC):
         """
         raise NotImplementedError
 
+
+class ExtractFirstMixin(AbstractExtractor):
     def extract_first(self, element: Any, default: Any = sentinel) -> Any:
         """
         Extract the first data or subelement from `extract` method call result.
@@ -43,11 +55,13 @@ class AbstractExtractor(ABC):
 
         if not rv:
             if default is sentinel:
-                raise ValueError(f"Invalid {self!r}")
+                from .exceptions import ExtractError
+
+                raise ExtractError(self, element)
 
             return default
 
         return rv[0]
 
 
-__all__ = ("AbstractExtractor", "sentinel")
+__all__ = ("AbstractExtractor", "ComplexExtractorMeta", "ExtractFirstMixin")

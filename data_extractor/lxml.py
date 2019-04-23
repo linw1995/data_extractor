@@ -9,11 +9,11 @@ from lxml.etree import XPathEvalError
 from lxml.etree import _Element as Element
 
 # Local Folder
-from .abc import AbstractExtractor
+from .abc import ExtractFirstMixin
 from .exceptions import ExprError
 
 
-class CSSExtractor(AbstractExtractor):
+class CSSExtractor(ExtractFirstMixin):
     """
     Use CSS Selector for XML or HTML data subelements extracting.
 
@@ -27,7 +27,7 @@ class CSSExtractor(AbstractExtractor):
         return element.cssselect(self.expr)
 
 
-class TextCSSExtractor(AbstractExtractor):
+class TextCSSExtractor(ExtractFirstMixin):
     """
     Use CSS Selector for XML or HTML data subelements' text extracting.
 
@@ -41,7 +41,7 @@ class TextCSSExtractor(AbstractExtractor):
         return [ele.text for ele in CSSExtractor(self.expr).extract(element)]
 
 
-class AttrCSSExtractor(AbstractExtractor):
+class AttrCSSExtractor(ExtractFirstMixin):
     """
     Use CSS Selector for XML or HTML data subelements' attribute value extracting.
 
@@ -66,7 +66,7 @@ class AttrCSSExtractor(AbstractExtractor):
         ]
 
 
-class XPathExtractor(AbstractExtractor):
+class XPathExtractor(ExtractFirstMixin):
     """
     Use XPath for XML or HTML data extracting.
 
