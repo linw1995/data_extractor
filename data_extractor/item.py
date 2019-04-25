@@ -7,7 +7,7 @@ import warnings
 from typing import Any, Iterator
 
 # Local Folder
-from .abc import AbstractExtractor
+from .abc import AbstractExtractor, SimpleExtractorBase
 from .exceptions import ExtractError
 from .utils import sentinel
 
@@ -19,10 +19,13 @@ class Field(AbstractExtractor):
 
     def __init__(
         self,
-        extractor: AbstractExtractor,
+        extractor: SimpleExtractorBase,
         default: Any = sentinel,
         is_many: bool = False,
     ):
+        if not isinstance(extractor, SimpleExtractorBase):
+            raise ValueError(f"Invalid SimpleExtractor: {extractor!r}")
+
         if default is not sentinel and is_many:
             raise ValueError(f"can't set default={default} when is_many=True")
 
