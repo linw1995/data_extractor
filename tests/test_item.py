@@ -304,3 +304,11 @@ def test_complex_item_extract_json_data(json0):
         "total": 100,
         "data": users_result,
     }
+
+
+def test_misplacing():
+    class ComplexExtractor(Item):
+        pass
+
+    with pytest.raises(ValueError):
+        Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))
