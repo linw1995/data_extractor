@@ -41,7 +41,11 @@ class AbstractExtractor(metaclass=ComplexExtractorMeta):
         raise NotImplementedError
 
 
-class ExtractFirstMixin(AbstractExtractor):
+class SimpleExtractorBase(AbstractExtractor):
+    """
+    Simple Extractor Base Class.
+    """
+
     def extract_first(self, element: Any, default: Any = sentinel) -> Any:
         """
         Extract the first data or subelement from `extract` method call result.
@@ -64,4 +68,4 @@ class ExtractFirstMixin(AbstractExtractor):
         return rv[0]
 
 
-__all__ = ("AbstractExtractor", "ComplexExtractorMeta", "ExtractFirstMixin")
+__all__ = ("AbstractExtractor", "ComplexExtractorMeta", "SimpleExtractorBase")
