@@ -1,11 +1,17 @@
 # Third Party Library
 import pytest
 
+from cssselect.parser import SelectorSyntaxError
 from lxml.etree import XPathEvalError
 
 # First Party Library
 from data_extractor.exceptions import ExprError, ExtractError
-from data_extractor.lxml import AttrCSSExtractor, TextCSSExtractor, XPathExtractor
+from data_extractor.lxml import (
+    AttrCSSExtractor,
+    CSSExtractor,
+    TextCSSExtractor,
+    XPathExtractor,
+)
 
 
 @pytest.fixture(scope="module")
@@ -151,6 +157,17 @@ def test_invalid_xpath_expr(element, expr):
     exc = catch.value
     assert exc.extractor is extractor
     assert isinstance(exc.exc, XPathEvalError)
+
+
+@pytest.mark.parametrize("expr", ["<", "a##", ""])
+def test_invalid_css_selector_expr(element, expr):
+    extractor = CSSExtractor(expr)
+    with pytest.raises(ExprError) as catch:
+        extractor.extract(element)
+
+    exc = catch.value
+    assert exc.extractor is extractor
+    assert isinstance(exc.exc, SelectorSyntaxError)
 
 
 def test_xpath_result_not_list(element):
