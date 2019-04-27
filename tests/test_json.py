@@ -4,7 +4,10 @@ import json
 # Third Party Library
 import pytest
 
+from jsonpath_rw.lexer import JsonPathLexerError
+
 # First Party Library
+from data_extractor.exceptions import ExprError
 from data_extractor.json import JSONExtractor
 
 
@@ -61,3 +64,14 @@ def test_extract_first(element, expr, expect):
 def test_extract_first_without_default(element, expr):
     with pytest.raises(ValueError):
         JSONExtractor(expr).extract_first(element)
+
+
+@pytest.mark.parametrize("expr", ["foo..", "a[]", ""])
+def test_invalid_css_selector_expr(element, expr):
+    extractor = JSONExtractor(expr)
+    with pytest.raises(ExprError) as catch:
+        extractor.extract(element)
+
+    exc = catch.value
+    assert exc.extractor is extractor
+    assert isinstance(exc.exc, (JsonPathLexerError, Exception))
