@@ -5,6 +5,7 @@ Extractors for XML or HTML data extracting.
 from typing import List, Union
 
 # Third Party Library
+from cssselect.parser import SelectorSyntaxError
 from lxml.etree import XPathEvalError
 from lxml.etree import _Element as Element
 
@@ -24,7 +25,10 @@ class CSSExtractor(SimpleExtractorBase):
         """
         Extract subelements from XML or HTML data.
         """
-        return element.cssselect(self.expr)
+        try:
+            return element.cssselect(self.expr)
+        except SelectorSyntaxError as exc:
+            raise ExprError(extractor=self, exc=exc)
 
 
 class TextCSSExtractor(SimpleExtractorBase):
@@ -34,11 +38,15 @@ class TextCSSExtractor(SimpleExtractorBase):
     Before extracting, should parse the XML or HTML text into `ELement` object.
     """
 
+    def __init__(self, expr: str):
+        super().__init__(expr)
+        self.extractor = CSSExtractor(self.expr)
+
     def extract(self, element: Element) -> List[str]:
         """
         Extract subelements' text from XML or HTML data.
         """
-        return [ele.text for ele in CSSExtractor(self.expr).extract(element)]
+        return [ele.text for ele in self.extractor.extract(element)]
 
 
 class AttrCSSExtractor(SimpleExtractorBase):
@@ -50,6 +58,7 @@ class AttrCSSExtractor(SimpleExtractorBase):
 
     def __init__(self, expr: str, attr: str):
         super().__init__(expr)
+        self.extractor = CSSExtractor(self.expr)
         self.attr = attr
 
     def __repr__(self) -> str:
@@ -61,7 +70,7 @@ class AttrCSSExtractor(SimpleExtractorBase):
         """
         return [
             ele.get(self.attr)
-            for ele in CSSExtractor(self.expr).extract(root)
+            for ele in self.extractor.extract(root)
             if self.attr in ele.keys()
         ]
 
