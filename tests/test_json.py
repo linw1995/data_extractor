@@ -41,6 +41,7 @@ def element(text):
         ("foo[1].baz", [2]),
         ("foo[2].baz", []),
     ],
+    ids=repr,
 )
 def test_extract(element, expr, expect):
     assert expect == JSONExtractor(expr).extract(element)
@@ -55,12 +56,13 @@ def test_extract(element, expr, expect):
         ("foo[1].baz", 2),
         ("foo[2].baz", "default"),
     ],
+    ids=repr,
 )
 def test_extract_first(element, expr, expect):
     assert expect == JSONExtractor(expr).extract_first(element, default="default")
 
 
-@pytest.mark.parametrize("expr", ["foo.baz", "foo[2].baz"])
+@pytest.mark.parametrize("expr", ["foo.baz", "foo[2].baz"], ids=repr)
 def test_extract_first_without_default(element, expr):
     extractor = JSONExtractor(expr)
     with pytest.raises(ExtractError) as catch:
@@ -72,7 +74,7 @@ def test_extract_first_without_default(element, expr):
     assert exc.element is element
 
 
-@pytest.mark.parametrize("expr", ["foo..", "a[]", ""])
+@pytest.mark.parametrize("expr", ["foo..", "a[]", ""], ids=repr)
 def test_invalid_css_selector_expr(element, expr):
     extractor = JSONExtractor(expr)
     with pytest.raises(ExprError) as catch:
