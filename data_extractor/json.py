@@ -24,6 +24,12 @@ class JSONExtractor(SimpleExtractorBase):
     def extract(self, element: Any) -> Any:
         """
         Extract data from JSON data.
+
+        :param element: Python object parsed from JSON text.
+
+        :returns: Data.
+
+        :raises data_extractor.exceptions.ExprError: JSONPath Expression Error.
         """
         try:
             finder = jsonpath_rw.parse(self.expr)
