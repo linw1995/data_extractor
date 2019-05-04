@@ -1,5 +1,6 @@
 API Reference
 =======================
+.. automodule:: data_extractor
 
 .. toctree::
    :name: API Reference
@@ -7,7 +8,7 @@ API Reference
 
    api_abc
    api_exceptions
+   api_utils
    api_lxml
    api_json
    api_item
-   api_utils

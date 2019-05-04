@@ -1,5 +1,6 @@
 """
-Utils
+:mod:`utils` -- Extracting Utils.
+=================================
 """
 # Standard Library
 from typing import Callable

@@ -1,8 +1,3 @@
-data_extractor.abc
-==================
-
-.. module:: data_extractor
-
 .. automodule:: data_extractor.abc
 
 .. autoclass:: data_extractor.abc.ComplexExtractorMeta

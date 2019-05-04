@@ -1,8 +1,3 @@
-data_extractor.item
-===================
-
-.. module:: data_extractor
-
 .. automodule:: data_extractor.item
 
 .. autoclass:: data_extractor.item.Field

@@ -1,5 +1,6 @@
 """
-Complex Extractor for data extracting.
+:mod:`item` -- Complex Extractor for data extracting.
+=====================================================
 """
 # Standard Library
 import warnings

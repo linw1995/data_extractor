@@ -1,5 +1,6 @@
 """
-Extractors for XML or HTML data extracting.
+:mod:`lxml` -- Extractors for XML or HTML data extracting.
+==========================================================
 """
 # Standard Library
 from typing import List, Union
@@ -18,7 +19,7 @@ class CSSExtractor(SimpleExtractorBase):
     """
     Use CSS Selector for XML or HTML data subelements extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.ELement` object.
+    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
     """
 
     def extract(self, element: Element) -> List[Element]:
@@ -41,7 +42,7 @@ class TextCSSExtractor(SimpleExtractorBase):
     """
     Use CSS Selector for XML or HTML data subelements' text extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.ELement` object.
+    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
     """
 
     def __init__(self, expr: str):
@@ -65,7 +66,7 @@ class AttrCSSExtractor(SimpleExtractorBase):
     """
     Use CSS Selector for XML or HTML data subelements' attribute value extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.ELement` object.
+    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
     """
 
     def __init__(self, expr: str, attr: str):
@@ -97,7 +98,7 @@ class XPathExtractor(SimpleExtractorBase):
     """
     Use XPath for XML or HTML data extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.ELement` object.
+    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
     """
 
     def extract(self, element: Element) -> Union[List[Element], List[str]]:

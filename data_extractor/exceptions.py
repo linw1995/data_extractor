@@ -1,5 +1,6 @@
 """
-Exceptions.
+:mod:`exceptions` -- Extracting Exceptions.
+===========================================
 """
 # Standard Library
 import reprlib

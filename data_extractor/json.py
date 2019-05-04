@@ -1,5 +1,6 @@
 """
-Extractors for JSON data extracting.
+:mod:`json` -- Extractors for JSON data extracting.
+===================================================
 """
 # Standard Library
 from typing import Any

@@ -1,5 +1,6 @@
 """
-Abstract Base Classes.
+:mod:`abc` -- Abstract Base Classes.
+====================================
 """
 # Standard Library
 import warnings
