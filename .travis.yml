@@ -72,6 +72,7 @@ jobs:
         - make mypy
     - <<: *_deploy_base
       name: PyPI deployment
+      if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_PYPI_DEBUG) = true)
       deploy:
         provider: pypi
         user: linw
@@ -83,6 +84,7 @@ jobs:
           all_branches: true
     - <<: *_deploy_base
       name: Github Release deployment
+      if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_RELEASE_DEBUG) = true)
       install:
         - *install_deps
       before_script:
@@ -102,6 +104,7 @@ jobs:
           all_branches: true
     - <<: *_deploy_base
       name: Github Pages deployment
+      if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_PAGES_DEBUG) = true)
       install:
         - *install_deps
         - .venv/bin/pip install -e .
@@ -123,4 +126,4 @@ stages:
   - *pre_test_stage_name
   - test
   - name: *deploy_stage_name
-    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(TRAVIS_DEBUG) = true)
+    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_DEBUG) = true)
