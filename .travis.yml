@@ -80,7 +80,6 @@ jobs:
         distributions: "sdist bdist_wheel"
         skip_existing: true
         on:
-          tags: true
           all_branches: true
     - <<: *_deploy_base
       name: Github Release deployment
@@ -100,7 +99,6 @@ jobs:
         file: dist/*
         skip_cleanup: true
         on:
-          tags: true
           all_branches: true
     - <<: *_deploy_base
       name: Github Pages deployment
@@ -117,7 +115,6 @@ jobs:
         keep_history: true
         local_dir: docs/build/html
         on:
-          tags: true
           all_branches: true
 
 
@@ -125,4 +122,4 @@ stages:
   - *pre_test_stage_name
   - test
   - name: *deploy_stage_name
-    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch))
+    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(TRAVIS_DEBUG) = true)
