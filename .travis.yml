@@ -104,6 +104,7 @@ jobs:
       name: Github Pages deployment
       install:
         - *install_deps
+        - .venv/bin/pip install -e .
       before_script:
         - *activate_venv
       script:
