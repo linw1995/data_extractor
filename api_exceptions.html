@@ -1,0 +1,147 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>exceptions – Extracting Exceptions. &#8212; Data-Extractor  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="utils – Extracting Utils." href="api_utils.html" />
+    <link rel="prev" title="abc – Abstract Base Classes." href="api_abc.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <span class="target" id="module-data_extractor.exceptions"></span><div class="section" id="exceptions-extracting-exceptions">
+<h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">exceptions</span></code> – Extracting Exceptions.<a class="headerlink" href="#exceptions-extracting-exceptions" title="Permalink to this headline">¶</a></h1>
+</div>
+<dl class="exception">
+<dt id="data_extractor.exceptions.ExprError">
+<em class="property">exception </em><code class="descclassname">data_extractor.exceptions.</code><code class="descname">ExprError</code><span class="sig-paren">(</span><em>extractor: data_extractor.abc.AbstractExtractor</em>, <em>exc: Exception</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.exceptions.ExprError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Invalid Expr</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extractor</strong> – The object for data extracting base on <a class="reference internal" href="api_abc.html#data_extractor.abc.AbstractExtractor" title="data_extractor.abc.AbstractExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.abc.AbstractExtractor</span></code></a>.</p></li>
+<li><p><strong>exc</strong> – The actual exception is thrown when extracting.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="exception">
+<dt id="data_extractor.exceptions.ExtractError">
+<em class="property">exception </em><code class="descclassname">data_extractor.exceptions.</code><code class="descname">ExtractError</code><span class="sig-paren">(</span><em>extractor: data_extractor.abc.AbstractExtractor</em>, <em>element: Any</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.exceptions.ExtractError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Thrown by extractor extracting wrong data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extractor</strong> – The object for data extracting base on <a class="reference internal" href="api_abc.html#data_extractor.abc.AbstractExtractor" title="data_extractor.abc.AbstractExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.abc.AbstractExtractor</span></code></a>.</p></li>
+<li><p><strong>element</strong> – The target data node element.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Data-Extractor</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="api_reference.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="api_reference.html#data-extractor"><code class="xref py py-mod docutils literal notranslate"><span class="pre">data_extractor</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_abc.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">abc</span></code> – Abstract Base Classes.</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">exceptions</span></code> – Extracting Exceptions.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_utils.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> – Extracting Utils.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_lxml.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">lxml</span></code> – Extractors for XML or HTML data extracting.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_json.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">json</span></code> – Extractors for JSON data extracting.</a></li>
+<li class="toctree-l2"><a class="reference internal" href="api_item.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">item</span></code> – Complex Extractor for data extracting.</a></li>
+</ul>
+</li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+  <li><a href="api_reference.html">API Reference</a><ul>
+      <li>Previous: <a href="api_abc.html" title="previous chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">abc</span></code> – Abstract Base Classes.</a></li>
+      <li>Next: <a href="api_utils.html" title="next chapter"><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code> – Extracting Utils.</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, 林玮.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/api_exceptions.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
