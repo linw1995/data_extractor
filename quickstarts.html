@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta charset="utf-8" />
+    <title>Quickstarts &#8212; Data-Extractor  documentation</title>
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    <script type="text/javascript" id="documentation_options" data-url_root="./" src="_static/documentation_options.js"></script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="_static/language_data.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="API Reference" href="api_reference.html" />
+    <link rel="prev" title="Welcome to Data-Extractor’s documentation!" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="section" id="quickstarts">
+<h1>Quickstarts<a class="headerlink" href="#quickstarts" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="installation">
+<h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
+<blockquote>
+<div><p>pip install data-extractor</p>
+</div></blockquote>
+</div>
+<div class="section" id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="simple-extractor">
+<h3>Simple Extractor<a class="headerlink" href="#simple-extractor" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="html-or-xml-data">
+<h4>HTML or XML data<a class="headerlink" href="#html-or-xml-data" title="Permalink to this headline">¶</a></h4>
+<p>Download RSS Sample file</p>
+<blockquote>
+<div><p>wget <a class="reference external" href="http://www.rssboard.org/files/sample-rss-2.xml">http://www.rssboard.org/files/sample-rss-2.xml</a></p>
+</div></blockquote>
+<p>Parse it into <a class="reference internal" href="api_lxml.html#data_extractor.lxml.Element" title="data_extractor.lxml.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.Element</span></code></a>.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span> <span class="nn">lxml.etree</span> <span class="k">import</span> <span class="n">fromstring</span>
+
+<span class="n">root</span> <span class="o">=</span> <span class="n">fromstring</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;sample-rss-2.xml&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+</pre></div>
+</div>
+<p>Using <a class="reference internal" href="api_lxml.html#data_extractor.lxml.XPathExtractor" title="data_extractor.lxml.XPathExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.XPathExtractor</span></code></a> to extract rss channel title.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+
+<span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;//channel/title/text()&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract_first</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;Liftoff News&#39;</span>
+</pre></div>
+</div>
+<p>Using <a class="reference internal" href="api_lxml.html#data_extractor.lxml.TextCSSExtractor" title="data_extractor.lxml.TextCSSExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.TextCSSExtractor</span></code></a>
+to extract all rss item links.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">TextCSSExtractor</span>
+
+<span class="n">TextCSSExtractor</span><span class="p">(</span><span class="s2">&quot;item&gt;link&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="s1">&#39;http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp&#39;</span><span class="p">,</span>
+ <span class="s1">&#39;http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>Using <a class="reference internal" href="api_lxml.html#data_extractor.lxml.AttrCSSExtractor" title="data_extractor.lxml.AttrCSSExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.AttrCSSExtractor</span></code></a> to extract rss version.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">AttrCSSExtractor</span>
+
+<span class="n">AttrCSSExtractor</span><span class="p">(</span><span class="s2">&quot;rss&quot;</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract_first</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="s1">&#39;2.0&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="json-data">
+<h4>JSON Data<a class="headerlink" href="#json-data" title="Permalink to this headline">¶</a></h4>
+<p>Example data</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nt">&quot;foo&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="nt">&quot;baz&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="nt">&quot;baz&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}]}</span>
+</pre></div>
+</div>
+<p>Using <a class="reference internal" href="api_json.html#data_extractor.json.JSONExtractor" title="data_extractor.json.JSONExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.json.JSONExtractor</span></code></a> to extract data.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.json</span> <span class="k">import</span> <span class="n">JSONExtractor</span>
+
+<span class="n">JSONExtractor</span><span class="p">(</span><span class="s2">&quot;foo[*].baz&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="section" id="complex-extractor">
+<h3>Complex Extractor<a class="headerlink" href="#complex-extractor" title="Permalink to this headline">¶</a></h3>
+<p>Defining <code class="xref py py-class docutils literal notranslate"><span class="pre">ChannelItem</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Channel</span></code> class,
+then extracting the data.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.item</span> <span class="k">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">Item</span>
+<span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+
+<span class="k">class</span> <span class="nc">ChannelItem</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./title/text()&quot;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./link/text()&quot;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./description/text()&quot;</span><span class="p">))</span>
+    <span class="n">publish_date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./pubDate/text()&quot;</span><span class="p">))</span>
+    <span class="n">guid</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./guid/text()&quot;</span><span class="p">))</span>
+
+<span class="k">class</span> <span class="nc">Channel</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./title/text()&quot;</span><span class="p">))</span>
+    <span class="n">link</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./link/text()&quot;</span><span class="p">))</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./description/text()&quot;</span><span class="p">))</span>
+    <span class="n">language</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./language/text()&quot;</span><span class="p">))</span>
+    <span class="n">publish_date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./pubDate/text()&quot;</span><span class="p">))</span>
+    <span class="n">last_build_date</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./lastBuildDate/text()&quot;</span><span class="p">))</span>
+    <span class="n">docs</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./docs/text()&quot;</span><span class="p">))</span>
+    <span class="n">generator</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./generator/text()&quot;</span><span class="p">))</span>
+    <span class="n">managing_editor</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./managingEditor/text()&quot;</span><span class="p">))</span>
+    <span class="n">web_master</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./webMaster/text()&quot;</span><span class="p">))</span>
+
+    <span class="n">items</span> <span class="o">=</span> <span class="n">ChannelItem</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./item&quot;</span><span class="p">),</span> <span class="n">is_many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Extracting the rss data from file</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+
+<span class="n">Channel</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;//channel&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Liftoff News&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Liftoff to Space Exploration.&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;language&quot;</span><span class="p">:</span> <span class="s2">&quot;en-us&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 10 Jun 2003 04:00:00 GMT&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;last_build_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 10 Jun 2003 09:41:01 GMT&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;docs&quot;</span><span class="p">:</span> <span class="s2">&quot;http://blogs.law.harvard.edu/tech/rss&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;generator&quot;</span><span class="p">:</span> <span class="s2">&quot;Weblog Editor 2.0&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;managing_editor&quot;</span><span class="p">:</span> <span class="s2">&quot;editor@example.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;web_master&quot;</span><span class="p">:</span> <span class="s2">&quot;webmaster@example.com&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;items&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Star City&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia&#39;s &lt;a href=\&quot;http://howe.iki.rssi.ru/GCTC/gctc_e.htm\&quot;&gt;Star City&lt;/a&gt;.&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 03 Jun 2003 09:39:21 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/06/03.html#item573&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a &lt;a href=\&quot;http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm\&quot;&gt;partial eclipse of the Sun&lt;/a&gt; on Saturday, May 31st.&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 30 May 2003 11:06:42 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/05/30.html#item572&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;The Engine That Does More&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 27 May 2003 08:37:32 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/05/27.html#item571&quot;</span>
+        <span class="p">},</span>
+        <span class="p">{</span>
+            <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Astronauts&#39; Dirty Laundry&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 20 May 2003 08:56:02 GMT&quot;</span><span class="p">,</span>
+            <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/05/20.html#item570&quot;</span>
+        <span class="p">}</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Or just extracting the channel item from file.</p>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+
+<span class="n">ChannelItem</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;//channel/item&quot;</span><span class="p">),</span> <span class="n">is_many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Output:</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Star City&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia&#39;s &lt;a href=\&quot;http://howe.iki.rssi.ru/GCTC/gctc_e.htm\&quot;&gt;Star City&lt;/a&gt;.&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 03 Jun 2003 09:39:21 GMT&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/06/03.html#item573&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a &lt;a href=\&quot;http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm\&quot;&gt;partial eclipse of the Sun&lt;/a&gt; on Saturday, May 31st.&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Fri, 30 May 2003 11:06:42 GMT&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/05/30.html#item572&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;The Engine That Does More&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 27 May 2003 08:37:32 GMT&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/05/27.html#item571&quot;</span>
+    <span class="p">},</span>
+    <span class="p">{</span>
+        <span class="nt">&quot;title&quot;</span><span class="p">:</span> <span class="s2">&quot;Astronauts&#39; Dirty Laundry&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;link&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;publish_date&quot;</span><span class="p">:</span> <span class="s2">&quot;Tue, 20 May 2003 08:56:02 GMT&quot;</span><span class="p">,</span>
+        <span class="nt">&quot;guid&quot;</span><span class="p">:</span> <span class="s2">&quot;http://liftoff.msfc.nasa.gov/2003/05/20.html#item570&quot;</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">Data-Extractor</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Quickstarts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#usage">Usage</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#simple-extractor">Simple Extractor</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#complex-extractor">Complex Extractor</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="api_reference.html">API Reference</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Welcome to Data-Extractor’s documentation!</a></li>
+      <li>Next: <a href="api_reference.html" title="next chapter">API Reference</a></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2019, 林玮.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="_sources/quickstarts.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
