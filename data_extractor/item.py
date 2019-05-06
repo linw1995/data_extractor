@@ -18,7 +18,7 @@ class Field(AbstractExtractor):
     Extract data by cooperating with extractor.
 
     :param extractor: The object for data extracting base on :class:`data_extractor.abc.SimpleExtractor`.
-    :param default: Default value when not found.
+    :param default: Default value when not found. Default: :data:`data_extractor.utils.sentinel`.
     :param is_many: Indicate the data which extractor extracting is more than one.
 
     :raises ValueError: Invalid SimpleExtractor.

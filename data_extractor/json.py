@@ -20,6 +20,8 @@ class JSONExtractor(SimpleExtractorBase):
     Use JSONPath expression for JSON data extracting.
 
     Before extracting, should parse the JSON text into Python object.
+
+    :param expr: JSONPath Expression.
     """
 
     def extract(self, element: Any) -> Any:

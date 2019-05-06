@@ -64,7 +64,7 @@ class SimpleExtractorBase(AbstractExtractor):
         Extract the first data or subelement from `extract` method call result.
 
         :param element: The target data node element.
-        :param default: Default value when not found.
+        :param default: Default value when not found. Default: :data:`data_extractor.utils.sentinel`.
 
         :returns: Data or subelement.
 
