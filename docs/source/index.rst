@@ -2,10 +2,11 @@ Welcome to Data-Extractor's documentation!
 ==========================================
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Contents:
+    :maxdepth: 3
+    :caption: Contents:
 
-   api_reference
+    quickstarts
+    api_reference
 
 
 Indices and tables
