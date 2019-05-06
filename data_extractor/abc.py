@@ -1,5 +1,6 @@
 """
-Abstract Base Classes.
+:mod:`abc` -- Abstract Base Classes.
+====================================
 """
 # Standard Library
 import warnings
@@ -27,6 +28,12 @@ class ComplexExtractorMeta(type):
 
 
 class AbstractExtractor(metaclass=ComplexExtractorMeta):
+    """
+    All Extractors' Abstract Base Clase.
+
+    :param expr: Extractor selector expression.
+    """
+
     def __init__(self, expr: str):
         self.expr = expr
 
@@ -37,6 +44,10 @@ class AbstractExtractor(metaclass=ComplexExtractorMeta):
     def extract(self, element: Any) -> Any:
         """
         Extract data or subelement from element.
+
+        :param element: The target data node element.
+
+        :returns: Data or subelement
         """
         raise NotImplementedError
 
@@ -44,11 +55,20 @@ class AbstractExtractor(metaclass=ComplexExtractorMeta):
 class SimpleExtractorBase(AbstractExtractor):
     """
     Simple Extractor Base Class.
+
+    :param expr: extractor selector expression.
     """
 
     def extract_first(self, element: Any, default: Any = sentinel) -> Any:
         """
         Extract the first data or subelement from `extract` method call result.
+
+        :param element: The target data node element.
+        :param default: Default value when not found. Default: :data:`data_extractor.utils.sentinel`.
+
+        :returns: Data or subelement.
+
+        :raises data_extractor.exceptions.ExtractError: Thrown by extractor extracting wrong data.
         """
         rv = self.extract(element)
         if not isinstance(rv, list):

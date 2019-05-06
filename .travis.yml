@@ -47,6 +47,10 @@ _helpers:
       - *install_deps
     before_script:
       - *activate_venv
+  - &_deploy_base
+    stage: &deploy_stage_name Deploy
+    <<: *_mainstream_python_base
+    <<: *_reset_steps
 
 jobs:
   include:
@@ -66,10 +70,9 @@ jobs:
       name: Linting source code with mypy
       script:
         - make mypy
-    - <<: *_mainstream_python_base
-      <<: *_reset_steps
-      stage: deploy
-      name: deploy pypi
+    - <<: *_deploy_base
+      name: PyPI deployment
+      if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_PYPI_DEBUG) = true)
       deploy:
         provider: pypi
         user: linw
@@ -78,12 +81,10 @@ jobs:
         distributions: "sdist bdist_wheel"
         skip_existing: true
         on:
-          tags: true
           all_branches: true
-    - <<: *_mainstream_python_base
-      <<: *_reset_steps
-      stage: deploy
-      name: deploy github release
+    - <<: *_deploy_base
+      name: Github Release deployment
+      if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_RELEASE_DEBUG) = true)
       install:
         - *install_deps
       before_script:
@@ -100,11 +101,29 @@ jobs:
         file: dist/*
         skip_cleanup: true
         on:
-          tags: true
           all_branches: true
+    - <<: *_deploy_base
+      name: Github Pages deployment
+      if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_PAGES_DEBUG) = true)
+      install:
+        - *install_deps
+        - .venv/bin/pip install -e .
+      before_script:
+        - *activate_venv
+      script:
+        - cd docs && make html
+      deploy:
+        provider: pages
+        skip_cleanup: true
+        github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
+        keep_history: true
+        local_dir: docs/build/html
+        on:
+          all_branches: true
+
 
 stages:
   - *pre_test_stage_name
   - test
-  - name: deploy
-    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch))
+  - name: *deploy_stage_name
+    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_DEBUG) = true)

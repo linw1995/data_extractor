@@ -1,5 +1,6 @@
 """
-Exceptions.
+:mod:`exceptions` -- Extracting Exceptions.
+===========================================
 """
 # Standard Library
 import reprlib
@@ -14,6 +15,9 @@ from .utils import LazyStr
 class ExprError(Exception):
     """
     Invalid Expr
+
+    :param extractor: The object for data extracting base on :class:`data_extractor.abc.AbstractExtractor`.
+    :param exc: The actual exception is thrown when extracting.
     """
 
     def __init__(self, extractor: AbstractExtractor, exc: Exception):
@@ -26,7 +30,10 @@ class ExprError(Exception):
 
 class ExtractError(Exception):
     """
-    ExtractError thrown by extractor extracting data.
+    Thrown by extractor extracting wrong data.
+
+    :param extractor: The object for data extracting base on :class:`data_extractor.abc.AbstractExtractor`.
+    :param element: The target data node element.
     """
 
     def __init__(self, extractor: AbstractExtractor, element: Any):

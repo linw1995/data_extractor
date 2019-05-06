@@ -11,6 +11,7 @@ black = "==19.3b0"
 pytest = "*"
 pytest-coverage = "*"
 mypy = "*"
+sphinx = "*"
 
 [packages]
 lxml = "*"

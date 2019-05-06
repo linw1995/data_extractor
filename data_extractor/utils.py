@@ -1,3 +1,7 @@
+"""
+:mod:`utils` -- Extracting Utils.
+=================================
+"""
 # Standard Library
 from typing import Callable
 
@@ -15,6 +19,8 @@ sentinel = __Sentinel()
 class LazyStr:
     """
     Lazy String
+
+    :param func: Lazy __str__ function.
     """
 
     def __init__(self, func: Callable[[], str]):

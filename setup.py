@@ -46,6 +46,7 @@ setup(
     project_urls={
         "GitHub: issues": "https://github.com/linw1995/data_extractor/issues",
         "GitHub: repo": "https://github.com/linw1995/data_extractor",
+        "GitHub Pages: docs": "https://linw1995.com/data_extractor",
     },
     license="MIT",
     packages=["data_extractor"],

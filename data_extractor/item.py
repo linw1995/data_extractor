@@ -1,5 +1,6 @@
 """
-Complex Extractor for data extracting.
+:mod:`item` -- Complex Extractor for data extracting.
+=====================================================
 """
 # Standard Library
 import warnings
@@ -15,6 +16,13 @@ from .utils import sentinel
 class Field(AbstractExtractor):
     """
     Extract data by cooperating with extractor.
+
+    :param extractor: The object for data extracting base on :class:`data_extractor.abc.SimpleExtractor`.
+    :param default: Default value when not found. Default: :data:`data_extractor.utils.sentinel`.
+    :param is_many: Indicate the data which extractor extracting is more than one.
+
+    :raises ValueError: Invalid SimpleExtractor.
+    :raises ValueError: Can't both set default and is_manay=True.
     """
 
     def __init__(
@@ -27,7 +35,7 @@ class Field(AbstractExtractor):
             raise ValueError(f"Invalid SimpleExtractor: {extractor!r}")
 
         if default is not sentinel and is_many:
-            raise ValueError(f"can't set default={default} when is_many=True")
+            raise ValueError(f"Can't both set default={default} and is_many=True")
 
         self.extractor = extractor
         self.default = default
@@ -39,6 +47,12 @@ class Field(AbstractExtractor):
     def extract(self, element: Any) -> Any:
         """
         Extract the wanted data.
+
+        :param element: The target data node element.
+
+        :returns: Data or subelement.
+
+        :raises data_extractor.exceptions.ExtractError: Thrown by extractor extracting wrong data.
         """
         rv = self.extractor.extract(element)
         if not isinstance(rv, list):
