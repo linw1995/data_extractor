@@ -3,6 +3,7 @@
 ====================================
 """
 # Standard Library
+import inspect
 import warnings
 
 from abc import abstractmethod
@@ -20,8 +21,18 @@ class ComplexExtractorMeta(type):
     def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
         super().__init__(name, bases, attr_dict)
         field_names: List[str] = []
+
+        # get all parameters
+        # raise SyntaxError when the parameter overwriten.
+        __init_args = inspect.getfullargspec(getattr(cls, "__init__")).args
+
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
+                if key in __init_args:
+                    raise SyntaxError(
+                        f"'{key} = {attr!r}' overwriten the parameter {key!r} of '{name}.__init__' method."
+                    )
+
                 field_names.append(key)
 
         cls._field_names = field_names

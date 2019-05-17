@@ -8,6 +8,7 @@ import pytest
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
+from data_extractor.lxml import XPathExtractor
 
 
 def test_exception_trace(json0):
@@ -47,3 +48,11 @@ def test_exception_trace(json0):
             """
         ).strip()
     )
+
+
+def test_field_name_overwrite_item_parameter():
+    with pytest.raises(SyntaxError):
+
+        class Parameter(Item):
+            name = Field(XPathExtractor("./span[@class='name']"))
+            default = Field(XPathExtractor("./span[@class='default']"))
