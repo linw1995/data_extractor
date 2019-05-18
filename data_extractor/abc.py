@@ -41,6 +41,8 @@ class ComplexExtractorMeta(type):
                         for lineno, line in enumerate(lines[firstlineno:], start=1):
                             if line.strip().startswith(key):
                                 break
+                        else:  # pragma: no cover
+                            assert False, "This line is never executed."
 
                         lineno += firstlineno
                         index = inspect.indentsize(line)
