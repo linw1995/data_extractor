@@ -1,4 +1,6 @@
 # Standard Library
+import inspect
+
 from pathlib import Path
 
 # Third Party Library
@@ -277,7 +279,7 @@ def test_complex_item_extract_json_data(json0):
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
-        name = Field(JSONExtractor("name"))
+        username = Field(JSONExtractor("name"), name="name")
         gender = Field(JSONExtractor("gender"), default=None)
 
     class UserResponse(Item):
@@ -312,3 +314,64 @@ def test_misplacing():
 
     with pytest.raises(ValueError):
         Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))
+
+
+def test_field_name_overwrite_item_parameter():
+    with pytest.raises(SyntaxError) as catch:
+
+        class User(Item):
+            uid = Field(JSONExtractor("id"))
+            name = Field(JSONExtractor("name"))
+
+    exc = catch.value
+    assert exc.filename == __file__
+    assert exc.lineno == inspect.currentframe().f_lineno - 4
+    assert exc.offset == 12
+    assert exc.text == 'name = Field(JSONExtractor("name"))'
+
+
+def test_avoid_field_name_overwriting_item_parameter(json0):
+    data = json0
+
+    with pytest.raises(SyntaxError):
+
+        class User(Item):
+            uid = Field(JSONExtractor("id"))
+            name = Field(JSONExtractor("name"))
+
+    class User(Item):  # noqa
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("name"), name="name")
+
+    assert User(JSONExtractor("data.users[*]")).extract(data) == {
+        "uid": 0,
+        "name": "Vang Stout",
+    }
+
+
+def test_special_field_name(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("name"), name="user.name")
+
+    assert User(JSONExtractor("data.users[*]")).extract(data) == {
+        "uid": 0,
+        "user.name": "Vang Stout",
+    }
+
+
+def test_special_field_name_in_the_nested_class_definition(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("name"), name="name")
+
+    class UserResponse(Item):
+        _ = User(JSONExtractor("users[*]"), name="data")
+
+    first_row = {"uid": 0, "name": "Vang Stout"}
+    assert User(JSONExtractor("data.users[*]")).extract(data) == first_row
+    assert UserResponse(JSONExtractor("data")).extract(data) == {"data": first_row}

@@ -18,6 +18,7 @@ class Field(AbstractExtractor):
     Extract data by cooperating with extractor.
 
     :param extractor: The object for data extracting base on :class:`data_extractor.abc.SimpleExtractor`.
+    :param name: Optional parameter for special field name.
     :param default: Default value when not found. Default: :data:`data_extractor.utils.sentinel`.
     :param is_many: Indicate the data which extractor extracting is more than one.
 
@@ -28,6 +29,7 @@ class Field(AbstractExtractor):
     def __init__(
         self,
         extractor: SimpleExtractorBase,
+        name: str = None,
         default: Any = sentinel,
         is_many: bool = False,
     ):
@@ -38,6 +40,7 @@ class Field(AbstractExtractor):
             raise ValueError(f"Can't both set default={default} and is_many=True")
 
         self.extractor = extractor
+        self.name = name
         self.default = default
         self.is_many = is_many
 
@@ -88,7 +91,11 @@ class Item(Field):
         rv = {}
         for field in self.field_names():
             try:
-                rv[field] = getattr(self, field).extract(element)
+                extractor = getattr(self, field)
+                if extractor.name is not None:
+                    field = extractor.name
+
+                rv[field] = extractor.extract(element)
             except ExtractError as exc:
                 exc._append(extractor=self)
                 raise exc
