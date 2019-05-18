@@ -1,4 +1,5 @@
 # Standard Library
+import inspect
 import textwrap
 
 # Third Party Library
@@ -51,8 +52,14 @@ def test_exception_trace(json0):
 
 
 def test_field_name_overwrite_item_parameter():
-    with pytest.raises(SyntaxError):
+    with pytest.raises(SyntaxError) as catch:
 
         class Parameter(Item):
             name = Field(XPathExtractor("./span[@class='name']"))
             default = Field(XPathExtractor("./span[@class='default']"))
+
+    exc = catch.value
+    assert exc.filename == __file__
+    assert exc.lineno == inspect.currentframe().f_lineno - 4
+    assert exc.offset == 12
+    assert exc.text == "default = Field(XPathExtractor(\"./span[@class='default']\"))"
