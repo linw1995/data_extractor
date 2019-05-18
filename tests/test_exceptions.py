@@ -1,5 +1,4 @@
 # Standard Library
-import inspect
 import textwrap
 
 # Third Party Library
@@ -9,7 +8,6 @@ import pytest
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
-from data_extractor.lxml import XPathExtractor
 
 
 def test_exception_trace(json0):
@@ -17,7 +15,7 @@ def test_exception_trace(json0):
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
-        name = Field(JSONExtractor("name"))
+        username = Field(JSONExtractor("name"), name="name")
         gender = Field(JSONExtractor("gender"))
 
     class UserResponse(Item):
@@ -41,25 +39,11 @@ def test_exception_trace(json0):
         str(exc.args[0])
         == textwrap.dedent(
             """
-            ExtractError(Field(JSONExtractor('gender'), default=sentinel, is_many=False), element={'id': 3, 'name': 'Janine Gross'})
-            |-UserResponse(JSONExtractor('data'), default=sentinel, is_many=False)
-              |-User(JSONExtractor('users[*]'), default=sentinel, is_many=True)
-                |-Field(JSONExtractor('gender'), default=sentinel, is_many=False)
+            ExtractError(Field(JSONExtractor('gender')), element={'id': 3, 'name': 'Janine Gross'})
+            |-UserResponse(JSONExtractor('data'))
+              |-User(JSONExtractor('users[*]'), is_many=True)
+                |-Field(JSONExtractor('gender'))
                   |-{'id': 3, 'name': 'Janine Gross'}
             """
         ).strip()
     )
-
-
-def test_field_name_overwrite_item_parameter():
-    with pytest.raises(SyntaxError) as catch:
-
-        class Parameter(Item):
-            name = Field(XPathExtractor("./span[@class='name']"))
-            default = Field(XPathExtractor("./span[@class='default']"))
-
-    exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 4
-    assert exc.offset == 12
-    assert exc.text == "default = Field(XPathExtractor(\"./span[@class='default']\"))"

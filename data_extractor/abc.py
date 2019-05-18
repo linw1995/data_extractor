@@ -52,7 +52,10 @@ class ComplexExtractorMeta(type):
 
                     line = line.strip()
                     raise SyntaxError(
-                        f"{line!r} overwriten the parameter {key!r} of '{name}.__init__' method.",
+                        (
+                            f"{line!r} overwriten the parameter {key!r} of '{name}.__init__' method. "
+                            f"Please using the optional parameter name={key!r} in {attr!r} to avoid overwriting parameter name."
+                        ),
                         (filename, lineno, index, line),
                     )
 
