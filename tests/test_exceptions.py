@@ -39,10 +39,10 @@ def test_exception_trace(json0):
         str(exc.args[0])
         == textwrap.dedent(
             """
-            ExtractError(Field(JSONExtractor('gender'), default=sentinel, is_many=False), element={'id': 3, 'name': 'Janine Gross'})
-            |-UserResponse(JSONExtractor('data'), default=sentinel, is_many=False)
-              |-User(JSONExtractor('users[*]'), default=sentinel, is_many=True)
-                |-Field(JSONExtractor('gender'), default=sentinel, is_many=False)
+            ExtractError(Field(JSONExtractor('gender')), element={'id': 3, 'name': 'Janine Gross'})
+            |-UserResponse(JSONExtractor('data'))
+              |-User(JSONExtractor('users[*]'), is_many=True)
+                |-Field(JSONExtractor('gender'))
                   |-{'id': 3, 'name': 'Janine Gross'}
             """
         ).strip()

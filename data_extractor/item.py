@@ -45,7 +45,17 @@ class Field(AbstractExtractor):
         self.is_many = is_many
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.extractor!r}, default={self.default!r}, is_many={self.is_many})"
+        args = [f"{self.extractor!r}"]
+        if self.name is not None:
+            args.append(f"name={self.name!r}")
+
+        if self.default is not sentinel:
+            args.append(f"default={self.default!r}")
+
+        if self.is_many:
+            args.append(f"is_many={self.is_many!r}")
+
+        return f"{self.__class__.__name__}({', '.join(args)})"
 
     def extract(self, element: Any) -> Any:
         """
