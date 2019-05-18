@@ -3,6 +3,7 @@
 ====================================
 """
 # Standard Library
+import inspect
 import warnings
 
 from abc import abstractmethod
@@ -20,8 +21,41 @@ class ComplexExtractorMeta(type):
     def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
         super().__init__(name, bases, attr_dict)
         field_names: List[str] = []
+
+        __init_args = inspect.getfullargspec(getattr(cls, "__init__")).args
+
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
+                if key in __init_args:
+                    frame = inspect.currentframe()
+                    assert (
+                        frame is not None
+                    ), "If running in an implementation without Python stack frame support this function returns None."
+                    try:
+                        outer_frame = frame.f_back
+
+                        filename = outer_frame.f_code.co_filename
+                        firstlineno = outer_frame.f_lineno
+                        lines, _ = inspect.findsource(outer_frame)
+
+                        for lineno, line in enumerate(lines[firstlineno:], start=1):
+                            if line.strip().startswith(key):
+                                break
+                        else:  # pragma: no cover
+                            assert False, "This line is never executed."
+
+                        lineno += firstlineno
+                        index = inspect.indentsize(line)
+                    finally:
+                        del outer_frame
+                        del frame
+
+                    line = line.strip()
+                    raise SyntaxError(
+                        f"{line!r} overwriten the parameter {key!r} of '{name}.__init__' method.",
+                        (filename, lineno, index, line),
+                    )
+
                 field_names.append(key)
 
         cls._field_names = field_names
