@@ -27,11 +27,11 @@ class ComplexExtractorMeta(type):
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
                 if key in __init_args:
+                    frame = inspect.currentframe()
+                    assert (
+                        frame is not None
+                    ), "If running in an implementation without Python stack frame support this function returns None."
                     try:
-                        frame = inspect.currentframe()
-                        assert (
-                            frame is not None
-                        ), "If running in an implementation without Python stack frame support this function returns None."
                         outer_frame = frame.f_back
 
                         filename = outer_frame.f_code.co_filename
