@@ -36,9 +36,9 @@
 <h1>Quickstarts<a class="headerlink" href="#quickstarts" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="installation">
 <h2>Installation<a class="headerlink" href="#installation" title="Permalink to this headline">¶</a></h2>
-<blockquote>
-<div><p>pip install data-extractor</p>
-</div></blockquote>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>pip install data-extractor
+</pre></div>
+</div>
 </div>
 <div class="section" id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Permalink to this headline">¶</a></h2>
@@ -47,9 +47,9 @@
 <div class="section" id="html-or-xml-data">
 <h4>HTML or XML data<a class="headerlink" href="#html-or-xml-data" title="Permalink to this headline">¶</a></h4>
 <p>Download RSS Sample file</p>
-<blockquote>
-<div><p>wget <a class="reference external" href="http://www.rssboard.org/files/sample-rss-2.xml">http://www.rssboard.org/files/sample-rss-2.xml</a></p>
-</div></blockquote>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>wget http://www.rssboard.org/files/sample-rss-2.xml
+</pre></div>
+</div>
 <p>Parse it into <a class="reference internal" href="api_lxml.html#data_extractor.lxml.Element" title="data_extractor.lxml.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.Element</span></code></a>.</p>
 <div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="k">import</span> <span class="n">Path</span>
 
@@ -59,7 +59,7 @@
 </pre></div>
 </div>
 <p>Using <a class="reference internal" href="api_lxml.html#data_extractor.lxml.XPathExtractor" title="data_extractor.lxml.XPathExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.XPathExtractor</span></code></a> to extract rss channel title.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
 
 <span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;//channel/title/text()&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract_first</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
 </pre></div>
@@ -70,7 +70,7 @@
 </div>
 <p>Using <a class="reference internal" href="api_lxml.html#data_extractor.lxml.TextCSSExtractor" title="data_extractor.lxml.TextCSSExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.TextCSSExtractor</span></code></a>
 to extract all rss item links.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">TextCSSExtractor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor</span> <span class="k">import</span> <span class="n">TextCSSExtractor</span>
 
 <span class="n">TextCSSExtractor</span><span class="p">(</span><span class="s2">&quot;item&gt;link&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
 </pre></div>
@@ -82,7 +82,7 @@ to extract all rss item links.</p>
 </pre></div>
 </div>
 <p>Using <a class="reference internal" href="api_lxml.html#data_extractor.lxml.AttrCSSExtractor" title="data_extractor.lxml.AttrCSSExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.AttrCSSExtractor</span></code></a> to extract rss version.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">AttrCSSExtractor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor</span> <span class="k">import</span> <span class="n">AttrCSSExtractor</span>
 
 <span class="n">AttrCSSExtractor</span><span class="p">(</span><span class="s2">&quot;rss&quot;</span><span class="p">,</span> <span class="n">attr</span><span class="o">=</span><span class="s2">&quot;version&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract_first</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
 </pre></div>
@@ -99,7 +99,7 @@ to extract all rss item links.</p>
 </pre></div>
 </div>
 <p>Using <a class="reference internal" href="api_json.html#data_extractor.json.JSONExtractor" title="data_extractor.json.JSONExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.json.JSONExtractor</span></code></a> to extract data.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.json</span> <span class="k">import</span> <span class="n">JSONExtractor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor</span> <span class="k">import</span> <span class="n">JSONExtractor</span>
 
 <span class="n">JSONExtractor</span><span class="p">(</span><span class="s2">&quot;foo[*].baz&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
@@ -114,8 +114,7 @@ to extract all rss item links.</p>
 <h3>Complex Extractor<a class="headerlink" href="#complex-extractor" title="Permalink to this headline">¶</a></h3>
 <p>Defining <code class="xref py py-class docutils literal notranslate"><span class="pre">ChannelItem</span></code> and <code class="xref py py-class docutils literal notranslate"><span class="pre">Channel</span></code> class,
 then extracting the data.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.item</span> <span class="k">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">Item</span>
-<span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor</span> <span class="k">import</span> <span class="n">Field</span><span class="p">,</span> <span class="n">Item</span><span class="p">,</span> <span class="n">XPathExtractor</span>
 
 <span class="k">class</span> <span class="nc">ChannelItem</span><span class="p">(</span><span class="n">Item</span><span class="p">):</span>
     <span class="n">title</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;./title/text()&quot;</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -140,7 +139,7 @@ then extracting the data.</p>
 </pre></div>
 </div>
 <p>Extracting the rss data from file</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
 
 <span class="n">Channel</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;//channel&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
 </pre></div>
@@ -191,7 +190,7 @@ then extracting the data.</p>
 </pre></div>
 </div>
 <p>Or just extracting the channel item from file.</p>
-<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor.lxml</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
+<div class="highlight-python3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">data_extractor</span> <span class="k">import</span> <span class="n">XPathExtractor</span>
 
 <span class="n">ChannelItem</span><span class="p">(</span><span class="n">XPathExtractor</span><span class="p">(</span><span class="s2">&quot;//channel/item&quot;</span><span class="p">),</span> <span class="n">is_many</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span><span class="o">.</span><span class="n">extract</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
 </pre></div>
