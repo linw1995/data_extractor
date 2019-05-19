@@ -3,7 +3,7 @@
 =====================
 Combine **XPath**, **CSS Selector** and **JSONPath** for Web data extracting.
 """
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 
 # Local Folder
 from .abc import AbstractExtractor, ComplexExtractorMeta, SimpleExtractorBase

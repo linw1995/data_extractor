@@ -1,12 +1,7 @@
 # Changelog
 
-## v0.2.0
+## v0.2.1
 
-- 9c2e2cd Rename ExtractFirstMixin into SimpleExtractorBase (#12)
-- bac925d Raise ValueError when misplaced the complex extractor in complex extractor. (#13)
-- 88b9227 Wrap expr exception (#14)
-- aeb9520 Deploy Docs on GitHub Pages. (#15)
-    - Update docstring.
-    - Deploy Docs on Github Pages.
-    - Add Quickstarts.rst
-- Bump into beta
+a05b75f Export all from the root module.
+d2900d3 Add Optional Parameter name for special field name. (#19)
+99a4a7f Raise SyntaxError when the field name is the same as Item's parameter… (#18)
