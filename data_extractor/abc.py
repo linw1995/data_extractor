@@ -84,7 +84,7 @@ class AbstractExtractor(metaclass=ComplexExtractorMeta):
 
         :param element: The target data node element.
 
-        :returns: Data or subelement
+        :returns: Data or subelement.
         """
         raise NotImplementedError
 

@@ -14,7 +14,7 @@ from .utils import LazyStr
 
 class ExprError(Exception):
     """
-    Invalid Expr
+    Invalid Expr.
 
     :param extractor: The object for data extracting base on :class:`data_extractor.abc.AbstractExtractor`.
     :param exc: The actual exception is thrown when extracting.

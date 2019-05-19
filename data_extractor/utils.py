@@ -7,7 +7,7 @@ from typing import Callable
 
 
 class __Sentinel:
-    """ Singleton """
+    """ Singleton. """
 
     def __repr__(self) -> str:
         return "sentinel"
@@ -18,7 +18,7 @@ sentinel = __Sentinel()
 
 class LazyStr:
     """
-    Lazy String
+    Lazy String.
 
     :param func: Lazy __str__ function.
     """

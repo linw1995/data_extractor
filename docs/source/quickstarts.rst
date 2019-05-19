@@ -4,6 +4,8 @@ Quickstarts
 Installation
 ------------
 
+.. code-block:: shell
+
     pip install data-extractor
 
 Usage
@@ -16,6 +18,8 @@ HTML or XML data
 ################
 
 Download RSS Sample file
+
+.. code-block:: shell
 
     wget http://www.rssboard.org/files/sample-rss-2.xml
 
@@ -33,7 +37,7 @@ Using :class:`data_extractor.lxml.XPathExtractor` to extract rss channel title.
 
 .. code-block:: python3
 
-    from data_extractor.lxml import XPathExtractor
+    from data_extractor import XPathExtractor
 
     XPathExtractor("//channel/title/text()").extract_first(root)
 
@@ -48,7 +52,7 @@ to extract all rss item links.
 
 .. code-block:: python3
 
-    from data_extractor.lxml import TextCSSExtractor
+    from data_extractor import TextCSSExtractor
 
     TextCSSExtractor("item>link").extract(root)
 
@@ -65,7 +69,7 @@ Using :class:`data_extractor.lxml.AttrCSSExtractor` to extract rss version.
 
 .. code-block:: python3
 
-    from data_extractor.lxml import AttrCSSExtractor
+    from data_extractor import AttrCSSExtractor
 
     AttrCSSExtractor("rss", attr="version").extract_first(root)
 
@@ -88,7 +92,7 @@ Using :class:`data_extractor.json.JSONExtractor` to extract data.
 
 .. code-block:: python3
 
-    from data_extractor.json import JSONExtractor
+    from data_extractor import JSONExtractor
 
     JSONExtractor("foo[*].baz").extract(data)
 
@@ -106,8 +110,7 @@ then extracting the data.
 
 .. code-block:: python3
 
-    from data_extractor.item import Field, Item
-    from data_extractor.lxml import XPathExtractor
+    from data_extractor import Field, Item, XPathExtractor
 
     class ChannelItem(Item):
         title = Field(XPathExtractor("./title/text()"), default="")
@@ -134,7 +137,7 @@ Extracting the rss data from file
 
 .. code-block:: python3
 
-    from data_extractor.lxml import XPathExtractor
+    from data_extractor import XPathExtractor
 
     Channel(XPathExtractor("//channel")).extract(root)
 
@@ -190,7 +193,7 @@ Or just extracting the channel item from file.
 
 .. code-block:: python3
 
-    from data_extractor.lxml import XPathExtractor
+    from data_extractor import XPathExtractor
 
     ChannelItem(XPathExtractor("//channel/item"), is_many=True).extract(root)
 
