@@ -26,8 +26,8 @@ class ComplexExtractorMeta(type):
 
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
-                if key in __init_args:
-                    # Item's attribute overwrites the 'Item.__init__' parameters.
+                if key in __init_args[1:]:
+                    # Item's attribute overwrites the 'Item.__init__' parameters except first parameter.
                     args = []  # type: List[Any]
                     exc_args = None
                     frame = inspect.currentframe()
