@@ -1,5 +1,6 @@
 # Standard Library
 import inspect
+import linecache
 
 from pathlib import Path
 
@@ -316,7 +317,7 @@ def test_misplacing():
         Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))
 
 
-def test_field_name_overwrite_item_parameter():
+def test_field_name_overwrite_item_parameter_common():
     with pytest.raises(SyntaxError) as catch:
 
         class User(Item):
@@ -327,6 +328,99 @@ def test_field_name_overwrite_item_parameter():
     assert exc.filename == __file__
     assert exc.lineno == inspect.currentframe().f_lineno - 4
     assert exc.offset == 12
+    assert exc.text == 'name = Field(JSONExtractor("name"))'
+
+
+def test_field_name_overwrite_item_parameter_oneline():
+    with pytest.raises(SyntaxError) as catch:
+        # fmt: off
+        class Parameter(Item): name = Field(XPathExtractor("./span[@class='name']"))  # noqa
+        # fmt: on
+
+    exc = catch.value
+    assert exc.filename == __file__
+    assert exc.lineno == inspect.currentframe().f_lineno - 5
+    assert exc.offset == 8
+    assert (
+        exc.text
+        == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa"
+    )
+
+
+def test_field_name_overwrite_item_parameter_type_creation():
+    with pytest.raises(SyntaxError) as catch:
+        # fmt: off
+        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})
+        # fmt: on
+
+    exc = catch.value
+    assert exc.filename == __file__
+    assert exc.lineno == inspect.currentframe().f_lineno - 5
+    assert exc.offset == 8
+    assert (
+        exc.text
+        == 'type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class=\'name\']"))})'
+    )
+
+
+source_codes = [
+    'type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class=\'name\']"))})',
+    "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa",
+    """class User(Item):
+    uid = Field(JSONExtractor("id")); name = Field(JSONExtractor("name"))
+    """,
+    """
+class User(Item):
+    uid = Field(JSONExtractor("id"))
+    name = Field(JSONExtractor("name"))
+    """,
+]
+
+
+@pytest.mark.parametrize("source_code", source_codes)
+def test_field_name_overwrite_item_parameter_in_repl(source_code):
+    with pytest.raises(SyntaxError) as catch:
+        exec(source_code)
+
+    exc = catch.value
+    assert exc.filename is None
+    assert exc.lineno is None
+    assert exc.offset is None
+    assert exc.text is None
+
+
+@pytest.mark.parametrize("source_code", source_codes[:-1])
+def test_field_name_overwrite_item_parameter_oneline_in_script(source_code, tmp_path):
+    tmp_file = tmp_path / "foo.py"
+    tmp_file.write_text(source_code)
+    tmp_file = str(tmp_file)
+    linecache.updatecache(tmp_file)
+
+    with pytest.raises(SyntaxError) as catch:
+        exec(compile(source_code, tmp_file, "exec"))
+
+    exc = catch.value
+    assert exc.filename == tmp_file
+    assert exc.lineno == 1
+    assert exc.offset == 0
+    assert exc.text == source_code.split("\n")[0].strip()
+
+
+def test_field_name_overwrite_item_parameter_common_in_script(tmp_path):
+    source_code = source_codes[-1]
+
+    tmp_file = tmp_path / "foo.py"
+    tmp_file.write_text(source_code)
+    tmp_file = str(tmp_file)
+    linecache.updatecache(tmp_file)
+
+    with pytest.raises(SyntaxError) as catch:
+        exec(compile(source_code, tmp_file, "exec"))
+
+    exc = catch.value
+    assert exc.filename == tmp_file
+    assert exc.lineno == 4
+    assert exc.offset == 4
     assert exc.text == 'name = Field(JSONExtractor("name"))'
 
 
