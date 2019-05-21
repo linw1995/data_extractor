@@ -26,7 +26,10 @@ class ComplexExtractorMeta(type):
 
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
-                if key in __init_args:
+                if key in __init_args[1:]:
+                    # Item's attribute overwrites the 'Item.__init__' parameters except first parameter.
+                    args = []  # type: List[Any]
+                    exc_args = None
                     frame = inspect.currentframe()
                     assert (
                         frame is not None
@@ -36,28 +39,54 @@ class ComplexExtractorMeta(type):
 
                         filename = outer_frame.f_code.co_filename
                         firstlineno = outer_frame.f_lineno
-                        lines, _ = inspect.findsource(outer_frame)
+                        firstline_idx = firstlineno - 1
+                        lines = None
+                        try:
+                            lines, _ = inspect.findsource(outer_frame)
+                        except OSError:
+                            # can't get the source code from python repl
+                            pass
 
-                        for lineno, line in enumerate(lines[firstlineno:], start=1):
-                            if line.strip().startswith(key):
-                                break
-                        else:  # pragma: no cover
-                            assert False, "This line is never executed."
+                        if lines is not None:
+                            start_index = inspect.indentsize(lines[firstline_idx])
+                            for lineno, line in enumerate(
+                                lines[firstline_idx + 1 :], start=firstlineno + 1
+                            ):
+                                # iterate line in the code block body
+                                cur_index = inspect.indentsize(line)
+                                if cur_index <= start_index:
+                                    # reach end of the code block, use code block firstlineno as SyntaxError.lineno
+                                    line = lines[firstline_idx]
+                                    lineno = firstlineno
+                                    break
 
-                        lineno += firstlineno
-                        index = inspect.indentsize(line)
+                                if line.lstrip().startswith(key):
+                                    # find the line as SyntaxError.text
+                                    break
+
+                            else:
+                                # reach EOF, use code block firstlineno as SyntaxError.lineno
+                                line = lines[firstline_idx]
+                                lineno = firstlineno
+
+                            offset = inspect.indentsize(line)
+                            line = line.strip()
+                            exc_args = (filename, lineno, offset, line)
+                        else:
+                            line = f"{key}={attr!r}"
+
                     finally:
                         del outer_frame
                         del frame
 
-                    line = line.strip()
-                    raise SyntaxError(
-                        (
-                            f"{line!r} overwriten the parameter {key!r} of '{name}.__init__' method. "
-                            f"Please using the optional parameter name={key!r} in {attr!r} to avoid overwriting parameter name."
-                        ),
-                        (filename, lineno, index, line),
+                    args.append(
+                        f"{line!r} overwriten the parameter {key!r} of '{name}.__init__' method. "
+                        f"Please using the optional parameter name={key!r} in {attr!r} to avoid overwriting parameter name."
                     )
+                    if exc_args is not None:
+                        args.append(exc_args)
+
+                    raise SyntaxError(*args)
 
                 field_names.append(key)
 
