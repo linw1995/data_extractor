@@ -1,7 +1,7 @@
 # Changelog
 
-## v0.2.1
+## v0.2.2
 
-a05b75f Export all from the root module.
-d2900d3 Add Optional Parameter name for special field name. (#19)
-99a4a7f Raise SyntaxError when the field name is the same as Item's parameter… (#18)
+- fca801a Merge pull request #22 from linw1995/hotfix
+    - 8bf2a62 Fix name overwritten syntax checking that includes the `__init__` first parameter.
+    - 10e2ca0 Fix raise wrong execption from python repl, oneline code or type() creation.
