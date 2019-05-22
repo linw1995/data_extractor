@@ -28,12 +28,12 @@ class Field(AbstractExtractor):
 
     def __init__(
         self,
-        extractor: SimpleExtractorBase,
+        extractor: SimpleExtractorBase = None,
         name: str = None,
         default: Any = sentinel,
         is_many: bool = False,
     ):
-        if not isinstance(extractor, SimpleExtractorBase):
+        if extractor is not None and not isinstance(extractor, SimpleExtractorBase):
             raise ValueError(f"Invalid SimpleExtractor: {extractor!r}")
 
         if default is not sentinel and is_many:
@@ -67,7 +67,11 @@ class Field(AbstractExtractor):
 
         :raises data_extractor.exceptions.ExtractError: Thrown by extractor extracting wrong data.
         """
-        rv = self.extractor.extract(element)
+        if self.extractor is None:
+            rv = [element]
+        else:
+            rv = self.extractor.extract(element)
+
         if not isinstance(rv, list):
             if self.is_many:
                 warnings.warn(
