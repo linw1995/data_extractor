@@ -469,3 +469,44 @@ def test_special_field_name_in_the_nested_class_definition(json0):
     first_row = {"uid": 0, "name": "Vang Stout"}
     assert User(JSONExtractor("data.users[*]")).extract(data) == first_row
     assert UserResponse(JSONExtractor("data")).extract(data) == {"data": first_row}
+
+
+@pytest.fixture
+def json1():
+    return {
+        "id": 1,
+        "username": "Jack",
+        "count_follower": 100,
+        "count_following": 1,
+        "count_like": 1_000_000,
+    }
+
+
+def test_item_extractor_is_none(json1):
+    data = json1
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("username"))
+
+    assert User().extract(data) == {"uid": 1, "username": "Jack"}
+
+
+def test_nested_item_extractor_is_none(json1):
+    data = json1
+
+    class Count(Item):
+        follower = Field(JSONExtractor("count_follower"))
+        following = Field(JSONExtractor("count_following"))
+        like = Field(JSONExtractor("count_like"))
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("username"))
+        count = Count()
+
+    assert User().extract(data) == {
+        "uid": 1,
+        "username": "Jack",
+        "count": {"follower": 100, "following": 1, "like": 1_000_000},
+    }
