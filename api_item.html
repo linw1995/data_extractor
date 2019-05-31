@@ -36,7 +36,7 @@
 </div>
 <dl class="class">
 <dt id="data_extractor.item.Field">
-<em class="property">class </em><code class="descclassname">data_extractor.item.</code><code class="descname">Field</code><span class="sig-paren">(</span><em>extractor: data_extractor.abc.SimpleExtractorBase</em>, <em>name: str = None</em>, <em>default: Any = sentinel</em>, <em>is_many: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.item.Field" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">data_extractor.item.</code><code class="descname">Field</code><span class="sig-paren">(</span><em>extractor: data_extractor.abc.SimpleExtractorBase = None</em>, <em>name: str = None</em>, <em>default: Any = sentinel</em>, <em>is_many: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.item.Field" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="api_abc.html#data_extractor.abc.AbstractExtractor" title="data_extractor.abc.AbstractExtractor"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.abc.AbstractExtractor</span></code></a></p>
 <p>Extract data by cooperating with extractor.</p>
 <dl class="field-list simple">
@@ -76,7 +76,7 @@
 
 <dl class="class">
 <dt id="data_extractor.item.Item">
-<em class="property">class </em><code class="descclassname">data_extractor.item.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>extractor: data_extractor.abc.SimpleExtractorBase</em>, <em>name: str = None</em>, <em>default: Any = sentinel</em>, <em>is_many: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.item.Item" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="descclassname">data_extractor.item.</code><code class="descname">Item</code><span class="sig-paren">(</span><em>extractor: data_extractor.abc.SimpleExtractorBase = None</em>, <em>name: str = None</em>, <em>default: Any = sentinel</em>, <em>is_many: bool = False</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.item.Item" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="#data_extractor.item.Field" title="data_extractor.item.Field"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.item.Field</span></code></a></p>
 <p>Extract data by cooperating with extractors, fields and items.</p>
 <dl class="method">
