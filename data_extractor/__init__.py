@@ -3,8 +3,6 @@
 =====================
 Combine **XPath**, **CSS Selector** and **JSONPath** for Web data extracting.
 """
-__version__ = "0.3.2"
-
 # Local Folder
 from .abc import AbstractExtractor, ComplexExtractorMeta, SimpleExtractorBase
 from .exceptions import ExprError, ExtractError

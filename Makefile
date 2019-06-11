@@ -1,35 +1,3 @@
-ifneq ($(shell [ -f ./.venv/bin/python ] && echo 1),1)
-
-all:
-
-install-deps: $(shell find Pipfile -type f)
-	python3 -m virtualenv .venv
-	.venv/bin/python -m pip install -U pip pipenv
-	.venv/bin/pipenv install --dev --deploy
-
-install-deps-without-dev: $(shell find Pipfile -type f)
-	python3 -m virtualenv .venv
-	.venv/bin/python -m pip install -U pip pipenv
-	.venv/bin/python install --deploy
-
-%:
-	@echo "virtualenv missing! Please execute:"
-	@echo "make install-deps"
-	@exit 1
-
-else
-
-ifneq ($(shell ./.venv/bin/python -c "import sys;print(sys.executable)"),$(shell which python))
-
-all:
-
-%:
-	@echo "virtualenv deactivated! Please execute:"
-	@echo "source ./.venv/bin/acitvate"
-	@exit 1
-
-else
-
 all: test
 
 isort: .isort
@@ -118,11 +86,4 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-build:
-	python setup.py sdist bdist_wheel
-
-
-.PHONY: all check check_isort check_black fc flake black isort mypy test vtest cov clean build
-
-endif
-endif
+.PHONY: all check check_isort check_black fc flake black isort mypy test vtest cov clean
