@@ -15,13 +15,8 @@ env:
   global:
     - POETRY_VERSION=0.12.17
 
-install:
-  - &install_deps
-    - curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python  # install poetry - uses $POETRY_VERSION internally
-    - poetry --version
-    - poetry config settings.virtualenvs.create false
-    - poetry install --no-dev --no-interaction --no-ansi -vvv
-    - poetry run pip install codecov
+install:  # install poetry - uses $POETRY_VERSION internally
+  - &install_deps curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python && poetry --version && poetry config settings.virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi -vvv && poetry run pip install codecov
 
 before_script:
   - &activate_venv poetry shell
