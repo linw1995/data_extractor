@@ -19,7 +19,7 @@ install:  # install poetry - uses $POETRY_VERSION internally
   - &install_deps curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python && source $HOME/.poetry/env && poetry --version && poetry config settings.virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi -vvv && poetry run pip install codecov
 
 before_script:
-  - &activate_venv source $HOME/.poetry/env && poetry shell
+  - &source_poetry source $HOME/.poetry/env
 
 script:
   - make cov
@@ -46,7 +46,7 @@ _helpers:
       - *install_deps
       - poetry install --no-interaction --no-ansi -vvv
     before_script:
-      - *activate_venv
+      - *source_poetry
   - &_deploy_base
     stage: &deploy_stage_name Deploy
     <<: *_mainstream_python_base
@@ -90,11 +90,11 @@ jobs:
       install:
         - *install_deps
       before_script:
-        - *activate_venv
+        - *source_poetry
       script:
         - poetry build
       before_deploy:
-        - *activate_venv
+        - *source_poetry
       deploy:
         provider: releases
         api_key:
@@ -111,7 +111,7 @@ jobs:
         - *install_deps
         - poetry install --no-interaction --no-ansi -vvv
       before_script:
-        - *activate_venv
+        - *source_poetry
       script:
         - cd docs && make html
       deploy:
