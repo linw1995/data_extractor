@@ -15,18 +15,18 @@ env:
   global:
     - POETRY_VERSION=0.12.17
 
-install:  # install poetry - uses $POETRY_VERSION internally
-  - &install_deps curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python && source $HOME/.poetry/env && poetry --version && poetry config settings.virtualenvs.create false && poetry install --no-dev --no-interaction --no-ansi -vvv && poetry run pip install codecov
-  - &install_more_deps source $HOME/.poetry/env && poetry install --no-interaction --no-ansi -vvv
+install:
+  - &install_poetry pip install "poetry==$POETRY_VERSION" && poetry --version && poetry config settings.virtualenvs.create false
+  - &install_deps poetry install --no-dev --no-interaction --no-ansi -vvv && pip install codecov
+  - &install_dev_deps poetry install --no-interaction --no-ansi -vvv
 
-before_script:
-  - &source_poetry source $HOME/.poetry/env
+before_script: skip
 
 script:
   - make cov
 
 after_success:
-  - poetry run codecov
+  - codecov
 
 _helpers:
   - &_mainstream_python_base
@@ -44,10 +44,8 @@ _helpers:
     <<: *_mainstream_python_base
     <<: *_reset_steps
     install:
-      - *install_deps
-      - *install_more_deps
-    before_script:
-      - *source_poetry
+      - *install_poetry
+      - *install_dev_deps
   - &_deploy_base
     stage: &deploy_stage_name Deploy
     <<: *_mainstream_python_base
@@ -75,27 +73,22 @@ jobs:
       name: PyPI deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_PYPI_DEBUG) = true)
       install:
-        - *install_deps
+        - *install_poetry
       before_deploy:
         - poetry config http-basic.pypi $PYPI_USERNAME $PYPI_PASSWORD
         - poetry build
       deploy:
         provider: script
         script: poetry publish
-        skip_cleanup: true
         on:
           all_branches: true
     - <<: *_deploy_base
       name: Github Release deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_RELEASE_DEBUG) = true)
       install:
-        - *install_deps
-      before_script:
-        - *source_poetry
+        - *install_poetry
       script:
         - poetry build
-      before_deploy:
-        - *source_poetry
       deploy:
         provider: releases
         api_key:
@@ -109,10 +102,8 @@ jobs:
       name: Github Pages deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_PAGES_DEBUG) = true)
       install:
-        - *install_deps
-        - *install_more_deps
-      before_script:
-        - *source_poetry
+        - *install_poetry
+        - *install_dev_deps
       script:
         - cd docs && make html
       deploy:
