@@ -80,6 +80,7 @@ jobs:
       deploy:
         provider: script
         script: poetry publish
+        skip_cleanup: true
         on:
           all_branches: true
     - <<: *_deploy_base
