@@ -17,8 +17,8 @@ env:
 
 install:
   - &install_poetry pip install "poetry==$POETRY_VERSION" && poetry --version && poetry config settings.virtualenvs.create false
-  - &install_deps poetry install --no-dev --no-interaction --no-ansi -vvv && pip install codecov
   - &install_dev_deps poetry install --no-interaction --no-ansi -vvv
+  - pip install codecov
 
 before_script: skip
 
