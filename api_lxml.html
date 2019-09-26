@@ -36,7 +36,7 @@
 <h1><code class="xref py py-mod docutils literal notranslate"><span class="pre">lxml</span></code> – Extractors for XML or HTML data extracting.<a class="headerlink" href="#lxml-extractors-for-xml-or-html-data-extracting" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="data_extractor.lxml.AttrCSSExtractor">
-<em class="property">class </em><code class="descclassname">data_extractor.lxml.</code><code class="descname">AttrCSSExtractor</code><span class="sig-paren">(</span><em>expr: str</em>, <em>attr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.AttrCSSExtractor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">data_extractor.lxml.</code><code class="sig-name descname">AttrCSSExtractor</code><span class="sig-paren">(</span><em class="sig-param">expr: str</em>, <em class="sig-param">attr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.AttrCSSExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="api_abc.html#data_extractor.abc.SimpleExtractorBase" title="data_extractor.abc.SimpleExtractorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.abc.SimpleExtractorBase</span></code></a></p>
 <p>Use CSS Selector for XML or HTML data subelements’ attribute value extracting.</p>
 <p>Before extracting, should parse the XML or HTML text into <a class="reference internal" href="#data_extractor.lxml.Element" title="data_extractor.lxml.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.Element</span></code></a> object.</p>
@@ -50,7 +50,7 @@
 </dl>
 <dl class="method">
 <dt id="data_extractor.lxml.AttrCSSExtractor.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><em>root: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#data_extractor.lxml.AttrCSSExtractor.extract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">root: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#data_extractor.lxml.AttrCSSExtractor.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract subelements’ attribute value from XML or HTML data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -67,7 +67,7 @@
 
 <dl class="method">
 <dt id="data_extractor.lxml.AttrCSSExtractor.extract_first">
-<code class="descname">extract_first</code><span class="sig-paren">(</span><em>element: Any</em>, <em>default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.AttrCSSExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract_first</code><span class="sig-paren">(</span><em class="sig-param">element: Any</em>, <em class="sig-param">default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.AttrCSSExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the first data or subelement from <cite>extract</cite> method call result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -89,7 +89,7 @@
 
 <dl class="class">
 <dt id="data_extractor.lxml.CSSExtractor">
-<em class="property">class </em><code class="descclassname">data_extractor.lxml.</code><code class="descname">CSSExtractor</code><span class="sig-paren">(</span><em>expr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.CSSExtractor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">data_extractor.lxml.</code><code class="sig-name descname">CSSExtractor</code><span class="sig-paren">(</span><em class="sig-param">expr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.CSSExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="api_abc.html#data_extractor.abc.SimpleExtractorBase" title="data_extractor.abc.SimpleExtractorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.abc.SimpleExtractorBase</span></code></a></p>
 <p>Use CSS Selector for XML or HTML data subelements extracting.</p>
 <p>Before extracting, should parse the XML or HTML text into <a class="reference internal" href="#data_extractor.lxml.Element" title="data_extractor.lxml.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.Element</span></code></a> object.</p>
@@ -100,7 +100,7 @@
 </dl>
 <dl class="method">
 <dt id="data_extractor.lxml.CSSExtractor.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><em>element: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; List[lxml.etree._Element]<a class="headerlink" href="#data_extractor.lxml.CSSExtractor.extract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">element: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; List[lxml.etree._Element]<a class="headerlink" href="#data_extractor.lxml.CSSExtractor.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract subelements from XML or HTML data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -117,7 +117,7 @@
 
 <dl class="method">
 <dt id="data_extractor.lxml.CSSExtractor.extract_first">
-<code class="descname">extract_first</code><span class="sig-paren">(</span><em>element: Any</em>, <em>default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.CSSExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract_first</code><span class="sig-paren">(</span><em class="sig-param">element: Any</em>, <em class="sig-param">default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.CSSExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the first data or subelement from <cite>extract</cite> method call result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -139,13 +139,13 @@
 
 <dl class="attribute">
 <dt id="data_extractor.lxml.Element">
-<code class="descclassname">data_extractor.lxml.</code><code class="descname">Element</code><a class="headerlink" href="#data_extractor.lxml.Element" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname">data_extractor.lxml.</code><code class="sig-name descname">Element</code><a class="headerlink" href="#data_extractor.lxml.Element" title="Permalink to this definition">¶</a></dt>
 <dd><p>alias of <code class="xref py py-class docutils literal notranslate"><span class="pre">lxml.etree._Element</span></code></p>
 </dd></dl>
 
 <dl class="class">
 <dt id="data_extractor.lxml.TextCSSExtractor">
-<em class="property">class </em><code class="descclassname">data_extractor.lxml.</code><code class="descname">TextCSSExtractor</code><span class="sig-paren">(</span><em>expr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.TextCSSExtractor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">data_extractor.lxml.</code><code class="sig-name descname">TextCSSExtractor</code><span class="sig-paren">(</span><em class="sig-param">expr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.TextCSSExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="api_abc.html#data_extractor.abc.SimpleExtractorBase" title="data_extractor.abc.SimpleExtractorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.abc.SimpleExtractorBase</span></code></a></p>
 <p>Use CSS Selector for XML or HTML data subelements’ text extracting.</p>
 <p>Before extracting, should parse the XML or HTML text into <a class="reference internal" href="#data_extractor.lxml.Element" title="data_extractor.lxml.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.Element</span></code></a> object.</p>
@@ -156,7 +156,7 @@
 </dl>
 <dl class="method">
 <dt id="data_extractor.lxml.TextCSSExtractor.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><em>element: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#data_extractor.lxml.TextCSSExtractor.extract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">element: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; List[str]<a class="headerlink" href="#data_extractor.lxml.TextCSSExtractor.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract subelements’ text from XML or HTML data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -173,7 +173,7 @@
 
 <dl class="method">
 <dt id="data_extractor.lxml.TextCSSExtractor.extract_first">
-<code class="descname">extract_first</code><span class="sig-paren">(</span><em>element: Any</em>, <em>default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.TextCSSExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract_first</code><span class="sig-paren">(</span><em class="sig-param">element: Any</em>, <em class="sig-param">default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.TextCSSExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the first data or subelement from <cite>extract</cite> method call result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -195,7 +195,7 @@
 
 <dl class="class">
 <dt id="data_extractor.lxml.XPathExtractor">
-<em class="property">class </em><code class="descclassname">data_extractor.lxml.</code><code class="descname">XPathExtractor</code><span class="sig-paren">(</span><em>expr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.XPathExtractor" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><code class="sig-prename descclassname">data_extractor.lxml.</code><code class="sig-name descname">XPathExtractor</code><span class="sig-paren">(</span><em class="sig-param">expr: str</em><span class="sig-paren">)</span><a class="headerlink" href="#data_extractor.lxml.XPathExtractor" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference internal" href="api_abc.html#data_extractor.abc.SimpleExtractorBase" title="data_extractor.abc.SimpleExtractorBase"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.abc.SimpleExtractorBase</span></code></a></p>
 <p>Use XPath for XML or HTML data extracting.</p>
 <p>Before extracting, should parse the XML or HTML text into <a class="reference internal" href="#data_extractor.lxml.Element" title="data_extractor.lxml.Element"><code class="xref py py-class docutils literal notranslate"><span class="pre">data_extractor.lxml.Element</span></code></a> object.</p>
@@ -206,7 +206,7 @@
 </dl>
 <dl class="method">
 <dt id="data_extractor.lxml.XPathExtractor.extract">
-<code class="descname">extract</code><span class="sig-paren">(</span><em>element: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; Union[List[lxml.etree._Element], List[str]]<a class="headerlink" href="#data_extractor.lxml.XPathExtractor.extract" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract</code><span class="sig-paren">(</span><em class="sig-param">element: lxml.etree._Element</em><span class="sig-paren">)</span> &#x2192; Union[List[lxml.etree._Element], List[str]]<a class="headerlink" href="#data_extractor.lxml.XPathExtractor.extract" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract subelements or data from XML or HTML data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -223,7 +223,7 @@
 
 <dl class="method">
 <dt id="data_extractor.lxml.XPathExtractor.extract_first">
-<code class="descname">extract_first</code><span class="sig-paren">(</span><em>element: Any</em>, <em>default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.XPathExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname">extract_first</code><span class="sig-paren">(</span><em class="sig-param">element: Any</em>, <em class="sig-param">default: Any = sentinel</em><span class="sig-paren">)</span> &#x2192; Any<a class="headerlink" href="#data_extractor.lxml.XPathExtractor.extract_first" title="Permalink to this definition">¶</a></dt>
 <dd><p>Extract the first data or subelement from <cite>extract</cite> method call result.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -289,10 +289,10 @@
 </ul>
 </div>
 <div id="searchbox" style="display: none" role="search">
-  <h3>Quick search</h3>
+  <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" />
+      <input type="text" name="q" aria-labelledby="searchlabel" />
       <input type="submit" value="Go" />
     </form>
     </div>
@@ -314,7 +314,7 @@
       &copy;2019, 林玮.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 2.1.1</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
