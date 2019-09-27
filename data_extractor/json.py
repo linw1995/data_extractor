@@ -6,7 +6,7 @@
 from typing import Any
 
 # Third Party Library
-import jsonpath_rw
+import jsonpath_rw_ext
 
 from jsonpath_rw.lexer import JsonPathLexerError
 
@@ -35,7 +35,7 @@ class JSONExtractor(SimpleExtractorBase):
         :raises data_extractor.exceptions.ExprError: JSONPath Expression Error.
         """
         try:
-            finder = jsonpath_rw.parse(self.expr)
+            finder = jsonpath_rw_ext.parse(self.expr)
         except (JsonPathLexerError, Exception) as exc:
             raise ExprError(extractor=self, exc=exc)
 
