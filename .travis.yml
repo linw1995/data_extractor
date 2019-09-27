@@ -13,20 +13,20 @@ python:
 
 env:
   global:
-    - PIPENV_IGNORE_VIRTUALENVS=1
+    - POETRY_VERSION=0.12.17
 
 install:
-  - &install_deps make install-deps
-  - .venv/bin/pip install codecov
+  - &install_poetry pip install "poetry==$POETRY_VERSION" && poetry --version && poetry config settings.virtualenvs.create false
+  - &install_dev_deps poetry install --no-interaction --no-ansi -vvv
+  - pip install codecov
 
-before_script:
-  - &activate_venv source .venv/bin/activate
+before_script: skip
 
 script:
   - make cov
 
 after_success:
-  - .venv/bin/codecov
+  - codecov
 
 _helpers:
   - &_mainstream_python_base
@@ -44,9 +44,8 @@ _helpers:
     <<: *_mainstream_python_base
     <<: *_reset_steps
     install:
-      - *install_deps
-    before_script:
-      - *activate_venv
+      - *install_poetry
+      - *install_dev_deps
   - &_deploy_base
     stage: &deploy_stage_name Deploy
     <<: *_mainstream_python_base
@@ -73,26 +72,24 @@ jobs:
     - <<: *_deploy_base
       name: PyPI deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_PYPI_DEBUG) = true)
+      install:
+        - *install_poetry
+      before_deploy:
+        - poetry config http-basic.pypi $PYPI_USERNAME $PYPI_PASSWORD
+        - poetry build
       deploy:
-        provider: pypi
-        user: linw
-        password:
-          secure: P1d9lTHCsJvF9htpiZINLD343TwhXQkUor3xAQJq06l/2AeQtjfZCDGHYkd+ahQfPTLs//L9uYeISaNQNi7MgmI3jq48g6YH702OrG8TrzD0a/lIaqmwVLtqkEmpTl96EBtslmtQAPJ4h/LOIk/2Hf2U/xdsWzVBkOIuXu6jmaht+GuGRH/GWvGmJMt82euLsgiUN+xhBCHVOr2vLJPw28Jsm6fsMyMzMLsQ9fnuysaGwi+QRwZxruBfmKkXLWEx3OkRz9XGVzkbtLqQabmq0QmB7cqCb1er/f5Q0hCKPqupm0p3wDPMguf/vqReZQ8Dkx5xiNG3rKKu+E4JbOxDqQhhcim5M15IIniQfVMqFl0LpKFPiI7pekeIZ2rtvUUtfcUCfTOjREc069k13fgiTsDACQsse/1sQm3PZlu21NAoaIwhw4D07x/Ar1vSwdGeZ6rHBmZzYyu8Fbo5e8xljtqV4T206Nu/9rpE0iEvzURc0bAftOCaccIO0PJON1HXFH14r2i8AJTGeWbnixbvBL4Xmok7lPRUKSAXN92EqXag0WCi0HKrMajqusH3FI2j7S+iQvWi9ad+GtjP11Qku8H/DfwyAggdtkilsFgxaeTdQIQRaM5RzPTu4GyOtT/RNKUhxmfikBTS4m1GJkB/ige9LG/32NhvCV5jSo2EP5U=
-        distributions: "sdist bdist_wheel"
-        skip_existing: true
+        provider: script
+        script: poetry publish
+        skip_cleanup: true
         on:
           all_branches: true
     - <<: *_deploy_base
       name: Github Release deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_RELEASE_DEBUG) = true)
       install:
-        - *install_deps
-      before_script:
-        - *activate_venv
+        - *install_poetry
       script:
-        - make build
-      before_deploy:
-        - *activate_venv
+        - poetry build
       deploy:
         provider: releases
         api_key:
@@ -106,10 +103,8 @@ jobs:
       name: Github Pages deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_PAGES_DEBUG) = true)
       install:
-        - *install_deps
-        - .venv/bin/pip install -e .
-      before_script:
-        - *activate_venv
+        - *install_poetry
+        - *install_dev_deps
       script:
         - cd docs && make html
       deploy:

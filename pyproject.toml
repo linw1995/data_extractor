@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "data_extractor"
+version = "0.4.0.dev0"
+license = "MIT"
+description = "Combine XPath, CSS Selector and JSONPath for Web data extracting."
+authors = ["linw1995 <linw1995@icloud.com>"]
+readme = "README.md"
+homepage = "https://github.com/linw1995/data_extractor"
+repository = "https://github.com/linw1995/data_extractor"
+documentation = "https://linw1995.com/data_extractor"
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.7",
+    "Development Status :: 4 - Beta",
+    "Operating System :: POSIX",
+    "Operating System :: MacOS :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+]
+include = ["CHANGES.md", "HISTORY.md", "LICENSE"]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+cssselect = "^1.0.3"
+jsonpath-rw = "^1.4.0"
+lxml = "^4.3.0"
+
+[tool.poetry.dev-dependencies]
+rope = "^0.14.0"
+flake8 = "^3.7.7"
+isort = "^4.3.18"
+black = "^19.3b0"
+pytest = "^4.4.1"
+pytest-cov = "^2.7.1"
+mypy = "^0.701"
+sphinx = "^2.0.1"
