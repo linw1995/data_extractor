@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data_extractor"
-version = "0.4.0.dev0"
+version = "0.4.0.dev1"
 license = "MIT"
 description = "Combine XPath, CSS Selector and JSONPath for Web data extracting."
 authors = ["linw1995 <linw1995@icloud.com>"]
@@ -26,6 +26,7 @@ python = "^3.7"
 cssselect = "^1.0.3"
 jsonpath-rw = "^1.4.0"
 lxml = "^4.3.0"
+jsonpath-rw-ext = "^1.2"
 
 [tool.poetry.dev-dependencies]
 rope = "^0.14.0"

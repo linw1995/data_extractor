@@ -83,3 +83,15 @@ def test_invalid_css_selector_expr(element, expr):
     exc = catch.value
     assert exc.extractor is extractor
     assert isinstance(exc.exc, (JsonPathLexerError, Exception))
+
+
+@pytest.mark.parametrize(
+    "expr,expect",
+    [
+        ("foo[?(baz > 0)].baz", [1, 2]),
+        ("foo[?(baz > 1)].baz", [2]),
+        ("foo[?(baz > 2)].baz", []),
+    ],
+)
+def test_json_ext(element, expr, expect):
+    assert expect == JSONExtractor(expr).extract(element)
