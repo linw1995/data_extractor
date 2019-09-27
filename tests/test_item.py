@@ -510,3 +510,26 @@ def test_nested_item_extractor_is_none(json1):
         "username": "Jack",
         "count": {"follower": 100, "following": 1, "like": 1_000_000},
     }
+
+
+def test_item_extractor_simplify(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("name"), name="name")
+        gender = Field(JSONExtractor("gender"), default=None)
+
+    extractor = User(JSONExtractor("data.users[*]")).simplify()
+    users_result = [
+        {"uid": 0, "name": "Vang Stout", "gender": "female"},
+        {"uid": 1, "name": "Jeannie Gaines", "gender": "male"},
+        {"uid": 2, "name": "Guzman Hunter", "gender": "female"},
+        {"uid": 3, "name": "Janine Gross", "gender": None},
+        {"uid": 4, "name": "Clarke Patrick", "gender": "male"},
+        {"uid": 5, "name": "Whitney Mcfadden", "gender": None},
+    ]
+    assert isinstance(extractor, JSONExtractor)
+    assert extractor.expr == "data.users[*]"
+    assert extractor.extract_first(data) == users_result[0]
+    assert extractor.extract(data) == users_result
