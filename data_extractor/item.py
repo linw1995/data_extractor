@@ -3,6 +3,7 @@
 =====================================================
 """
 # Standard Library
+import copy
 import warnings
 
 from typing import Any, Iterator
@@ -123,6 +124,50 @@ class Item(Field):
         """
         for name in cls._field_names:
             yield name
+
+    def simplify(self) -> SimpleExtractorBase:
+        """
+        Create a simple extractor.
+        """
+        duplicated = copy.deepcopy(self)
+
+        def extract(self: SimpleExtractorBase, element: Any) -> Any:
+            duplicated.is_many = True
+            return duplicated.extract(element)
+
+        def extract_first(self: SimpleExtractorBase, element: Any) -> Any:
+            duplicated.is_many = False
+            return duplicated.extract(element)
+
+        def getter(self: SimpleExtractorBase, name: str) -> Any:
+            if (
+                name not in ("extract", "extract_first")
+                and not name.startswith("__")
+                and hasattr(duplicated.extractor, name)
+            ):
+                return getattr(duplicated.extractor, name)
+            return super(type(self), self).__getattribute__(name)
+
+        def setter(self: SimpleExtractorBase, name: str, value: Any) -> Any:
+            if hasattr(duplicated.extractor, name):
+                return setattr(duplicated.extractor, name, value)
+            return super(type(self), self).__setattr__(name, value)
+
+        classname = f"{type(duplicated).__name__}Simpilied"
+        base = SimpleExtractorBase
+        if duplicated.extractor is not None:
+            base = type(duplicated.extractor)
+
+        return type(
+            classname,
+            (base,),
+            {
+                "extract": extract,
+                "extract_first": extract_first,
+                "__getattribute__": getter,
+                "__setattr__": setter,
+            },
+        )(expr=duplicated.extractor.expr if duplicated.extractor is not None else None)
 
 
 __all__ = ("Field", "Item")
