@@ -6,4 +6,4 @@
 
 .. autoclass:: data_extractor.item.Item
     :show-inheritance:
-    :members: extract, field_names
+    :members: extract, field_names, simplify
