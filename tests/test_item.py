@@ -530,6 +530,7 @@ def test_item_extractor_simplify(json0):
         {"uid": 5, "name": "Whitney Mcfadden", "gender": None},
     ]
     assert isinstance(extractor, JSONExtractor)
+    assert repr(extractor) == "UserSimplified('data.users[*]')"
     assert extractor.expr == "data.users[*]"
     assert extractor.extract_first(data) == users_result[0]
     assert extractor.extract(data) == users_result

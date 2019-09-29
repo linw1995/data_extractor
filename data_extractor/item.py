@@ -153,7 +153,7 @@ class Item(Field):
                 return setattr(duplicated.extractor, name, value)
             return super(type(self), self).__setattr__(name, value)
 
-        classname = f"{type(duplicated).__name__}Simpilied"
+        classname = f"{type(duplicated).__name__}Simplified"
         base = SimpleExtractorBase
         if duplicated.extractor is not None:
             base = type(duplicated.extractor)
