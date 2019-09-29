@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 # First Party Library
+from data_extractor.abc import SimpleExtractorBase
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
@@ -512,7 +513,7 @@ def test_nested_item_extractor_is_none(json1):
     }
 
 
-def test_item_extractor_simplify(json0):
+def test_simplify(json0):
     data = json0
 
     class User(Item):
@@ -534,3 +535,53 @@ def test_item_extractor_simplify(json0):
     assert extractor.expr == "data.users[*]"
     assert extractor.extract_first(data) == users_result[0]
     assert extractor.extract(data) == users_result
+
+
+def test_modify_simplified_item(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("name"), name="name")
+        gender = Field(JSONExtractor("gender"), default=None)
+
+    complex_extractor = User(JSONExtractor("data.users[*]"))
+    extractor = complex_extractor.simplify()
+    assert complex_extractor.extractor.expr == extractor.expr
+    extractor.expr = "data.users[0]"
+    assert complex_extractor.extractor.expr != extractor.expr
+
+    assert isinstance(extractor, JSONExtractor)
+    assert repr(extractor) == "UserSimplified('data.users[0]')"
+
+    assert extractor.extract_first(data) == {
+        "uid": 0,
+        "name": "Vang Stout",
+        "gender": "female",
+    }
+    assert extractor.extract(data) == [
+        {"uid": 0, "name": "Vang Stout", "gender": "female"}
+    ]
+
+
+def test_simplified_item_extractor_is_none(json0):
+    data = json0["data"]["users"][0]
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+        username = Field(JSONExtractor("name"), name="name")
+        gender = Field(JSONExtractor("gender"), default=None)
+
+    extractor = User().simplify()
+    assert not isinstance(extractor, JSONExtractor)
+    assert isinstance(extractor, SimpleExtractorBase)
+    assert repr(extractor) == "UserSimplified(None)"
+    assert extractor.extract_first(data) == {
+        "uid": 0,
+        "name": "Vang Stout",
+        "gender": "female",
+    }
+
+    assert extractor.extract(data) == [
+        {"uid": 0, "name": "Vang Stout", "gender": "female"}
+    ]
