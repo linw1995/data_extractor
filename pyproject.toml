@@ -43,3 +43,7 @@ rope = {version = "^0.14.0"}
 linting = ["black", "flake8", "isort", "mypy", "pytest"]
 test = ["pytest", "pytest-cov"]
 docs = ["sphinx"]
+
+[build-system]
+requires = ["poetry"]
+build-backend = "poetry.masonry.api"
