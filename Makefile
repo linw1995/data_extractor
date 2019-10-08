@@ -66,10 +66,12 @@ test: .check
 vtest: .check
 	pytest -vv -x --ff --nf
 
-cov: .check
+_cov:
 	pytest -vv --cov=data_extractor
 	coverage html
 	@echo "open file://`pwd`/htmlcov/index.html to see coverage"
+
+cov: .check _cov
 
 clean:
 	@rm -f .black
@@ -86,4 +88,4 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-.PHONY: all check check_isort check_black fc flake black isort mypy test vtest cov clean
+.PHONY: all check check_isort check_black fc flake black isort mypy test vtest _cov cov clean
