@@ -28,17 +28,18 @@ jsonpath-rw = "^1.4.0"
 lxml = "^4.3.0"
 jsonpath-rw-ext = "^1.2"
 
+black = {version = "^19.3b0", optional = true}
+flake8 = {version = "^3.7.8", optional = true}
+isort = {version = "^4.3.21", optional = true}
+mypy = {version = "^0.730", optional = true}
+pytest = {version = "^5.2.0", optional = true}
+pytest-cov = {version = "^2.7.1", optional = true}
+sphinx = {version = "^2.2", optional = true}
+
 [tool.poetry.dev-dependencies]
-rope = {version = "^0.14.0", extras = ["linting"], optional = true}
-black = {version = "^19.3b0", extras = ["linting"], optional = true}
-flake8 = {version = "^3.7.8", extras = ["linting"], optional = true}
-isort = {version = "^4.3.21", extras = ["linting"], optional = true}
-pytest = {version = "^5.2.0", extras = ["test"], optional = true}
-pytest-cov = {version = "^2.7.1", extras = ["test"], optional = true}
-mypy = {version = "^0.730", extras = ["linting"], optional = true}
-sphinx = {version = "^2.2", extras = ["docs"], optional = true}
+rope = {version = "^0.14.0"}
 
 [tool.poetry.extras]
-linting = ["rope", "black", "flake8", "isort"]
+linting = ["black", "flake8", "isort", "mypy", "pytest"]
 test = ["pytest", "pytest-cov"]
 docs = ["sphinx"]
