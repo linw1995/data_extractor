@@ -17,13 +17,13 @@ env:
 
 install:
   - &install_poetry pip install "poetry==$POETRY_VERSION" && poetry --version && poetry config settings.virtualenvs.create false
-  - &install_dev_deps poetry install --no-interaction --no-ansi -vvv
+  - &install_test_deps poetry install --no-interaction --no-ansi -vvv -E test
   - pip install codecov
 
 before_script: skip
 
 script:
-  - make cov
+  - make _cov
 
 after_success:
   - codecov
@@ -39,13 +39,6 @@ _helpers:
     script: skip
     after_success: []
     before_deploy: skip
-  - &_lint_base
-    stage: &pre_test_stage_name Linting and pre-test checks
-    <<: *_mainstream_python_base
-    <<: *_reset_steps
-    install:
-      - *install_poetry
-      - *install_dev_deps
   - &_deploy_base
     stage: &deploy_stage_name Deploy
     <<: *_mainstream_python_base
@@ -53,22 +46,15 @@ _helpers:
 
 jobs:
   include:
-    - <<: *_lint_base
-      name: Linting source code with isort
+    - stage: &pre_test_stage_name Linting and pre-test checks
+      <<: *_mainstream_python_base
+      <<: *_reset_steps
+      name: Check source code with isort, black, flake8 and mypy
+      install:
+        - *install_poetry
+        - &install_linting_deps poetry install --no-interaction --no-ansi -vvv -E linting
       script:
-      - make check_isort
-    - <<: *_lint_base
-      name: Linting source code with black
-      script:
-        - make check_black
-    - <<: *_lint_base
-      name: Linting source code with flake8
-      script:
-        - make flake
-    - <<: *_lint_base
-      name: Linting source code with mypy
-      script:
-        - make mypy
+        - make check_all
     - <<: *_deploy_base
       name: PyPI deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_PYPI_DEBUG) = true)
@@ -99,23 +85,6 @@ jobs:
         skip_cleanup: true
         on:
           all_branches: true
-    - <<: *_deploy_base
-      name: Github Pages deployment
-      if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_PAGES_DEBUG) = true)
-      install:
-        - *install_poetry
-        - *install_dev_deps
-      script:
-        - cd docs && make html
-      deploy:
-        provider: pages
-        skip_cleanup: true
-        github_token: $GITHUB_TOKEN  # Set in the settings page of your repository, as a secure variable
-        keep_history: true
-        local_dir: docs/build/html
-        on:
-          all_branches: true
-
 
 stages:
   - *pre_test_stage_name
