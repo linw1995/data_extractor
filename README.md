@@ -7,7 +7,7 @@
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/ambv/black)
 [![Build Status](https://travis-ci.org/linw1995/data_extractor.svg?branch=master)](https://travis-ci.org/linw1995/data_extractor)
 [![codecov](https://codecov.io/gh/linw1995/data_extractor/branch/master/graph/badge.svg)](https://codecov.io/gh/linw1995/data_extractor)
-[![Docs](https://img.shields.io/badge/docs-gh--pages-brightgreen.svg)](https://linw1995.com/data_extractor)
+[![Documentation Status](https://readthedocs.org/projects/data-extractor/badge/?version=latest)](https://data-extractor.readthedocs.io/en/latest/?badge=latest)
 
 # Data Extractor
 
