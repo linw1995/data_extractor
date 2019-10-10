@@ -90,4 +90,4 @@ stages:
   - *pre_test_stage_name
   - test
   - name: *deploy_stage_name
-    if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_DEBUG) = true)
+    if: ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_DEBUG) = true)
