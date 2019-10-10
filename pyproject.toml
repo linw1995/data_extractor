@@ -7,7 +7,7 @@ authors = ["linw1995 <linw1995@icloud.com>"]
 readme = "README.md"
 homepage = "https://github.com/linw1995/data_extractor"
 repository = "https://github.com/linw1995/data_extractor"
-documentation = "https://linw1995.com/data_extractor"
+documentation = "https://data-extractor.readthedocs.io/en/latest/"
 classifiers = [
     "Intended Audience :: Developers",
     "License :: OSI Approved :: MIT License",
