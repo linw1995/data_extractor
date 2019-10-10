@@ -140,4 +140,4 @@ dmypy.json
 .flake
 .isort
 .mypy
-
+.doc8

@@ -35,12 +35,13 @@ mypy = {version = "^0.730", optional = true}
 pytest = {version = "^5.2.0", optional = true}
 pytest-cov = {version = "^2.7.1", optional = true}
 sphinx = {version = "^2.2", optional = true}
+doc8 = {version = "^0.8.0", optional = true}
 
 [tool.poetry.dev-dependencies]
 rope = {version = "^0.14.0"}
 
 [tool.poetry.extras]
-linting = ["black", "flake8", "isort", "mypy", "pytest"]
+linting = ["black", "flake8", "isort", "mypy", "pytest", "doc8"]
 test = ["pytest", "pytest-cov"]
 docs = ["sphinx"]
 
