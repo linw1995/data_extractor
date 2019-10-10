@@ -1,3 +1,7 @@
+## v0.3.2
+
+- cd65ad0 Make Parameter extractor Optional
+
 ## v0.2.2
 
 - fca801a Merge pull request #22 from linw1995/hotfix
