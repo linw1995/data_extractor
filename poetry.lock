@@ -606,11 +606,11 @@ more-itertools = "*"
 
 [extras]
 docs = ["sphinx"]
-linting = ["black", "flake8", "isort", "mypy", "pytest", "doc8"]
+linting = ["black", "flake8", "isort", "mypy", "pytest", "doc8", "pygments"]
 test = ["pytest", "pytest-cov"]
 
 [metadata]
-content-hash = "91659fc4f47b7fa76b347f905cf00896f70dded5ab8a286f825361c8ebcebbcf"
+content-hash = "d081b74d38670fdc6a634df1798f3506825e68a66ddbc72e576adec3e9a0a00f"
 python-versions = "^3.7"
 
 [metadata.hashes]
