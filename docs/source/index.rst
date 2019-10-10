@@ -2,7 +2,7 @@ Welcome to Data-Extractor's documentation!
 ==========================================
 
 .. toctree::
-    :maxdepth: 3
+    :maxdepth: 4
 
     quickstarts
     api_reference

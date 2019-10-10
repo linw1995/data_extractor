@@ -4,9 +4,17 @@ Quickstarts
 Installation
 ------------
 
+install the stable version
+
 .. code-block:: shell
 
     pip install data-extractor
+
+or install the latest version
+
+.. code-block:: shell
+
+    pip install git+https://github.com/linw1995/data_extractor.git@master
 
 Usage
 -----
@@ -16,6 +24,13 @@ Simple Extractor
 
 HTML or XML data
 ################
+
+Powered by lxml_ to support XPath_, by cssselect_ to support `CSS Selectors`_.
+
+.. _lxml: https://lxml.de
+.. _XPath: https://www.w3.org/TR/xpath-10/
+.. _cssselect: https://cssselect.readthedocs.io/en/latest/
+.. _`CSS Selectors`: https://www.w3.org/TR/selectors-3/
 
 Download RSS Sample file
 
@@ -82,6 +97,13 @@ Output:
 JSON Data
 #########
 
+Powered by python-jsonpath-rw_ and python-jsonpath-rw-ext_
+to support JSONPath_.
+
+.. _python-jsonpath-rw: https://github.com/kennknowles/python-jsonpath-rw
+.. _python-jsonpath-rw-ext: https://python-jsonpath-rw-ext.readthedocs.org/en/latest/
+.. _JSONPath: https://goessner.net/articles/JsonPath/
+
 Example data
 
 .. code-block:: json
@@ -105,8 +127,7 @@ Output:
 Complex Extractor
 +++++++++++++++++
 
-Defining :class:`ChannelItem` and :class:`Channel` class,
-then extracting the data.
+Defining :class:`ChannelItem` class, then extracting the data.
 
 .. code-block:: python3
 
@@ -118,6 +139,56 @@ then extracting the data.
         description = Field(XPathExtractor("./description/text()"))
         publish_date = Field(XPathExtractor("./pubDate/text()"))
         guid = Field(XPathExtractor("./guid/text()"))
+
+Extracting all channel items from file.
+
+.. code-block:: python3
+
+    from data_extractor import XPathExtractor
+
+    ChannelItem(XPathExtractor("//channel/item"), is_many=True).extract(root)
+
+Output:
+
+.. code-block:: json
+
+    [
+        {
+            "title": "Star City",
+            "link": "http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp",
+            "description": "How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.",
+            "publish_date": "Tue, 03 Jun 2003 09:39:21 GMT",
+            "guid": "http://liftoff.msfc.nasa.gov/2003/06/03.html#item573"
+        },
+        {
+            "title": "",
+            "link": "",
+            "description": "Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a <a href=\"http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm\">partial eclipse of the Sun</a> on Saturday, May 31st.",
+            "publish_date": "Fri, 30 May 2003 11:06:42 GMT",
+            "guid": "http://liftoff.msfc.nasa.gov/2003/05/30.html#item572"
+        },
+        {
+            "title": "The Engine That Does More",
+            "link": "http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp",
+            "description": "Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.",
+            "publish_date": "Tue, 27 May 2003 08:37:32 GMT",
+            "guid": "http://liftoff.msfc.nasa.gov/2003/05/27.html#item571"
+        },
+        {
+            "title": "Astronauts' Dirty Laundry",
+            "link": "http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp",
+            "description": "Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.",
+            "publish_date": "Tue, 20 May 2003 08:56:02 GMT",
+            "guid": "http://liftoff.msfc.nasa.gov/2003/05/20.html#item570"
+        }
+    ]
+
+Nested Complex Extractor
+########################
+
+Defining :class:`Channel` class with :class:`ChannelItem`.
+
+.. code-block:: python3
 
     class Channel(Item):
         title = Field(XPathExtractor("./title/text()"))
@@ -133,7 +204,7 @@ then extracting the data.
 
         items = ChannelItem(XPathExtractor("./item"), is_many=True)
 
-Extracting the rss data from file
+Extracting the rss channel data from file.
 
 .. code-block:: python3
 
@@ -189,45 +260,29 @@ Output:
     }
 
 
-Or just extracting the channel item from file.
+Simplifying Complex Extractor
+#############################
+
+A complex extractor can be simplified
+into a simple extractor
+by using :meth:`data_extractor.item.Item.simplify`.
+And extracting first channel item from file.
 
 .. code-block:: python3
 
     from data_extractor import XPathExtractor
 
-    ChannelItem(XPathExtractor("//channel/item"), is_many=True).extract(root)
+    simple_extractor = ChannelItem(XPathExtractor("//channel/item"), is_many=True).simplify()
+    simple_extractor.extract_first(root)
 
 Output:
 
 .. code-block:: json
 
-    [
-        {
-            "title": "Star City",
-            "link": "http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp",
-            "description": "How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.",
-            "publish_date": "Tue, 03 Jun 2003 09:39:21 GMT",
-            "guid": "http://liftoff.msfc.nasa.gov/2003/06/03.html#item573"
-        },
-        {
-            "title": "",
-            "link": "",
-            "description": "Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a <a href=\"http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm\">partial eclipse of the Sun</a> on Saturday, May 31st.",
-            "publish_date": "Fri, 30 May 2003 11:06:42 GMT",
-            "guid": "http://liftoff.msfc.nasa.gov/2003/05/30.html#item572"
-        },
-        {
-            "title": "The Engine That Does More",
-            "link": "http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp",
-            "description": "Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.",
-            "publish_date": "Tue, 27 May 2003 08:37:32 GMT",
-            "guid": "http://liftoff.msfc.nasa.gov/2003/05/27.html#item571"
-        },
-        {
-            "title": "Astronauts' Dirty Laundry",
-            "link": "http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp",
-            "description": "Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.",
-            "publish_date": "Tue, 20 May 2003 08:56:02 GMT",
-            "guid": "http://liftoff.msfc.nasa.gov/2003/05/20.html#item570"
-        }
-    ]
+    {
+        "title": "Star City",
+        "link": "http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp",
+        "description": "How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia's <a href=\"http://howe.iki.rssi.ru/GCTC/gctc_e.htm\">Star City</a>.",
+        "publish_date": "Tue, 03 Jun 2003 09:39:21 GMT",
+        "guid": "http://liftoff.msfc.nasa.gov/2003/06/03.html#item573"
+    }
