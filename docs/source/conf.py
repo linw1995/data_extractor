@@ -17,7 +17,9 @@
 
 # -- Project information -----------------------------------------------------
 
+# Standard Library
 from datetime import date
+
 
 project = "Data-Extractor"
 year = date.today().year
@@ -51,7 +53,7 @@ html_theme = "alabaster"
 html_theme_options = {
     "description": "Combine XPath, CSS Selector and JSONPath for Web data extracting.",
     "github_user": "linw1995",
-    "github_repo": "data-extractor",
+    "github_repo": "data_extractor",
     "fixed_sidebar": True,
 }
 # Add any paths that contain custom static files (such as style sheets) here,

@@ -127,7 +127,9 @@ class Item(Field):
 
     def simplify(self) -> SimpleExtractorBase:
         """
-        Create a simple extractor.
+        Create an extractor that has compatible API like SimpleExtractor's.
+
+        :returns: An simple extractor, its class base on :class:`data_extractor.abc.SimpleExtractorBase`
         """
         duplicated = copy.deepcopy(self)
 

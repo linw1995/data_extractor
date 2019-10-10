@@ -2,63 +2,58 @@ all: test
 
 isort: .isort
 
-.isort: $(shell find data_extractor -type d) \
-		$(shell find tests -type d)
-	isort -rc data_extractor tests
+.isort:
+	isort -rc data_extractor tests docs/source/conf.py
 	@touch .isort
 
 check_isort: .check_isort
 
-.check_isort: $(shell find data_extractor -type d) \
-		      $(shell find tests -type d)
-	isort -rc -c data_extractor tests
+.check_isort:
+	isort -rc -c data_extractor tests docs/source/conf.py
 	@touch .check_isort
 
 flake: .flake
 
-.flake: $(shell find data_extractor -type d) \
-		$(shell find tests -type d)
-	flake8 data_extractor tests
+.flake:
+	flake8 data_extractor tests docs/source/conf.py
 	@touch .flake
 
 black: .black
 
-.black: $(shell find data_extractor -type d) \
-		$(shell find tests -type d)
-	black data_extractor tests
+.black:
+	black data_extractor tests docs/source/conf.py
 	@touch .black
 
 check_black: .check_black
 
-.check_black: $(shell find data_extractor -type d) \
-		      $(shell find tests -type d)
-	black --check data_extractor tests
+.check_black:
+	black --check data_extractor tests docs/source/conf.py
 	@touch .check_black
 
 mypy: .mypy
 
-.mypy: $(shell find data_extractor -type d)
+.mypy:
 	mypy data_extractor
 	@touch .mypy
 
+doc8: .doc8
+
+.doc8:
+	doc8 docs/source
+	@touch .doc8
+
 check: .check
 
-.check: $(shell find data_extractor -type d) \
-		$(shell find tests -type d) \
-		.check_isort .check_black .flake
+.check: .check_isort .check_black .flake
 
 check_all: .check_all
 
-.check_all: $(shell find data_extractor -type d) \
-		$(shell find tests -type d) \
-		.check mypy
+.check_all: .check mypy doc8
 
 format_code: .format_code
 fc: .format_code
 
-.format_code: $(shell find data_extractor -type d) \
-		      $(shell find tests -type d) \
-			  .isort .black
+.format_code: .isort .black
 
 test: .check
 	pytest -q -x --ff --nf
@@ -81,6 +76,7 @@ clean:
 	@rm -f .flake
 	@rm -f .isort
 	@rm -f .mypy
+	@rm -f .doc8
 	@rm -rf .mypy_cache
 	@rm -rf .pytest_cache
 	@rm -rf htmlcov
@@ -88,4 +84,4 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-.PHONY: all check check_isort check_black fc flake black isort mypy test vtest _cov cov clean
+.PHONY: all check check_isort check_black fc flake black isort mypy test vtest _cov cov clean doc8

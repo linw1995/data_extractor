@@ -49,7 +49,7 @@ jobs:
     - stage: &pre_test_stage_name Linting and pre-test checks
       <<: *_mainstream_python_base
       <<: *_reset_steps
-      name: Check source code with isort, black, flake8 and mypy
+      name: Check source code with isort, black, flake8, mypy and doc8
       install:
         - *install_poetry
         - &install_linting_deps poetry install --no-interaction --no-ansi -vvv -E linting
