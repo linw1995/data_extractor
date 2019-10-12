@@ -41,12 +41,14 @@ _helpers:
     before_deploy: skip
   - &_deploy_base
     stage: &deploy_stage_name Deploy
-    <<: [ *_mainstream_python_base, *_reset_steps ]
+    <<: *_mainstream_python_base
+    <<: *_reset_steps
 
 jobs:
   include:
     - stage: &pre_test_stage_name Linting and pre-test checks
-      <<: [ *_mainstream_python_base, *_reset_steps ]
+      <<: *_mainstream_python_base
+      <<: *_reset_steps
       name: Check source code with pre-commit
       install:
         - *install_poetry
