@@ -1,8 +1,8 @@
 [tool.poetry]
 name = "data_extractor"
-version = "0.4.0"
+version = "0.4.1"
 license = "MIT"
-description = "Combine XPath, CSS Selector and JSONPath for Web data extracting."
+description = "Combine XPath, CSS Selectors and JSONPath for Web data extracting."
 authors = ["linw1995 <linw1995@icloud.com>"]
 readme = "README.md"
 homepage = "https://github.com/linw1995/data_extractor"

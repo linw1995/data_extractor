@@ -1,3 +1,5 @@
+# Data Extractor
+
 [![license](https://img.shields.io/github/license/linw1995/data_extractor.svg)](https://github.com/linw1995/data_extractor/blob/master/LICENSE)
 [![Pypi Status](https://img.shields.io/pypi/status/data_extractor.svg)](https://pypi.org/project/data_extractor)
 [![Python version](https://img.shields.io/pypi/pyversions/data_extractor.svg)](https://pypi.org/project/data_extractor)
@@ -9,6 +11,12 @@
 [![codecov](https://codecov.io/gh/linw1995/data_extractor/branch/master/graph/badge.svg)](https://codecov.io/gh/linw1995/data_extractor)
 [![Documentation Status](https://readthedocs.org/projects/data-extractor/badge/?version=latest)](https://data-extractor.readthedocs.io/en/latest/?badge=latest)
 
-# Data Extractor
+Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 
-Combine **XPath**, **CSS Selector** and **JSONPath** for Web data extracting.
+## Changelog
+
+### v0.4.1
+
+- d180992 Add pre-commit support and fix pre-commit check error (#32)
+- bd680c1 Update pyproject.toml
+- 64f30f7 remove unhappened condtional

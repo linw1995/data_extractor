@@ -1,3 +1,14 @@
+# History
+
+## v0.4.0
+
+- 74f569b Update docs and lint docs (#31)
+- 4188634 Support RTD (#30)
+- a5b776f Separate dependencies (#29)
+- 69079b4 Generate simple extractor from a complex extractor (#28)
+- 58a7570 Support JSONPath ext syntax (#26)
+- bb7c602 Replace Pipenv with Poetry (#24)
+
 ## v0.3.2
 
 - cd65ad0 Make Parameter extractor Optional
@@ -5,8 +16,8 @@
 ## v0.2.2
 
 - fca801a Merge pull request #22 from linw1995/hotfix
-    - 8bf2a62 Fix name overwritten syntax checking that includes the `__init__` first parameter.
-    - 10e2ca0 Fix raise wrong execption from python repl, oneline code or type() creation.
+  - 8bf2a62 Fix name overwritten syntax checking that includes the `__init__` first parameter.
+  - 10e2ca0 Fix raise wrong execption from python repl, oneline code or type() creation.
 
 ## v0.2.1
 
@@ -20,9 +31,9 @@
 - bac925d Raise ValueError when misplaced the complex extractor in complex extractor. (#13)
 - 88b9227 Wrap expr exception (#14)
 - aeb9520 Deploy Docs on GitHub Pages. (#15)
-    - Update docstring.
-    - Deploy Docs on Github Pages.
-    - Add Quickstarts.rst
+  - Update docstring.
+  - Deploy Docs on Github Pages.
+  - Add Quickstarts.rst
 - Bump into beta
 
 ## v0.1.5
@@ -54,9 +65,9 @@
 ## v0.1.1
 
 - Rename `.html` to `.lxml`; Remove `fromstring`, `tostring` function from `.lxml`
-    * Rename .html to .lxml
-    * use `lxml.html.fromstring` and `lxml.html.tostring` to process HTML
-    * use `lxml.etree.fromstring` and `lxml.etree.tostring` to process XML
+  - Rename .html to .lxml
+  - use `lxml.html.fromstring` and `lxml.html.tostring` to process HTML
+  - use `lxml.etree.fromstring` and `lxml.etree.tostring` to process XML
 - Add **check_isort**, **check_black**, **check**, **check_all**, **fc**: **format_code** into Makefile for development.
 
 ## v0.1.0
