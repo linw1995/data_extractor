@@ -1,82 +1,59 @@
 all: test
 
-isort: .isort
+init:
+	python3.7 -m virtualenv .venv
+	.venv/bin/python -m pip install -U pip poetry
+	.venv/bin/poetry install -E linting -E test -E docs
+	@echo "init completed! please execute below command for development"
+	@echo "source .venv/bin/acitvate"
 
-.isort:
-	isort -rc data_extractor tests docs/source/conf.py
-	@touch .isort
+isort:
+	@pre-commit run isort
 
-check_isort: .check_isort
+check-isort:
+	@pre-commit run check-isort
 
-.check_isort:
-	isort -rc -c data_extractor tests docs/source/conf.py
-	@touch .check_isort
+flake8:
+	@pre-commit run flake8
 
-flake: .flake
+black:
+	@pre-commit run black
 
-.flake:
-	flake8 data_extractor tests docs/source/conf.py
-	@touch .flake
+check-black:
+	@pre-commit run check-black
 
-black: .black
+mypy:
+	@pre-commit run mypy --hook-stage push
 
-.black:
-	black data_extractor tests docs/source/conf.py
-	@touch .black
+doc8:
+	@pre-commit run doc8
 
-check_black: .check_black
+blacken-docs:
+	@pre-commit run blacken-docs
 
-.check_black:
-	black --check data_extractor tests docs/source/conf.py
-	@touch .check_black
+check:
+	@pre-commit run --hook-stage push
+check-all:
+	@pre-commit run --all-files --hook-stage push
 
-mypy: .mypy
+format-code: isort flake8 black blacken-docs
+fc: format-code
 
-.mypy:
-	mypy data_extractor
-	@touch .mypy
-
-doc8: .doc8
-
-.doc8:
-	doc8 docs/source
-	@touch .doc8
-
-check: .check
-
-.check: .check_isort .check_black .flake
-
-check_all: .check_all
-
-.check_all: .check mypy doc8
-
-format_code: .format_code
-fc: .format_code
-
-.format_code: .isort .black
-
-test: .check
+test: check
 	pytest -q -x --ff --nf
 
-vtest: .check
+vtest: check
 	pytest -vv -x --ff --nf
 
 _cov:
-	pytest -vv --cov=data_extractor
-	coverage html
+	@pytest -vv --cov=data_extractor
+	@coverage html
 	@echo "open file://`pwd`/htmlcov/index.html to see coverage"
 
-cov: .check _cov
+cov: check _cov
 
 clean:
-	@rm -f .black
 	@rm -f .coverage
-	@rm -f .check_isort
-	@rm -f .check_black
-	@rm -f .flake
-	@rm -f .isort
-	@rm -f .mypy
-	@rm -f .doc8
 	@rm -rf .mypy_cache
 	@rm -rf .pytest_cache
 	@rm -rf htmlcov
@@ -84,4 +61,4 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-.PHONY: all check check_isort check_black fc flake black isort mypy test vtest _cov cov clean doc8
+.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy test vtest _cov cov clean doc8
