@@ -19,7 +19,8 @@ class CSSExtractor(SimpleExtractorBase):
     """
     Use CSS Selector for XML or HTML data subelements extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
+    Before extracting, should parse the XML or HTML text \
+        into :class:`data_extractor.lxml.Element` object.
 
     :param expr: CSS Selector Expression.
     """
@@ -44,7 +45,8 @@ class TextCSSExtractor(SimpleExtractorBase):
     """
     Use CSS Selector for XML or HTML data subelements' text extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
+    Before extracting, should parse the XML or HTML text \
+        into :class:`data_extractor.lxml.Element` object.
 
     :param expr: CSS Selector Expression.
     """
@@ -70,7 +72,8 @@ class AttrCSSExtractor(SimpleExtractorBase):
     """
     Use CSS Selector for XML or HTML data subelements' attribute value extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
+    Before extracting, should parse the XML or HTML text \
+        into :class:`data_extractor.lxml.Element` object.
 
     :param expr: CSS Selector Expression.
     :param attr: Target attribute name.
@@ -105,7 +108,8 @@ class XPathExtractor(SimpleExtractorBase):
     """
     Use XPath for XML or HTML data extracting.
 
-    Before extracting, should parse the XML or HTML text into :class:`data_extractor.lxml.Element` object.
+    Before extracting, should parse the XML or HTML text \
+        into :class:`data_extractor.lxml.Element` object.
 
     :param expr: XPath Expression.
     """

@@ -27,13 +27,15 @@ class ComplexExtractorMeta(type):
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
                 if key in __init_args[1:]:
-                    # Item's attribute overwrites the 'Item.__init__' parameters except first parameter.
-                    args = []  # type: List[Any]
+                    # Item's attribute overwrites
+                    # the 'Item.__init__' parameters except first parameter.
                     exc_args = None
                     frame = inspect.currentframe()
-                    assert (
-                        frame is not None
-                    ), "If running in an implementation without Python stack frame support this function returns None."
+                    assert frame is not None, (
+                        "If running in an implementation "
+                        "without Python stack frame support, "
+                        "this function returns None."
+                    )
                     try:
                         outer_frame = frame.f_back
 
@@ -55,7 +57,8 @@ class ComplexExtractorMeta(type):
                                 # iterate line in the code block body
                                 cur_index = inspect.indentsize(line)
                                 if cur_index <= start_index:
-                                    # reach end of the code block, use code block firstlineno as SyntaxError.lineno
+                                    # reach end of the code block,
+                                    # use code block firstlineno as SyntaxError.lineno
                                     line = lines[firstline_idx]
                                     lineno = firstlineno
                                     break
@@ -65,7 +68,8 @@ class ComplexExtractorMeta(type):
                                     break
 
                             else:
-                                # reach EOF, use code block firstlineno as SyntaxError.lineno
+                                # reach EOF,
+                                # use code block firstlineno as SyntaxError.lineno
                                 line = lines[firstline_idx]
                                 lineno = firstlineno
 
@@ -79,14 +83,16 @@ class ComplexExtractorMeta(type):
                         del outer_frame
                         del frame
 
-                    args.append(
-                        f"{line!r} overwriten the parameter {key!r} of '{name}.__init__' method. "
-                        f"Please using the optional parameter name={key!r} in {attr!r} to avoid overwriting parameter name."
+                    err_msg = (
+                        f"{line!r} overwriten "
+                        f"the parameter {key!r} of '{name}.__init__' method. "
+                        f"Please using the optional parameter name={key!r} "
+                        "in {attr!r} to avoid overwriting parameter name."
                     )
                     if exc_args is not None:
-                        args.append(exc_args)
-
-                    raise SyntaxError(*args)
+                        raise SyntaxError(err_msg, exc_args)
+                    else:
+                        raise SyntaxError(err_msg)
 
                 field_names.append(key)
 
@@ -130,11 +136,13 @@ class SimpleExtractorBase(AbstractExtractor):
         Extract the first data or subelement from `extract` method call result.
 
         :param element: The target data node element.
-        :param default: Default value when not found. Default: :data:`data_extractor.utils.sentinel`.
+        :param default: Default value when not found. \
+            Default: :data:`data_extractor.utils.sentinel`.
 
         :returns: Data or subelement.
 
-        :raises data_extractor.exceptions.ExtractError: Thrown by extractor extracting wrong data.
+        :raises data_extractor.exceptions.ExtractError: \
+            Thrown by extractor extracting wrong data.
         """
         rv = self.extract(element)
         if not isinstance(rv, list):

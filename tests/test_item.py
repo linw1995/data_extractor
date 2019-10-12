@@ -230,28 +230,50 @@ def test_complex_item_extract_xml_data():
         {
             "title": "Star City",
             "link": "http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp",
-            "description": 'How do Americans get ready to work with Russians aboard the International Space Station? They take a crash course in culture, language and protocol at Russia\'s <a href="http://howe.iki.rssi.ru/GCTC/gctc_e.htm">Star City</a>.',
+            "description": (
+                "How do Americans get ready to work "
+                "with Russians aboard the International Space Station? "
+                "They take a crash course in culture, "
+                "language and protocol at Russia's "
+                '<a href="http://howe.iki.rssi.ru/GCTC/gctc_e.htm">Star City</a>.'
+            ),
             "publish_date": "Tue, 03 Jun 2003 09:39:21 GMT",
             "guid": "http://liftoff.msfc.nasa.gov/2003/06/03.html#item573",
         },
         {
             "title": "",
             "link": "",
-            "description": 'Sky watchers in Europe, Asia, and parts of Alaska and Canada will experience a <a href="http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm">partial eclipse of the Sun</a> on Saturday, May 31st.',
+            "description": (
+                "Sky watchers in Europe, Asia, and parts of Alaska and Canada "
+                "will experience a "
+                '<a href="http://science.nasa.gov/headlines/y2003/30may_solareclipse.htm">'  # noqa: B950
+                "partial eclipse of the Sun"
+                "</a> on Saturday, May 31st."
+            ),
             "publish_date": "Fri, 30 May 2003 11:06:42 GMT",
             "guid": "http://liftoff.msfc.nasa.gov/2003/05/30.html#item572",
         },
         {
             "title": "The Engine That Does More",
             "link": "http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp",
-            "description": "Before man travels to Mars, NASA hopes to design new engines that will let us fly through the Solar System more quickly.  The proposed VASIMR engine would do that.",
+            "description": (
+                "Before man travels to Mars, "
+                "NASA hopes to design new engines "
+                "that will let us fly through the Solar System more quickly.  "
+                "The proposed VASIMR engine would do that."
+            ),
             "publish_date": "Tue, 27 May 2003 08:37:32 GMT",
             "guid": "http://liftoff.msfc.nasa.gov/2003/05/27.html#item571",
         },
         {
             "title": "Astronauts' Dirty Laundry",
             "link": "http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp",
-            "description": "Compared to earlier spacecraft, the International Space Station has many luxuries, but laundry facilities are not one of them.  Instead, astronauts have other options.",
+            "description": (
+                "Compared to earlier spacecraft, "
+                "the International Space Station has many luxuries, "
+                "but laundry facilities are not one of them.  "
+                "Instead, astronauts have other options."
+            ),
             "publish_date": "Tue, 20 May 2003 08:56:02 GMT",
             "guid": "http://liftoff.msfc.nasa.gov/2003/05/20.html#item570",
         },
@@ -335,7 +357,7 @@ def test_field_name_overwrite_item_parameter_common():
 def test_field_name_overwrite_item_parameter_oneline():
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
-        class Parameter(Item): name = Field(XPathExtractor("./span[@class='name']"))  # noqa
+        class Parameter(Item): name = Field(XPathExtractor("./span[@class='name']"))  # noqa: B950, E701
         # fmt: on
 
     exc = catch.value
@@ -344,14 +366,14 @@ def test_field_name_overwrite_item_parameter_oneline():
     assert exc.offset == 8
     assert (
         exc.text
-        == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa"
+        == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701"
     )
 
 
 def test_field_name_overwrite_item_parameter_type_creation():
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
-        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})
+        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
         # fmt: on
 
     exc = catch.value
@@ -360,13 +382,17 @@ def test_field_name_overwrite_item_parameter_type_creation():
     assert exc.offset == 8
     assert (
         exc.text
-        == 'type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class=\'name\']"))})'
+        == """
+        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
+        """.strip()
     )
 
 
 source_codes = [
-    'type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class=\'name\']"))})',
-    "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa",
+    """
+    type("Parameter",(Item,),{"name": Field(XPathExtractor("./span[@class='name']"))})
+    """.strip(),
+    "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
     """class User(Item):
     uid = Field(JSONExtractor("id")); name = Field(JSONExtractor("name"))
     """,
@@ -434,7 +460,7 @@ def test_avoid_field_name_overwriting_item_parameter(json0):
             uid = Field(JSONExtractor("id"))
             name = Field(JSONExtractor("name"))
 
-    class User(Item):  # noqa
+    class User(Item):  # noqa: F811
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("name"), name="name")
 

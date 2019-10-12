@@ -1,6 +1,3 @@
-# Standard Library
-import textwrap
-
 # Third Party Library
 import pytest
 
@@ -37,13 +34,11 @@ def test_exception_trace(json0):
 
     assert (
         str(exc.args[0])
-        == textwrap.dedent(
-            """
-            ExtractError(Field(JSONExtractor('gender')), element={'id': 3, 'name': 'Janine Gross'})
-            |-UserResponse(JSONExtractor('data'))
-              |-User(JSONExtractor('users[*]'), is_many=True)
-                |-Field(JSONExtractor('gender'))
-                  |-{'id': 3, 'name': 'Janine Gross'}
-            """
-        ).strip()
+        == """
+ExtractError(Field(JSONExtractor('gender')), element={'id': 3, 'name': 'Janine Gross'})
+|-UserResponse(JSONExtractor('data'))
+  |-User(JSONExtractor('users[*]'), is_many=True)
+    |-Field(JSONExtractor('gender'))
+      |-{'id': 3, 'name': 'Janine Gross'}
+    """.strip()
     )
