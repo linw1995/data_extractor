@@ -18,9 +18,11 @@ class Field(AbstractExtractor):
     """
     Extract data by cooperating with extractor.
 
-    :param extractor: The object for data extracting base on :class:`data_extractor.abc.SimpleExtractor`.
+    :param extractor: The object for data extracting \
+        base on :class:`data_extractor.abc.SimpleExtractor`.
     :param name: Optional parameter for special field name.
-    :param default: Default value when not found. Default: :data:`data_extractor.utils.sentinel`.
+    :param default: Default value when not found. \
+        Default: :data:`data_extractor.utils.sentinel`.
     :param is_many: Indicate the data which extractor extracting is more than one.
 
     :raises ValueError: Invalid SimpleExtractor.
@@ -66,7 +68,8 @@ class Field(AbstractExtractor):
 
         :returns: Data or subelement.
 
-        :raises data_extractor.exceptions.ExtractError: Thrown by extractor extracting wrong data.
+        :raises data_extractor.exceptions.ExtractError: \
+            Thrown by extractor extracting wrong data.
         """
         if self.extractor is None:
             rv = [element]
@@ -129,7 +132,8 @@ class Item(Field):
         """
         Create an extractor that has compatible API like SimpleExtractor's.
 
-        :returns: An simple extractor, its class base on :class:`data_extractor.abc.SimpleExtractorBase`
+        :returns: An simple extractor, \
+            its class base on :class:`data_extractor.abc.SimpleExtractorBase`
         """
         duplicated = copy.deepcopy(self)
 

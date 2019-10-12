@@ -16,7 +16,8 @@ class ExprError(Exception):
     """
     Invalid Expr.
 
-    :param extractor: The object for data extracting base on :class:`data_extractor.abc.AbstractExtractor`.
+    :param extractor: The object for data extracting \
+        base on :class:`data_extractor.abc.AbstractExtractor`.
     :param exc: The actual exception is thrown when extracting.
     """
 
@@ -32,7 +33,8 @@ class ExtractError(Exception):
     """
     Thrown by extractor extracting wrong data.
 
-    :param extractor: The object for data extracting base on :class:`data_extractor.abc.AbstractExtractor`.
+    :param extractor: The object for data extracting \
+        base on :class:`data_extractor.abc.AbstractExtractor`.
     :param element: The target data node element.
     """
 
@@ -42,7 +44,10 @@ class ExtractError(Exception):
         self.extractors = [extractor]
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}({self.extractors[0]!r}, element={reprlib.repr(self.element)})"
+        return (
+            f"{self.__class__.__name__}"
+            f"({self.extractors[0]!r}, element={reprlib.repr(self.element)})"
+        )
 
     def _append(self, extractor: AbstractExtractor) -> None:
         self.extractors.append(extractor)

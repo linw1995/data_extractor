@@ -60,7 +60,7 @@ Output:
 
 .. code-block:: python3
 
-    'Liftoff News'
+    "Liftoff News"
 
 Using :class:`data_extractor.lxml.TextCSSExtractor`
 to extract all rss item links.
@@ -75,9 +75,11 @@ Output:
 
 .. code-block:: python3
 
-    ['http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp',
-     'http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp',
-     'http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp']
+    [
+        "http://liftoff.msfc.nasa.gov/news/2003/news-starcity.asp",
+        "http://liftoff.msfc.nasa.gov/news/2003/news-VASIMR.asp",
+        "http://liftoff.msfc.nasa.gov/news/2003/news-laundry.asp",
+    ]
 
 
 Using :class:`data_extractor.lxml.AttrCSSExtractor` to extract rss version.
@@ -92,7 +94,7 @@ Output:
 
 .. code-block:: python3
 
-    '2.0'
+    "2.0"
 
 JSON Data
 #########
@@ -132,6 +134,7 @@ Defining :class:`ChannelItem` class, then extracting the data.
 .. code-block:: python3
 
     from data_extractor import Field, Item, XPathExtractor
+
 
     class ChannelItem(Item):
         title = Field(XPathExtractor("./title/text()"), default="")
@@ -272,7 +275,9 @@ And extracting first channel item from file.
 
     from data_extractor import XPathExtractor
 
-    simple_extractor = ChannelItem(XPathExtractor("//channel/item"), is_many=True).simplify()
+    simple_extractor = ChannelItem(
+        XPathExtractor("//channel/item"), is_many=True
+    ).simplify()
     simple_extractor.extract_first(root)
 
 Output:

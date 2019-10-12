@@ -3,4 +3,3 @@
 .. autoexception:: data_extractor.exceptions.ExprError
 
 .. autoexception:: data_extractor.exceptions.ExtractError
-
