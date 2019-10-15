@@ -19,7 +19,7 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
 ]
-include = ["CHANGES.md", "HISTORY.md", "LICENSE"]
+include = ["HISTORY.md", "LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
