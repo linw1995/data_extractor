@@ -2,8 +2,8 @@
 
 .. autoclass:: data_extractor.abc.ComplexExtractorMeta
 
-.. autoclass:: data_extractor.abc.AbstractExtractor
+.. autoclass:: data_extractor.abc.AbstractSimpleExtractor
     :members:
 
-.. autoclass:: data_extractor.abc.SimpleExtractorBase
-    :members: extract, extract_first
+.. autoclass:: data_extractor.abc.AbstractComplexExtractor
+    :members:

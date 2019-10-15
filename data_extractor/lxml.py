@@ -11,11 +11,11 @@ from lxml.etree import XPathEvalError
 from lxml.etree import _Element as Element
 
 # Local Folder
-from .abc import SimpleExtractorBase
+from .abc import AbstractSimpleExtractor
 from .exceptions import ExprError
 
 
-class CSSExtractor(SimpleExtractorBase):
+class CSSExtractor(AbstractSimpleExtractor):
     """
     Use CSS Selector for XML or HTML data subelements extracting.
 
@@ -23,17 +23,21 @@ class CSSExtractor(SimpleExtractorBase):
         into :class:`data_extractor.lxml.Element` object.
 
     :param expr: CSS Selector Expression.
+    :type expr: str
     """
 
     def extract(self, element: Element) -> List[Element]:
         """
         Extract subelements from XML or HTML data.
 
-        :param element: :class:`data_extractor.lxml.Element` object.
+        :param element: Target.
+        :type element: :class:`data_extractor.lxml.Element`
 
-        :returns: Data or subelement.
+        :returns: List of :class:`data_extractor.lxml.Element` objects, \
+            extracted result.
+        :rtype: list
 
-        :raises data_extractor.exceptions.ExprError: CSS Selector Expression Error.
+        :raises ~data_extractor.exceptions.ExprError: CSS Selector Expression Error.
         """
         try:
             return element.cssselect(self.expr)
@@ -41,7 +45,7 @@ class CSSExtractor(SimpleExtractorBase):
             raise ExprError(extractor=self, exc=exc)
 
 
-class TextCSSExtractor(SimpleExtractorBase):
+class TextCSSExtractor(AbstractSimpleExtractor):
     """
     Use CSS Selector for XML or HTML data subelements' text extracting.
 
@@ -49,6 +53,7 @@ class TextCSSExtractor(SimpleExtractorBase):
         into :class:`data_extractor.lxml.Element` object.
 
     :param expr: CSS Selector Expression.
+    :type expr: str
     """
 
     def __init__(self, expr: str):
@@ -59,16 +64,18 @@ class TextCSSExtractor(SimpleExtractorBase):
         """
         Extract subelements' text from XML or HTML data.
 
-        :param element: :class:`data_extractor.lxml.Element` object.
+        :param element: Target.
+        :type element: :class:`data_extractor.lxml.Element`
 
-        :returns: Data or subelement.
+        :returns: List of str, extracted result.
+        :rtype: list
 
-        :raises data_extractor.exceptions.ExprError: CSS Selector Expression Error.
+        :raises ~data_extractor.exceptions.ExprError: CSS Selector Expression Error.
         """
         return [ele.text for ele in self.extractor.extract(element)]
 
 
-class AttrCSSExtractor(SimpleExtractorBase):
+class AttrCSSExtractor(AbstractSimpleExtractor):
     """
     Use CSS Selector for XML or HTML data subelements' attribute value extracting.
 
@@ -76,7 +83,9 @@ class AttrCSSExtractor(SimpleExtractorBase):
         into :class:`data_extractor.lxml.Element` object.
 
     :param expr: CSS Selector Expression.
+    :type expr: str
     :param attr: Target attribute name.
+    :type attr: str
     """
 
     def __init__(self, expr: str, attr: str):
@@ -91,11 +100,13 @@ class AttrCSSExtractor(SimpleExtractorBase):
         """
         Extract subelements' attribute value from XML or HTML data.
 
-        :param element: :class:`data_extractor.lxml.Element` object.
+        :param element: Target.
+        :type element: :class:`data_extractor.lxml.Element`
 
-        :returns: Data or subelement.
+        :returns: List of str, extracted result.
+        :rtype: list
 
-        :raises data_extractor.exceptions.ExprError: CSS Selector Expression Error.
+        :raises ~data_extractor.exceptions.ExprError: CSS Selector Expression Error.
         """
         return [
             ele.get(self.attr)
@@ -104,7 +115,7 @@ class AttrCSSExtractor(SimpleExtractorBase):
         ]
 
 
-class XPathExtractor(SimpleExtractorBase):
+class XPathExtractor(AbstractSimpleExtractor):
     """
     Use XPath for XML or HTML data extracting.
 
@@ -112,15 +123,19 @@ class XPathExtractor(SimpleExtractorBase):
         into :class:`data_extractor.lxml.Element` object.
 
     :param expr: XPath Expression.
+    :type exprt: str
     """
 
-    def extract(self, element: Element) -> Union[List[Element], List[str]]:
+    def extract(self, element: Element) -> Union[List[Element], List[str], str]:
         """
         Extract subelements or data from XML or HTML data.
 
-        :param element: :class:`data_extractor.lxml.Element` object.
+        :param element: Target.
+        :type element: :class:`data_extractor.lxml.Element`
 
-        :returns: Data or subelement.
+        :returns: List of :class:`data_extractor.lxml.Element` objects, \
+            List of str, or str.
+        :rtype: list, str
 
         :raises data_extractor.exceptions.ExprError: XPath Expression Error.
         """

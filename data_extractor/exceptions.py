@@ -8,7 +8,7 @@ import reprlib
 from typing import Any
 
 # Local Folder
-from .abc import AbstractExtractor
+from .abc import AbstractExtractors, AbstractSimpleExtractor
 from .utils import LazyStr
 
 
@@ -16,12 +16,13 @@ class ExprError(Exception):
     """
     Invalid Expr.
 
-    :param extractor: The object for data extracting \
-        base on :class:`data_extractor.abc.AbstractExtractor`.
+    :param extractor: The object for data extracting.
+    :type extractor: :class:`data_extractor.abc.AbstractSimpleExtractor`
     :param exc: The actual exception is thrown when extracting.
+    :type exc: Exception
     """
 
-    def __init__(self, extractor: AbstractExtractor, exc: Exception):
+    def __init__(self, extractor: AbstractSimpleExtractor, exc: Exception):
         self.extractor = extractor
         self.exc = exc
 
@@ -33,12 +34,14 @@ class ExtractError(Exception):
     """
     Thrown by extractor extracting wrong data.
 
-    :param extractor: The object for data extracting \
-        base on :class:`data_extractor.abc.AbstractExtractor`.
+    :param extractor: The object for data extracting.
+    :type extractor: :class:`data_extractor.abc.AbstractSimpleExtractor`, \
+        :class:`data_extractor.abc.AbstractComplexExtractor`
     :param element: The target data node element.
+    :type element: Any
     """
 
-    def __init__(self, extractor: AbstractExtractor, element: Any):
+    def __init__(self, extractor: AbstractExtractors, element: Any):
         super().__init__(LazyStr(func=lambda: self._trace_repr))
         self.element = element
         self.extractors = [extractor]
@@ -49,7 +52,7 @@ class ExtractError(Exception):
             f"({self.extractors[0]!r}, element={reprlib.repr(self.element)})"
         )
 
-    def _append(self, extractor: AbstractExtractor) -> None:
+    def _append(self, extractor: AbstractExtractors) -> None:
         self.extractors.append(extractor)
 
     @property

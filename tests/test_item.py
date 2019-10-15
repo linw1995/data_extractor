@@ -8,11 +8,11 @@ from pathlib import Path
 import pytest
 
 # First Party Library
-from data_extractor.abc import SimpleExtractorBase
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
 from data_extractor.lxml import CSSExtractor, TextCSSExtractor, XPathExtractor
+from data_extractor.utils import is_complex_extractor, is_simple_extractor
 
 
 @pytest.fixture
@@ -557,6 +557,8 @@ def test_simplify(json0):
         {"uid": 5, "name": "Whitney Mcfadden", "gender": None},
     ]
     assert isinstance(extractor, JSONExtractor)
+    assert is_simple_extractor(extractor)
+    assert not is_complex_extractor(extractor)
     assert repr(extractor) == "UserSimplified('data.users[*]')"
     assert extractor.expr == "data.users[*]"
     assert extractor.extract_first(data) == users_result[0]
@@ -578,6 +580,8 @@ def test_modify_simplified_item(json0):
     assert complex_extractor.extractor.expr != extractor.expr
 
     assert isinstance(extractor, JSONExtractor)
+    assert is_simple_extractor(extractor)
+    assert not is_complex_extractor(extractor)
     assert repr(extractor) == "UserSimplified('data.users[0]')"
 
     assert extractor.extract_first(data) == {
@@ -600,7 +604,8 @@ def test_simplified_item_extractor_is_none(json0):
 
     extractor = User().simplify()
     assert not isinstance(extractor, JSONExtractor)
-    assert isinstance(extractor, SimpleExtractorBase)
+    assert is_simple_extractor(extractor)
+    assert not is_complex_extractor(extractor)
     assert repr(extractor) == "UserSimplified(None)"
     assert extractor.extract_first(data) == {
         "uid": 0,

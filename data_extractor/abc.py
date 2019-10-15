@@ -7,7 +7,7 @@ import inspect
 import warnings
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List, Tuple, Union
 
 # Local Folder
 from .utils import sentinel
@@ -26,6 +26,9 @@ class ComplexExtractorMeta(type):
 
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
+                # can't using data_extractor.utils.is_complex_extractor here,
+                # because AbstractComplexExtractor which being used in it
+                # bases on ComplexExtractorMeta.
                 if key in __init_args[1:]:
                     # Item's attribute overwrites
                     # the 'Item.__init__' parameters except first parameter.
@@ -99,11 +102,12 @@ class ComplexExtractorMeta(type):
         cls._field_names = field_names
 
 
-class AbstractExtractor(metaclass=ComplexExtractorMeta):
+class AbstractSimpleExtractor:
     """
-    All Extractors' Abstract Base Clase.
+    Abstract Simple Extractor Clase.
 
     :param expr: Extractor selector expression.
+    :type expr: str
     """
 
     def __init__(self, expr: str):
@@ -118,30 +122,29 @@ class AbstractExtractor(metaclass=ComplexExtractorMeta):
         Extract data or subelement from element.
 
         :param element: The target data node element.
+        :type element: Any
 
         :returns: Data or subelement.
+        :rtype: Any
+
+        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
         """
         raise NotImplementedError
-
-
-class SimpleExtractorBase(AbstractExtractor):
-    """
-    Simple Extractor Base Class.
-
-    :param expr: extractor selector expression.
-    """
 
     def extract_first(self, element: Any, default: Any = sentinel) -> Any:
         """
         Extract the first data or subelement from `extract` method call result.
 
         :param element: The target data node element.
+        :type element: Any
         :param default: Default value when not found. \
             Default: :data:`data_extractor.utils.sentinel`.
+        :type default: Any, optional
 
         :returns: Data or subelement.
+        :rtype: Any
 
-        :raises data_extractor.exceptions.ExtractError: \
+        :raises ~data_extractor.exceptions.ExtractError: \
             Thrown by extractor extracting wrong data.
         """
         rv = self.extract(element)
@@ -162,4 +165,19 @@ class SimpleExtractorBase(AbstractExtractor):
         return rv[0]
 
 
-__all__ = ("AbstractExtractor", "ComplexExtractorMeta", "SimpleExtractorBase")
+class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
+    """
+    Abstract Complex Extractor Clase.
+
+    Its metaclass is :class:`data_extractor.abc.ComplexExtractorMeta`
+    """
+
+
+AbstractExtractors = Union[AbstractSimpleExtractor, AbstractComplexExtractor]
+
+__all__ = (
+    "AbstractComplexExtractor",
+    "AbstractExtractors",
+    "AbstractSimpleExtractor",
+    "ComplexExtractorMeta",
+)

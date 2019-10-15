@@ -3,7 +3,7 @@
 =================================
 """
 # Standard Library
-from typing import Callable
+from typing import Any, Callable
 
 
 class __Sentinel:
@@ -30,4 +30,37 @@ class LazyStr:
         return self.func()
 
 
-__all__ = ("LazyStr", "sentinel")
+def is_extractor(obj: Any) -> bool:
+    """
+    Determine the object if it is an extractor, return :obj:`True` if it is.
+    """
+    from .abc import AbstractSimpleExtractor, AbstractComplexExtractor
+
+    return isinstance(obj, (AbstractComplexExtractor, AbstractSimpleExtractor))
+
+
+def is_simple_extractor(obj: Any) -> bool:
+    """
+    Determine the object if it is a simple extractor, return :obj:`True` if it is.
+    """
+    from .abc import AbstractSimpleExtractor
+
+    return isinstance(obj, AbstractSimpleExtractor)
+
+
+def is_complex_extractor(obj: Any) -> bool:
+    """
+    Determine the object if it is a complex extractor, return :obj:`True` if it is.
+    """
+    from .abc import AbstractComplexExtractor
+
+    return isinstance(obj, AbstractComplexExtractor)
+
+
+__all__ = (
+    "LazyStr",
+    "is_complex_extractor",
+    "is_extractor",
+    "is_simple_extractor",
+    "sentinel",
+)

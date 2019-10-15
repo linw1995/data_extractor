@@ -9,21 +9,24 @@ import warnings
 from typing import Any, Iterator
 
 # Local Folder
-from .abc import AbstractExtractor, SimpleExtractorBase
+from .abc import AbstractComplexExtractor, AbstractSimpleExtractor
 from .exceptions import ExtractError
-from .utils import sentinel
+from .utils import is_simple_extractor, sentinel
 
 
-class Field(AbstractExtractor):
+class Field(AbstractComplexExtractor):
     """
     Extract data by cooperating with extractor.
 
-    :param extractor: The object for data extracting \
-        base on :class:`data_extractor.abc.SimpleExtractor`.
+    :param extractor: The object for data extracting
+    :type extractor: :class:`data_extractor.abc.AbstractSimpleExtractor`
     :param name: Optional parameter for special field name.
+    :type name: str, optional
     :param default: Default value when not found. \
         Default: :data:`data_extractor.utils.sentinel`.
+    :type default: Any
     :param is_many: Indicate the data which extractor extracting is more than one.
+    :type is_many: bool
 
     :raises ValueError: Invalid SimpleExtractor.
     :raises ValueError: Can't both set default and is_manay=True.
@@ -31,12 +34,12 @@ class Field(AbstractExtractor):
 
     def __init__(
         self,
-        extractor: SimpleExtractorBase = None,
+        extractor: AbstractSimpleExtractor = None,
         name: str = None,
         default: Any = sentinel,
         is_many: bool = False,
     ):
-        if extractor is not None and not isinstance(extractor, SimpleExtractorBase):
+        if extractor is not None and not is_simple_extractor(extractor):
             raise ValueError(f"Invalid SimpleExtractor: {extractor!r}")
 
         if default is not sentinel and is_many:
@@ -65,10 +68,12 @@ class Field(AbstractExtractor):
         Extract the wanted data.
 
         :param element: The target data node element.
+        :type element: Any
 
         :returns: Data or subelement.
+        :rtype: Any
 
-        :raises data_extractor.exceptions.ExtractError: \
+        :raises ~data_extractor.exceptions.ExtractError: \
             Thrown by extractor extracting wrong data.
         """
         if self.extractor is None:
@@ -128,24 +133,24 @@ class Item(Field):
         for name in cls._field_names:
             yield name
 
-    def simplify(self) -> SimpleExtractorBase:
+    def simplify(self) -> AbstractSimpleExtractor:
         """
         Create an extractor that has compatible API like SimpleExtractor's.
 
-        :returns: An simple extractor, \
-            its class base on :class:`data_extractor.abc.SimpleExtractorBase`
+        :returns: A simple extractor.
+        :rtype: :class:`data_extractor.abc.AbstractSimpleExtractor`
         """
         duplicated = copy.deepcopy(self)
 
-        def extract(self: SimpleExtractorBase, element: Any) -> Any:
+        def extract(self: AbstractSimpleExtractor, element: Any) -> Any:
             duplicated.is_many = True
             return duplicated.extract(element)
 
-        def extract_first(self: SimpleExtractorBase, element: Any) -> Any:
+        def extract_first(self: AbstractSimpleExtractor, element: Any) -> Any:
             duplicated.is_many = False
             return duplicated.extract(element)
 
-        def getter(self: SimpleExtractorBase, name: str) -> Any:
+        def getter(self: AbstractSimpleExtractor, name: str) -> Any:
             if (
                 name not in ("extract", "extract_first")
                 and not name.startswith("__")
@@ -154,13 +159,13 @@ class Item(Field):
                 return getattr(duplicated.extractor, name)
             return super(type(self), self).__getattribute__(name)
 
-        def setter(self: SimpleExtractorBase, name: str, value: Any) -> Any:
+        def setter(self: AbstractSimpleExtractor, name: str, value: Any) -> Any:
             if hasattr(duplicated.extractor, name):
                 return setattr(duplicated.extractor, name, value)
             return super(type(self), self).__setattr__(name, value)
 
         classname = f"{type(duplicated).__name__}Simplified"
-        base = SimpleExtractorBase
+        base = AbstractSimpleExtractor
         if duplicated.extractor is not None:
             base = type(duplicated.extractor)
 
