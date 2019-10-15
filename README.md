@@ -15,8 +15,6 @@ Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 
 ## Changelog
 
-### v0.4.1
+### v0.5.0
 
-- d180992 Add pre-commit support and fix pre-commit check error (#32)
-- bd680c1 Update pyproject.toml
-- 64f30f7 remove unhappened condtional
+- 0056f37 Split AbstractExtractor into AbstractSimpleExtractor and AbstractComplexExtractor
