@@ -611,3 +611,16 @@ def test_simplified_item_extractor_is_none(json0):
     assert extractor.extract(data) == [
         {"uid": 0, "name": "Vang Stout", "gender": "female"}
     ]
+
+
+def test_inheritance(json0):
+    data = json0["data"]["users"][0]
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    class UserWithGender(User):
+        gender = Field(JSONExtractor("gender"))
+
+    assert User().extract(data) == {"uid": 0}
+    assert UserWithGender().extract(data) == {"uid": 0, "gender": "female"}
