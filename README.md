@@ -15,8 +15,6 @@ Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 
 ## Changelog
 
-### v0.4.1
+### v0.4.2
 
-- d180992 Add pre-commit support and fix pre-commit check error (#32)
-- bd680c1 Update pyproject.toml
-- 64f30f7 remove unhappened condtional
+- 7e035b6 Fix:Complex extractor inheritance missing fields

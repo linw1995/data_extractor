@@ -1,5 +1,11 @@
 # History
 
+## v0.4.1
+
+- d180992 Add pre-commit support and fix pre-commit check error (#32)
+- bd680c1 Update pyproject.toml
+- 64f30f7 remove unhappened condtional
+
 ## v0.4.0
 
 - 74f569b Update docs and lint docs (#31)
