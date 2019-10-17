@@ -1,11 +1,39 @@
 all: test
 
-init:
-	python3.7 -m virtualenv .venv
-	.venv/bin/python -m pip install -U pip poetry
-	.venv/bin/poetry install -E linting -E test -E docs
-	@echo "init completed! please execute below command for development"
-	@echo "source .venv/bin/acitvate"
+EMPTY :=
+SPACE := $(EMPTY) $(EMPTY)
+
+POETRY_VERSION = 0.12.17
+POETRY_EXTRAS = linting test docs
+POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
+
+init_by_venv:
+	@echo ">> initing by venv..."
+	@echo ">> creating venv..."
+	@python3.7 -m venv .venv
+	@echo ">> installing Poetry ${POETRY_VERSION}"
+	@.venv/bin/pip install poetry==$(POETRY_VERSION)
+	@echo ">> installing $(if $(POETRY_EXTRAS),\"$(POETRY_EXTRAS)\" ,)dependencies by poetry"
+	@.venv/bin/poetry install $(POETRY_EXTRAS_ARGS)
+	@echo ">> all dependencies installed completed! please execute below command for development"
+	@echo "> source .venv/bin/acitvate"
+
+init_by_poetry:
+	@echo ">> initing by `poetry --version`..."
+	@echo ">> installing $(if $(POETRY_EXTRAS),\"$(POETRY_EXTRAS)\" ,)dependencies by poetry"
+	@poetry install $(POETRY_EXTRAS_ARGS)
+	@echo ">> make a symlink from the env created by poetry to ./.venv"
+	@[ -h .venv ] && unlink .venv && echo ">> remove old link" || true
+	@poetry run sh -c "printenv VIRTUAL_ENV" | { \
+		read VIRTUAL_ENV; \
+		echo ">> link .venv -> $$VIRTUAL_ENV"; \
+		ln -s $$VIRTUAL_ENV .venv; \
+	}
+	@echo ">> all dependencies installed completed! please execute below command for development"
+	@echo "> poetry shell"
+	@echo ">> or:"
+	@echo "> source .venv/bin/acitvate"
+
 
 isort:
 	@pre-commit run isort
