@@ -36,47 +36,47 @@ init_by_poetry:
 
 
 isort:
-	@pre-commit run isort
+	@.venv/bin/pre-commit run isort
 
 check-isort:
-	@pre-commit run check-isort
+	@.venv/bin/pre-commit run check-isort
 
 flake8:
-	@pre-commit run flake8
+	@.venv/bin/pre-commit run flake8
 
 black:
-	@pre-commit run black
+	@.venv/bin/pre-commit run black
 
 check-black:
-	@pre-commit run check-black
+	@.venv/bin/pre-commit run check-black
 
 mypy:
-	@pre-commit run mypy --hook-stage push
+	@.venv/bin/pre-commit run mypy --hook-stage push
 
 doc8:
-	@pre-commit run doc8
+	@.venv/bin/pre-commit run doc8
 
 blacken-docs:
-	@pre-commit run blacken-docs
+	@.venv/bin/pre-commit run blacken-docs
 
 check:
-	@pre-commit run --hook-stage push
+	@.venv/bin/pre-commit run --hook-stage push
 check-all:
-	@pre-commit run --all-files --hook-stage push
+	@.venv/bin/pre-commit run --all-files --hook-stage push
 
 format-code: isort flake8 black blacken-docs
 fc: format-code
 
 test: check
-	pytest -q -x --ff --nf
+	@.venv/bin/pytest -q -x --ff --nf
 
 vtest: check
-	pytest -vv -x --ff --nf
+	@.venv/bin/pytest -vv -x --ff --nf
 
 _cov:
-	@pytest -vv --cov=data_extractor
-	@coverage html
-	@echo "open file://`pwd`/htmlcov/index.html to see coverage"
+	@.venv/bin/pytest -vv --cov=data_extractor
+	@.venv/bin/coverage html
+	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
 
 cov: check _cov
 
