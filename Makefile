@@ -24,10 +24,10 @@ init_by_poetry:
 	@poetry install $(POETRY_EXTRAS_ARGS)
 	@echo ">> make a symlink from the env created by poetry to ./.venv"
 	@[ -h .venv ] && unlink .venv && echo ">> remove old link" || true
-	@poetry run sh -c "printenv VIRTUAL_ENV" | { \
-		read VIRTUAL_ENV; \
-		echo ">> link .venv -> $$VIRTUAL_ENV"; \
-		ln -s $$VIRTUAL_ENV .venv; \
+	@poetry run python -c "import sys; print(sys.prefix)" | { \
+		read PYTHON_PREFIX; \
+		echo ">> link .venv -> $$PYTHON_PREFIX"; \
+		ln -s $$PYTHON_PREFIX .venv; \
 	}
 	@echo ">> all dependencies installed completed! please execute below command for development"
 	@echo "> poetry shell"
