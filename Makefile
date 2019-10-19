@@ -10,7 +10,7 @@ POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPA
 init_by_venv:
 	@echo ">> initing by venv..."
 	@echo ">> creating venv..."
-	@python3.7 -m venv .venv
+	@python3 -m virtualenv .venv
 	@echo ">> installing Poetry ${POETRY_VERSION}"
 	@.venv/bin/pip install poetry==$(POETRY_VERSION)
 	@echo ">> installing $(if $(POETRY_EXTRAS),\"$(POETRY_EXTRAS)\" ,)dependencies by poetry"
