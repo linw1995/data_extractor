@@ -18,9 +18,13 @@ class ComplexExtractorMeta(type):
     Complex Extractor Meta Class.
     """
 
+    _field_names: List[str]
+
     def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
         super().__init__(name, bases, attr_dict)
-        field_names: List[str] = []
+        field_names = []
+        if hasattr(cls, "_field_names"):
+            field_names.extend(cls._field_names)
 
         __init_args = inspect.getfullargspec(getattr(cls, "__init__")).args
 
