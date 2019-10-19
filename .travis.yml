@@ -16,7 +16,8 @@ env:
     - POETRY_VERSION=0.12.17
 
 install:
-  - &install_test_deps make POETRY_EXTRAS=test init_by_venv
+  - &install_poetry pip install "poetry==$POETRY_VERSION" && poetry --version
+  - &install_test_deps make POETRY_EXTRAS=test init_by_poetry
   - .venv/bin/pip install codecov
 
 before_script: skip
@@ -50,14 +51,16 @@ jobs:
       <<: *_reset_steps
       name: Check source code with pre-commit
       install:
-        - &install_linting_deps make POETRY_EXTRAS=linting init_by_venv
+        - *install_poetry
+        - &install_linting_deps make POETRY_EXTRAS=linting init_by_poetry
       script:
         - make check-all
     - <<: *_deploy_base
       name: PyPI deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_PYPI_DEBUG) = true)
       install:
-        - &install_common_deps make POETRY_EXTRAS= init_by_venv
+        - *install_poetry
+        - &install_common_deps make POETRY_EXTRAS= init_by_poetry
       before_deploy:
         - .venv/bin/poetry config http-basic.pypi $PYPI_USERNAME $PYPI_PASSWORD
         - .venv/bin/poetry build
@@ -71,7 +74,8 @@ jobs:
       name: Github Release deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_RELEASE_DEBUG) = true)
       install:
-        - &install_common_deps make POETRY_EXTRAS= init_by_venv
+        - *install_poetry
+        - &install_common_deps make POETRY_EXTRAS= init_by_poetry
       script:
         - .venv/bin/poetry build
       deploy:
