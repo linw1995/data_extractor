@@ -67,18 +67,45 @@ check-all:
 format-code: isort flake8 black blacken-docs
 fc: format-code
 
-test: check
+_stash:
+	@git diff > unstaged.diff && \
+		if [ -s unstaged.diff ]; then \
+			echo ">> Stashing into unstaged.diff"; \
+			git apply -R unstaged.diff; \
+		else \
+			rm unstaged.diff; \
+		fi;
+
+_unstash:
+	@if [ -s unstaged.diff ]; then \
+		echo ">> Recovering from unstaged.diff"; \
+		git apply unstaged.diff && \
+		rm unstaged.diff; \
+	fi;
+
+_finally=|| code=$$?; \
+	make _unstash \
+		&& exit $$code
+
+_test:
 	@.venv/bin/pytest -q -x --ff --nf
 
-vtest: check
+test: _stash
+	@make _test $(_finally)
+
+_vtest:
 	@.venv/bin/pytest -vv -x --ff --nf
+
+vtest: _stash
+	@make _vtest $(_finally)
 
 _cov:
 	@.venv/bin/pytest -vv --cov=data_extractor
 	@.venv/bin/coverage html
 	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
 
-cov: check _cov
+cov: _stash
+	@make _cov $(_finally)
 
 clean:
 	@rm -f .coverage
