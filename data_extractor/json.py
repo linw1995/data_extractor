@@ -41,7 +41,7 @@ class JSONExtractor(AbstractSimpleExtractor):
             finder = jsonpath_rw_ext.parse(self.expr)
         except (JsonPathLexerError, Exception) as exc:
             # jsonpath_rw.parser.JsonPathParser.p_error raises exc of Exception type
-            raise ExprError(extractor=self, exc=exc)
+            raise ExprError(extractor=self, exc=exc) from exc
 
         return [m.value for m in finder.find(element)]
 

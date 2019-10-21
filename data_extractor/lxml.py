@@ -42,7 +42,7 @@ class CSSExtractor(AbstractSimpleExtractor):
         try:
             return element.cssselect(self.expr)
         except SelectorSyntaxError as exc:
-            raise ExprError(extractor=self, exc=exc)
+            raise ExprError(extractor=self, exc=exc) from exc
 
 
 class TextCSSExtractor(AbstractSimpleExtractor):
@@ -142,7 +142,7 @@ class XPathExtractor(AbstractSimpleExtractor):
         try:
             return element.xpath(self.expr)
         except XPathEvalError as exc:
-            raise ExprError(extractor=self, exc=exc)
+            raise ExprError(extractor=self, exc=exc) from exc
 
 
 __all__ = (
