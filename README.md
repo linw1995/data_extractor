@@ -18,3 +18,8 @@ Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 ### v0.5.0
 
 - 0056f37 Split AbstractExtractor into AbstractSimpleExtractor and AbstractComplexExtractor
+- c42aeb5 Feature/more friendly development setup (#34)
+- 2f9a71c New:Support testing in 3.8
+- c8bd593 New:Stash unstaged code before testing
+- d2a18a8 New:Best way to raise new exc
+- 90fa9c8 New:ExprError __str__ implementation
