@@ -1,3 +1,6 @@
+# Standard Library
+import re
+
 # Third Party Library
 import pytest
 
@@ -157,6 +160,7 @@ def test_invalid_xpath_expr(element, expr):
     exc = catch.value
     assert exc.extractor is extractor
     assert isinstance(exc.exc, XPathEvalError)
+    assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
 
 
 @pytest.mark.parametrize("expr", ["<", "a##", ""])
@@ -168,6 +172,7 @@ def test_invalid_css_selector_expr(element, expr):
     exc = catch.value
     assert exc.extractor is extractor
     assert isinstance(exc.exc, SelectorSyntaxError)
+    assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
 
 
 def test_xpath_result_not_list(element):

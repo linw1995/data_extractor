@@ -26,6 +26,9 @@ class ExprError(Exception):
         self.extractor = extractor
         self.exc = exc
 
+    def __str__(self) -> str:
+        return f"ExprError with {self.exc!r} raised by {self.extractor!r} extracting"
+
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.extractor!r}, exc={self.exc!r})"
 

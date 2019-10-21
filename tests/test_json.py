@@ -1,5 +1,6 @@
 # Standard Library
 import json
+import re
 
 # Third Party Library
 import pytest
@@ -83,6 +84,7 @@ def test_invalid_css_selector_expr(element, expr):
     exc = catch.value
     assert exc.extractor is extractor
     assert isinstance(exc.exc, (JsonPathLexerError, Exception))
+    assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
 
 
 @pytest.mark.parametrize(
