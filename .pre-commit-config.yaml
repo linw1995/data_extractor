@@ -58,10 +58,11 @@ repos:
         name: mypy
         description: static typing for Python
         stages: [push]
-        entry: .venv/bin/mypy
+        entry: .venv/bin/mypy data_extractor
         types: [python]
         exclude: (tests|docs)/
         language: system
+        pass_filenames: false
       - id: blacken-docs
         name: blacken-docs
         description: Run `black` on python code blocks in documentation files
