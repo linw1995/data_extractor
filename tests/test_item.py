@@ -388,24 +388,37 @@ def test_field_name_overwrite_item_parameter_type_creation():
     )
 
 
-source_codes = [
-    """
+@pytest.mark.parametrize(
+    "source_code, text",
+    [
+        (
+            """
     type("Parameter",(Item,),{"name": Field(XPathExtractor("./span[@class='name']"))})
     """.strip(),
-    "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
-    """class User(Item):
+            """name=Field(XPathExtractor("./span[@class='name']"))""",
+        ),
+        (
+            "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
+            """name=Field(XPathExtractor(\"./span[@class='name']\"))""",
+        ),
+        (
+            """
+class User(Item):
     uid = Field(JSONExtractor("id")); name = Field(JSONExtractor("name"))
-    """,
-    """
+    """.strip(),
+            "name=Field(JSONExtractor('name'))",
+        ),
+        (
+            """
 class User(Item):
     uid = Field(JSONExtractor("id"))
     name = Field(JSONExtractor("name"))
-    """,
-]
-
-
-@pytest.mark.parametrize("source_code", source_codes)
-def test_field_name_overwrite_item_parameter_in_repl(source_code):
+    """.strip(),
+            "name=Field(JSONExtractor('name'))",
+        ),
+    ],
+)
+def test_field_name_overwrite_item_parameter_in_repl(source_code, text):
     with pytest.raises(SyntaxError) as catch:
         exec(source_code)
 
@@ -413,10 +426,18 @@ def test_field_name_overwrite_item_parameter_in_repl(source_code):
     assert exc.filename is None
     assert exc.lineno is None
     assert exc.offset is None
-    assert exc.text is None
+    assert exc.text == text
 
 
-@pytest.mark.parametrize("source_code", source_codes[:-1])
+@pytest.mark.parametrize(
+    "source_code",
+    [
+        """
+    type("Parameter",(Item,),{"name": Field(XPathExtractor("./span[@class='name']"))})
+    """.strip(),
+        "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
+    ],
+)
 def test_field_name_overwrite_item_parameter_oneline_in_script(source_code, tmp_path):
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
@@ -430,11 +451,15 @@ def test_field_name_overwrite_item_parameter_oneline_in_script(source_code, tmp_
     assert exc.filename == tmp_file
     assert exc.lineno == 1
     assert exc.offset == 0
-    assert exc.text == source_code.split("\n")[0].strip()
+    assert exc.text == source_code
 
 
 def test_field_name_overwrite_item_parameter_common_in_script(tmp_path):
-    source_code = source_codes[-1]
+    source_code = """
+class User(Item):
+    uid = Field(JSONExtractor("id"))
+    name = Field(JSONExtractor("name"))
+    """.strip()
 
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
@@ -446,7 +471,7 @@ def test_field_name_overwrite_item_parameter_common_in_script(tmp_path):
 
     exc = catch.value
     assert exc.filename == tmp_file
-    assert exc.lineno == 4
+    assert exc.lineno == 3
     assert exc.offset == 4
     assert exc.text == 'name = Field(JSONExtractor("name"))'
 
@@ -629,3 +654,178 @@ def test_inheritance(json0):
 
     assert User().extract(data) == {"uid": 0}
     assert UserWithGender().extract(data) == {"uid": 0, "gender": "female"}
+
+
+def test_field_overwrites_bases_method_in_item():
+    with pytest.raises(SyntaxError) as catch:
+
+        class User(Item):
+            field_names = Field(JSONExtractor("field_names"))
+
+    exc = catch.value
+    assert exc.filename == __file__
+    assert exc.lineno == inspect.currentframe().f_lineno - 4
+    assert exc.offset == 12
+    assert exc.text == 'field_names = Field(JSONExtractor("field_names"))'
+
+
+def test_field_overwrites_method_in_item():
+    with pytest.raises(SyntaxError) as catch:
+
+        class User(Item):
+            baz = Field(JSONExtractor("baz"))
+
+            def baz(self):
+                pass
+
+    exc = catch.value
+    assert exc.filename == __file__
+    assert exc.lineno == inspect.currentframe().f_lineno - 5
+    assert exc.offset == 12
+    assert exc.text == "def baz(self):"
+
+
+def test_method_overwrites_field_in_item():
+    with pytest.raises(SyntaxError) as catch:
+
+        class User(Item):
+            def baz(self):
+                pass
+
+            baz = Field(JSONExtractor("baz"))  # noqa: F811
+
+    exc = catch.value
+    assert exc.filename == __file__
+    assert exc.lineno == inspect.currentframe().f_lineno - 4
+    assert exc.offset == 12
+    assert exc.text == 'baz = Field(JSONExtractor("baz"))  # noqa: F811'
+
+
+@pytest.mark.xfail(strict=True, reason="can't get the source code from python repl")
+@pytest.mark.parametrize(
+    "source_code",
+    [
+        """
+class User(Item):
+    baz = Field(JSONExtractor("baz"))
+
+    def baz(self):
+        pass
+    """,
+        """
+class User(Item):
+    def baz(self):
+        pass
+
+    baz = Field(JSONExtractor("baz"))
+    """,
+    ],
+)
+def test_field_overwriting_method_in_item_in_repl(source_code):
+    with pytest.raises(SyntaxError):
+        exec(source_code)
+
+
+@pytest.mark.parametrize(
+    "source_code, text",
+    [
+        (
+            """
+class User(Item):
+    field_names = Field(JSONExtractor("field_names"))
+    """,
+            "field_names=Field(JSONExtractor('field_names'))",
+        ),
+        (
+            """
+class User(Item):
+    extract = Field(JSONExtractor("extract"))
+    """,
+            "extract=Field(JSONExtractor('extract'))",
+        ),
+        (
+            """
+class User(Item):
+    simplify = Field(JSONExtractor("simplify"))
+    """,
+            "simplify=Field(JSONExtractor('simplify'))",
+        ),
+    ],
+)
+def test_field_overwrites_bases_method_in_item_in_repl(source_code, text):
+    with pytest.raises(SyntaxError) as catch:
+        exec(source_code)
+    exc = catch.value
+    assert exc.filename is None
+    assert exc.lineno is None
+    assert exc.offset is None
+    assert exc.text == text
+
+
+@pytest.mark.parametrize(
+    "source_code, lineno, offset, text",
+    [
+        (
+            """
+class User(Item):
+    field_names = Field(JSONExtractor("field_names"))
+    """,
+            3,
+            4,
+            'field_names = Field(JSONExtractor("field_names"))',
+        ),
+        (
+            """
+class User(Item):
+    baz = Field(JSONExtractor("baz"))
+
+    def baz(self):
+        pass
+    """,
+            5,
+            4,
+            "def baz(self):",
+        ),
+        (
+            """
+class User(Item):
+    def baz(self):
+        pass
+
+    baz = Field(JSONExtractor("baz"))
+            """,
+            6,
+            4,
+            'baz = Field(JSONExtractor("baz"))',
+        ),
+        (
+            """
+class User(Item):
+    def baz(self):
+        pass
+
+    boo = [None]
+    baz = boo[0] = Field(JSONExtractor("baz"))
+    """,
+            7,
+            4,
+            'baz = boo[0] = Field(JSONExtractor("baz"))',
+        ),
+    ],
+)
+def test_field_overwrites_method_in_item_in_script(
+    tmp_path, source_code, lineno, offset, text
+):
+    tmp_file = tmp_path / "foo.py"
+    tmp_file.write_text(source_code)
+    tmp_file = str(tmp_file)
+    linecache.updatecache(tmp_file)
+
+    with pytest.raises(SyntaxError) as catch:
+        exec(compile(source_code, tmp_file, "exec"))
+
+    exc = catch.value
+    assert exc.filename == tmp_file
+    assert exc.lineno == lineno
+    assert exc.offset == offset
+    assert exc.text == text
