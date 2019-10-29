@@ -3,7 +3,10 @@
 =================================
 """
 # Standard Library
-from typing import Any, Callable
+import inspect
+
+from types import FrameType
+from typing import Any, Callable, Optional
 
 
 class __Sentinel:
@@ -57,8 +60,22 @@ def is_complex_extractor(obj: Any) -> bool:
     return isinstance(obj, AbstractComplexExtractor)
 
 
+def getframe(depth: int = 0) -> Optional[FrameType]:
+    frame = inspect.currentframe()
+    if frame is None:
+        # If running in an implementation without Python stack frame support,
+        return None
+
+    while depth > -1:
+        frame = frame.f_back
+        depth -= 1
+
+    return frame
+
+
 __all__ = (
     "LazyStr",
+    "getframe",
     "is_complex_extractor",
     "is_extractor",
     "is_simple_extractor",
