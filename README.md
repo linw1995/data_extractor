@@ -22,4 +22,6 @@ Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 - 2f9a71c New:Support testing in 3.8
 - c8bd593 New:Stash unstaged code before testing
 - d2a18a8 New:Best way to raise new exc
-- 90fa9c8 New:ExprError __str__ implementation
+- 90fa9c8 New:ExprError `__str__` implementation
+- d961768 Fix:Update mypy pre-commit config
+- e5d59c3 New:Raise SyntaxError when field overwrites method (#38)
