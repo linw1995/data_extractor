@@ -1,3 +1,6 @@
+# Standard Library
+from unittest import mock
+
 # Third Party Library
 import pytest
 
@@ -20,3 +23,13 @@ def json0():
         },
         "status": 0,
     }
+
+
+@pytest.fixture(params=[False, True], ids=lambda x: f"stack_frame_support={x}")
+def stack_frame_support(request):
+    if request.param:
+        yield True
+    else:
+        with mock.patch("inspect.currentframe") as mocked:
+            mocked.return_value = None
+            yield False

@@ -1,8 +1,10 @@
 # Standard Library
 import inspect
 import linecache
+import reprlib
 
 from pathlib import Path
+from types import FunctionType
 
 # Third Party Library
 import pytest
@@ -340,7 +342,7 @@ def test_misplacing():
         Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))
 
 
-def test_field_name_overwrite_item_parameter_common():
+def test_field_overwrites_item_parameter_common(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
         class User(Item):
@@ -348,44 +350,62 @@ def test_field_name_overwrite_item_parameter_common():
             name = Field(JSONExtractor("name"))
 
     exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 4
-    assert exc.offset == 12
-    assert exc.text == 'name = Field(JSONExtractor("name"))'
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 5
+        assert exc.offset == 12
+        assert exc.text == 'name = Field(JSONExtractor("name"))'
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == "name=Field(JSONExtractor('name'))"
 
 
-def test_field_name_overwrite_item_parameter_oneline():
+def test_field_overwrites_item_parameter_oneline(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
         class Parameter(Item): name = Field(XPathExtractor("./span[@class='name']"))  # noqa: B950, E701
         # fmt: on
 
     exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 5
-    assert exc.offset == 8
-    assert (
-        exc.text
-        == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701"
-    )
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 6
+        assert exc.offset == 8
+        assert (
+            exc.text
+            == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701"
+        )
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
 
 
-def test_field_name_overwrite_item_parameter_type_creation():
+def test_field_overwrites_item_parameter_type_creation(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
         type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
         # fmt: on
 
     exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 5
-    assert exc.offset == 8
-    assert (
-        exc.text
-        == """
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 6
+        assert exc.offset == 8
+        assert (
+            exc.text
+            == """
         type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
         """.strip()
-    )
+        )
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
 
 
 @pytest.mark.parametrize(
@@ -417,8 +437,11 @@ class User(Item):
             "name=Field(JSONExtractor('name'))",
         ),
     ],
+    ids=reprlib.repr,
 )
-def test_field_name_overwrite_item_parameter_in_repl(source_code, text):
+def test_field_overwrites_item_parameter_in_repl(
+    source_code, text, stack_frame_support
+):
     with pytest.raises(SyntaxError) as catch:
         exec(source_code)
 
@@ -437,8 +460,11 @@ def test_field_name_overwrite_item_parameter_in_repl(source_code, text):
     """.strip(),
         "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
     ],
+    ids=reprlib.repr,
 )
-def test_field_name_overwrite_item_parameter_oneline_in_script(source_code, tmp_path):
+def test_field_overwrites_item_parameter_oneline_in_script(
+    source_code, tmp_path, stack_frame_support
+):
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
     tmp_file = str(tmp_file)
@@ -448,13 +474,21 @@ def test_field_name_overwrite_item_parameter_oneline_in_script(source_code, tmp_
         exec(compile(source_code, tmp_file, "exec"))
 
     exc = catch.value
-    assert exc.filename == tmp_file
-    assert exc.lineno == 1
-    assert exc.offset == 0
-    assert exc.text == source_code
+    if stack_frame_support:
+        assert exc.filename == tmp_file
+        assert exc.lineno == 1
+        assert exc.offset == 0
+        assert exc.text == source_code
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
 
 
-def test_field_name_overwrite_item_parameter_common_in_script(tmp_path):
+def test_field_overwrites_item_parameter_common_in_script(
+    tmp_path, stack_frame_support
+):
     source_code = """
 class User(Item):
     uid = Field(JSONExtractor("id"))
@@ -470,13 +504,19 @@ class User(Item):
         exec(compile(source_code, tmp_file, "exec"))
 
     exc = catch.value
-    assert exc.filename == tmp_file
-    assert exc.lineno == 3
-    assert exc.offset == 4
-    assert exc.text == 'name = Field(JSONExtractor("name"))'
+    if stack_frame_support:
+        assert exc.filename == tmp_file
+        assert exc.lineno == 3
+        assert exc.offset == 4
+        assert exc.text == 'name = Field(JSONExtractor("name"))'
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == "name=Field(JSONExtractor('name'))"
 
 
-def test_avoid_field_name_overwriting_item_parameter(json0):
+def test_avoid_field_overwriting_item_parameter(json0, stack_frame_support):
     data = json0
 
     with pytest.raises(SyntaxError):
@@ -508,7 +548,7 @@ def test_special_field_name(json0):
     }
 
 
-def test_special_field_name_in_the_nested_class_definition(json0):
+def test_special_field_in_the_nested_class_definition(json0):
     data = json0
 
     class User(Item):
@@ -656,21 +696,28 @@ def test_inheritance(json0):
     assert UserWithGender().extract(data) == {"uid": 0, "gender": "female"}
 
 
-def test_field_overwrites_bases_method_in_item():
+def test_field_overwrites_bases_method_in_item(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
         class User(Item):
             field_names = Field(JSONExtractor("field_names"))
 
     exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 4
-    assert exc.offset == 12
-    assert exc.text == 'field_names = Field(JSONExtractor("field_names"))'
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 5
+        assert exc.offset == 12
+        assert exc.text == 'field_names = Field(JSONExtractor("field_names"))'
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == "field_names=Field(JSONExtractor('field_names'))"
 
 
-def test_field_overwrites_method_in_item():
-    with pytest.raises(SyntaxError) as catch:
+def test_field_overwrites_method_in_item(stack_frame_support):
+    exc = None
+    try:
 
         class User(Item):
             baz = Field(JSONExtractor("baz"))
@@ -678,15 +725,22 @@ def test_field_overwrites_method_in_item():
             def baz(self):
                 pass
 
-    exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 5
-    assert exc.offset == 12
-    assert exc.text == "def baz(self):"
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 9
+        assert exc.offset == 12
+        assert exc.text == "def baz(self):"
+    else:
+        assert exc is None
 
 
-def test_method_overwrites_field_in_item():
-    with pytest.raises(SyntaxError) as catch:
+def test_method_overwrites_field_in_item(stack_frame_support):
+    exc = None
+    try:
 
         class User(Item):
             def baz(self):
@@ -694,14 +748,20 @@ def test_method_overwrites_field_in_item():
 
             baz = Field(JSONExtractor("baz"))  # noqa: F811
 
-    exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 4
-    assert exc.offset == 12
-    assert exc.text == 'baz = Field(JSONExtractor("baz"))  # noqa: F811'
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 8
+        assert exc.offset == 12
+        assert exc.text == 'baz = Field(JSONExtractor("baz"))  # noqa: F811'
+    else:
+        assert exc is None
 
 
-@pytest.mark.xfail(strict=True, reason="can't get the source code from python repl")
+@pytest.mark.xfail(reason="can't get the source code from python repl")
 @pytest.mark.parametrize(
     "source_code",
     [
@@ -720,8 +780,9 @@ class User(Item):
     baz = Field(JSONExtractor("baz"))
     """,
     ],
+    ids=reprlib.repr,
 )
-def test_field_overwriting_method_in_item_in_repl(source_code):
+def test_field_overwrites_method_in_item_in_repl(source_code, stack_frame_support):
     with pytest.raises(SyntaxError):
         exec(source_code)
 
@@ -751,8 +812,11 @@ class User(Item):
             "simplify=Field(JSONExtractor('simplify'))",
         ),
     ],
+    ids=reprlib.repr,
 )
-def test_field_overwrites_bases_method_in_item_in_repl(source_code, text):
+def test_field_overwrites_bases_method_in_item_in_repl(
+    source_code, text, stack_frame_support
+):
     with pytest.raises(SyntaxError) as catch:
         exec(source_code)
     exc = catch.value
@@ -774,6 +838,57 @@ class User(Item):
             4,
             'field_names = Field(JSONExtractor("field_names"))',
         ),
+        (
+            """
+class User(Item):
+    extract = Field(JSONExtractor("extract"))
+    """,
+            3,
+            4,
+            'extract = Field(JSONExtractor("extract"))',
+        ),
+        (
+            """
+class User(Item):
+    simplify = Field(JSONExtractor("simplify"))
+    """,
+            3,
+            4,
+            'simplify = Field(JSONExtractor("simplify"))',
+        ),
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_bases_method_in_item_in_script(
+    tmp_path, source_code, lineno, offset, text, stack_frame_support
+):
+    tmp_file = tmp_path / "foo.py"
+    tmp_file.write_text(source_code)
+    tmp_file = str(tmp_file)
+    linecache.updatecache(tmp_file)
+
+    exc = None
+    try:
+        exec(compile(source_code, tmp_file, "exec"))
+    except Exception as exc_:
+        exc = exc_
+
+    assert isinstance(exc, SyntaxError)
+    if stack_frame_support:
+        assert exc.filename == tmp_file
+        assert exc.lineno == lineno
+        assert exc.offset == offset
+        assert exc.text == text
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == text.replace(" ", "").replace('"', "'")
+
+
+@pytest.mark.parametrize(
+    "source_code, lineno, offset, text",
+    [
         (
             """
 class User(Item):
@@ -812,20 +927,104 @@ class User(Item):
             'baz = boo[0] = Field(JSONExtractor("baz"))',
         ),
     ],
+    ids=reprlib.repr,
 )
 def test_field_overwrites_method_in_item_in_script(
-    tmp_path, source_code, lineno, offset, text
+    tmp_path, source_code, lineno, offset, text, stack_frame_support
 ):
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
     tmp_file = str(tmp_file)
     linecache.updatecache(tmp_file)
 
-    with pytest.raises(SyntaxError) as catch:
+    exc = None
+    try:
         exec(compile(source_code, tmp_file, "exec"))
+    except Exception as exc_:
+        exc = exc_
 
-    exc = catch.value
-    assert exc.filename == tmp_file
-    assert exc.lineno == lineno
-    assert exc.offset == offset
-    assert exc.text == text
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+        assert exc.filename == tmp_file
+        assert exc.lineno == lineno
+        assert exc.offset == offset
+        assert exc.text == text
+    else:
+        assert exc is None
+
+
+def test_avoid_method_overwriting_field(stack_frame_support):
+    data = {"baz": "baz", "boo": "boo"}
+
+    exc = None
+    try:
+
+        class User(Item):
+            baz = Field(JSONExtractor("baz"))
+
+            def baz(self):
+                pass
+
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+    else:
+        assert exc is None
+        assert User().extract(data) == {}
+        assert isinstance(User.baz, FunctionType)
+
+    class User(Item):  # noqa: F811
+        baz_ = Field(JSONExtractor("baz"), name="baz")
+
+        def baz(self):
+            pass
+
+    assert User().extract(data) == {"baz": "baz"}
+
+
+def test_avoid_field_overwriting_method(stack_frame_support):
+
+    data = {"baz": "baz", "boo": "boo"}
+
+    exc = None
+    try:
+
+        class User(Item):
+            def baz(self):
+                pass
+
+            baz = Field(JSONExtractor("baz"))  # noqa: F811
+
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+    else:
+        assert exc is None
+        assert User().extract(data) == {"baz": "baz"}
+        assert isinstance(User.baz, Field)
+
+    class User(Item):  # noqa: F811
+        baz_ = Field(JSONExtractor("baz"), name="baz")
+
+        def baz(self):
+            pass
+
+    assert User().extract(data) == {"baz": "baz"}
+
+
+def test_avoid_field_overwriting_bases_method(stack_frame_support):
+    data = {"field_names": ["field_names"], "baz": "baz"}
+
+    with pytest.raises(SyntaxError):
+
+        class User(Item):
+            field_names = Field(JSONExtractor("field_names"))
+
+    class User(Item):  # noqa: F811
+        field_names_ = Field(JSONExtractor("field_names"), name="field_names")
+
+    assert User().extract(data) == {"field_names": ["field_names"]}
