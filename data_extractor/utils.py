@@ -73,8 +73,25 @@ def getframe(depth: int = 0) -> Optional[FrameType]:
     return frame
 
 
+class Property:
+    def __init__(self, name: Optional[str] = None) -> None:
+        self.name = name
+
+    def __get__(self, obj: Any, cls: Any) -> Any:
+        if obj is None:
+            return self
+
+        assert self.name is not None
+        return getattr(obj, self.name)
+
+    def __set__(self, obj: Any, value: Any) -> None:
+        assert self.name is not None
+        setattr(obj, self.name, value)
+
+
 __all__ = (
     "LazyStr",
+    "Property",
     "getframe",
     "is_complex_extractor",
     "is_extractor",

@@ -13,7 +13,7 @@ from types import FrameType, FunctionType, MethodType
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Local Folder
-from .utils import getframe, sentinel
+from .utils import Property, getframe, sentinel
 
 
 _LineInfo = namedtuple("LineInfo", ["file", "lineno", "offset", "line"])
@@ -28,7 +28,6 @@ def _find_line_info_of_attr_in_source(
     file = frame.f_code.co_filename
     firstlineno = frame.f_lineno
     firstline_idx = firstlineno - 1
-    lines = None
     try:
         lines, _ = inspect.findsource(frame)
     except OSError:
@@ -61,27 +60,24 @@ def _find_line_info_of_attr_in_source(
     return _LineInfo(file, lineno, offset, line)
 
 
-def _check_field_overwrites_init_parameter(
+def _check_field_overwrites_bases_property(
     cls: object,
     name: str,
     bases: Tuple[object],
     key: str,
-    attr: Any,
-    init_args: List[str],
+    attr: "AbstractComplexExtractor",
 ) -> None:
-    if key in init_args[1:]:
-        # Item's attribute overwrites
-        # the 'Item.__init__' parameters except first parameter.
-
+    attr_from_bases = getattr(bases[-1], key, None)
+    if isinstance(attr_from_bases, Property) or key == "_field_names":
+        # Item's attribute overwrites its property.
         frame = getframe(2)
         exc_args = _find_line_info_of_attr_in_source(frame, key, attr)
         *_, line = exc_args
-
         err_msg = (
             f"{line!r} overwriten "
-            f"the parameter {key!r} of '{name}.__init__' method. "
+            f"the property {key!r} of {name}. "
             f"Please using the optional parameter name={key!r} "
-            f"in {attr!r} to avoid overwriting parameter name."
+            f"in {attr!r} to avoid overwriting property."
         )
         raise SyntaxError(err_msg, exc_args)
 
@@ -94,7 +90,6 @@ def _check_field_overwrites_bases_method(
     attr: "AbstractComplexExtractor",
 ) -> None:
     attr_from_bases = getattr(bases[-1], key, None)
-    exc_args = None
     if isinstance(attr_from_bases, (FunctionType, MethodType)):
         # Item's attribute overwrites its class bases' method.
         frame = getframe(2)
@@ -182,32 +177,31 @@ class ComplexExtractorMeta(type):
     Complex Extractor Meta Class.
     """
 
-    _field_names: List[str]
-
     def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
         super().__init__(name, bases, attr_dict)
+
         field_names = []
-        if hasattr(cls, "_field_names"):
-            field_names.extend(cls._field_names)
-
-        init_args = inspect.getfullargspec(getattr(cls, "__init__")).args
-
         for key, attr in attr_dict.items():
+            if isinstance(attr, Property) and attr.name is None:
+                attr.name = "__" + key
+
             if isinstance(type(attr), ComplexExtractorMeta):
                 # can't using data_extractor.utils.is_complex_extractor here,
                 # because AbstractComplexExtractor which being used in it
                 # bases on ComplexExtractorMeta.
                 _check_field_overwrites_bases_method(cls, name, bases, key, attr)
-                _check_field_overwrites_init_parameter(
-                    cls, name, bases, key, attr, init_args
-                )
+                _check_field_overwrites_bases_property(cls, name, bases, key, attr)
 
                 field_names.append(key)
 
-        cls._field_names = field_names
-
         # check field overwrites method
         _check_field_overwrites_method(cls)
+
+        if not bases:
+            cls._field_names: List[str] = field_names
+        else:
+            field_names.extend(cls._field_names)
+            cls._field_names = field_names
 
 
 class AbstractSimpleExtractor:
