@@ -37,6 +37,11 @@ def element0():
     return fromstring(text)
 
 
+@pytest.fixture(params=["extractor", "name", "default", "is_many", "_field_names"])
+def item_property(request):
+    return request.param
+
+
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
@@ -342,7 +347,7 @@ def test_misplacing():
         Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))
 
 
-def test_field_overwrites_item_parameter_common(stack_frame_support):
+def test_field_overwrites_item_property_common(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
         class User(Item):
@@ -362,7 +367,7 @@ def test_field_overwrites_item_parameter_common(stack_frame_support):
         assert exc.text == "name=Field(JSONExtractor('name'))"
 
 
-def test_field_overwrites_item_parameter_oneline(stack_frame_support):
+def test_field_overwrites_item_property_oneline(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
         class Parameter(Item): name = Field(XPathExtractor("./span[@class='name']"))  # noqa: B950, E701
@@ -384,10 +389,12 @@ def test_field_overwrites_item_parameter_oneline(stack_frame_support):
         assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
 
 
-def test_field_overwrites_item_parameter_type_creation(stack_frame_support):
+def test_field_overwrites_item_parameter_type_creation(
+    stack_frame_support, item_property
+):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
-        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
+        type("Parameter", (Item,), {item_property: Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
         # fmt: on
 
     exc = catch.value
@@ -398,73 +405,75 @@ def test_field_overwrites_item_parameter_type_creation(stack_frame_support):
         assert (
             exc.text
             == """
-        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
+        type("Parameter", (Item,), {item_property: Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
         """.strip()
         )
     else:
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
+        assert (
+            exc.text
+            == f"""{item_property}=Field(XPathExtractor("./span[@class='name']"))"""
+        )
 
 
 @pytest.mark.parametrize(
-    "source_code, text",
+    "template, text_template",
     [
         (
             """
-    type("Parameter",(Item,),{"name": Field(XPathExtractor("./span[@class='name']"))})
+    type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})
     """.strip(),
-            """name=Field(XPathExtractor("./span[@class='name']"))""",
+            """%s=Field(XPathExtractor("./span[@class='name']"))""",
         ),
         (
-            "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
-            """name=Field(XPathExtractor(\"./span[@class='name']\"))""",
+            "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
+            """%s=Field(XPathExtractor(\"./span[@class='name']\"))""",
         ),
         (
             """
 class User(Item):
-    uid = Field(JSONExtractor("id")); name = Field(JSONExtractor("name"))
+    uid = Field(JSONExtractor("id")); %s = Field(JSONExtractor("name"))
     """.strip(),
-            "name=Field(JSONExtractor('name'))",
+            "%s=Field(JSONExtractor('name'))",
         ),
         (
             """
 class User(Item):
     uid = Field(JSONExtractor("id"))
-    name = Field(JSONExtractor("name"))
+    %s = Field(JSONExtractor("name"))
     """.strip(),
-            "name=Field(JSONExtractor('name'))",
+            "%s=Field(JSONExtractor('name'))",
         ),
     ],
     ids=reprlib.repr,
 )
-def test_field_overwrites_item_parameter_in_repl(
-    source_code, text, stack_frame_support
+def test_field_overwrites_item_property_in_repl(
+    template, text_template, item_property, stack_frame_support
 ):
     with pytest.raises(SyntaxError) as catch:
-        exec(source_code)
+        exec(template % (item_property,))
 
     exc = catch.value
     assert exc.filename is None
     assert exc.lineno is None
     assert exc.offset is None
-    assert exc.text == text
+    assert exc.text == text_template % (item_property,)
 
 
 @pytest.mark.parametrize(
-    "source_code",
+    "template",
     [
-        """
-    type("Parameter",(Item,),{"name": Field(XPathExtractor("./span[@class='name']"))})
-    """.strip(),
-        "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
+        """type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})""",  # noqa: B950
+        "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))",  # noqa: B950
     ],
     ids=reprlib.repr,
 )
-def test_field_overwrites_item_parameter_oneline_in_script(
-    source_code, tmp_path, stack_frame_support
+def test_field_overwrites_item_property_oneline_in_script(
+    tmp_path, stack_frame_support, template, item_property
 ):
+    source_code = template % (item_property,)
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
     tmp_file = str(tmp_file)
@@ -483,16 +492,19 @@ def test_field_overwrites_item_parameter_oneline_in_script(
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
+        assert (
+            exc.text
+            == f"""{item_property}=Field(XPathExtractor("./span[@class='name']"))"""
+        )
 
 
-def test_field_overwrites_item_parameter_common_in_script(
-    tmp_path, stack_frame_support
+def test_field_overwrites_item_property_common_in_script(
+    tmp_path, stack_frame_support, item_property
 ):
-    source_code = """
+    source_code = f"""
 class User(Item):
     uid = Field(JSONExtractor("id"))
-    name = Field(JSONExtractor("name"))
+    {item_property} = Field(JSONExtractor({item_property!r}))
     """.strip()
 
     tmp_file = tmp_path / "foo.py"
@@ -508,15 +520,15 @@ class User(Item):
         assert exc.filename == tmp_file
         assert exc.lineno == 3
         assert exc.offset == 4
-        assert exc.text == 'name = Field(JSONExtractor("name"))'
+        assert exc.text == f"{item_property} = Field(JSONExtractor({item_property!r}))"
     else:
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == "name=Field(JSONExtractor('name'))"
+        assert exc.text == f"{item_property}=Field(JSONExtractor({item_property!r}))"
 
 
-def test_avoid_field_overwriting_item_parameter(json0, stack_frame_support):
+def test_avoid_field_overwriting_item_property(json0, stack_frame_support):
     data = json0
 
     with pytest.raises(SyntaxError):

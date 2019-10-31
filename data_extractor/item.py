@@ -11,7 +11,7 @@ from typing import Any, Iterator
 # Local Folder
 from .abc import AbstractComplexExtractor, AbstractSimpleExtractor
 from .exceptions import ExtractError
-from .utils import is_simple_extractor, sentinel
+from .utils import Property, is_simple_extractor, sentinel
 
 
 class Field(AbstractComplexExtractor):
@@ -31,6 +31,11 @@ class Field(AbstractComplexExtractor):
     :raises ValueError: Invalid SimpleExtractor.
     :raises ValueError: Can't both set default and is_manay=True.
     """
+
+    extractor = Property()
+    name = Property()
+    default = Property()
+    is_many = Property()
 
     def __init__(
         self,
