@@ -64,7 +64,7 @@ check:
 check-all:
 	@.venv/bin/pre-commit run --all-files --hook-stage push
 
-format-code: isort flake8 black blacken-docs
+format-code: isort black blacken-docs
 fc: format-code
 
 _stash:
