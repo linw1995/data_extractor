@@ -35,7 +35,9 @@ def _find_line_info_of_attr_in_source(
         return _LineInfo(None, None, None, f"{key}={attr!r}")
 
     start_index = inspect.indentsize(lines[firstline_idx])
-    for lineno, line in enumerate(lines[firstline_idx + 1 :], start=firstlineno + 1):
+    for lineno, line in enumerate(
+        lines[firstline_idx + 1 :], start=firstlineno + 1
+    ):
         # iterate line in the code block body
         cur_index = inspect.indentsize(line)
         if cur_index <= start_index:
@@ -189,8 +191,12 @@ class ComplexExtractorMeta(type):
                 # can't using data_extractor.utils.is_complex_extractor here,
                 # because AbstractComplexExtractor which being used in it
                 # bases on ComplexExtractorMeta.
-                _check_field_overwrites_bases_method(cls, name, bases, key, attr)
-                _check_field_overwrites_bases_property(cls, name, bases, key, attr)
+                _check_field_overwrites_bases_method(
+                    cls, name, bases, key, attr
+                )
+                _check_field_overwrites_bases_property(
+                    cls, name, bases, key, attr
+                )
 
                 field_names.append(key)
 
@@ -252,7 +258,8 @@ class AbstractSimpleExtractor:
         rv = self.extract(element)
         if not isinstance(rv, list):
             warnings.warn(
-                f"{self!r} can't extract first item from result {rv!r}", UserWarning
+                f"{self!r} can't extract first item from result {rv!r}",
+                UserWarning,
             )
             return rv
 

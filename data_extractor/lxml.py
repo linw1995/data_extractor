@@ -94,7 +94,9 @@ class AttrCSSExtractor(AbstractSimpleExtractor):
         self.attr = attr
 
     def __repr__(self) -> str:
-        return f"{self.__class__.__name__}(expr={self.expr!r}, attr={self.attr!r})"
+        return (
+            f"{self.__class__.__name__}(expr={self.expr!r}, attr={self.attr!r})"
+        )
 
     def extract(self, root: Element) -> List[str]:
         """

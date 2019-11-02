@@ -60,7 +60,9 @@ def test_extract(element, expr, expect):
     ids=repr,
 )
 def test_extract_first(element, expr, expect):
-    assert expect == JSONExtractor(expr).extract_first(element, default="default")
+    assert expect == JSONExtractor(expr).extract_first(
+        element, default="default"
+    )
 
 
 @pytest.mark.parametrize("expr", ["foo.baz", "foo[2].baz"], ids=repr)

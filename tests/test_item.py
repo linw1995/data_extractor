@@ -37,7 +37,9 @@ def element0():
     return fromstring(text)
 
 
-@pytest.fixture(params=["extractor", "name", "default", "is_many", "_field_names"])
+@pytest.fixture(
+    params=["extractor", "name", "default", "is_many", "_field_names"]
+)
 def item_property(request):
     return request.param
 
@@ -59,7 +61,11 @@ def test_field_extract(element0, Extractor, expr, expect):
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
-        (XPathExtractor, "//div[@class='title']/text()", ["Title 1", "Title 2"]),
+        (
+            XPathExtractor,
+            "//div[@class='title']/text()",
+            ["Title 1", "Title 2"],
+        ),
         (XPathExtractor, "//div[@class='content']/text()", ["Content 1"]),
         (XPathExtractor, "//div[@class='notexists']/text()", []),
         (TextCSSExtractor, ".title", ["Title 1", "Title 2"]),
@@ -120,7 +126,8 @@ def test_field_xpath_extract_result_not_list(element0):
 def test_field_xpath_extract_result_not_list_conflict_with_is_many(element0):
     with pytest.warns(UserWarning):
         Field(
-            XPathExtractor("normalize-space(//div[@class='title'])"), is_many=True
+            XPathExtractor("normalize-space(//div[@class='title'])"),
+            is_many=True,
         ).extract(element0)
 
 
@@ -153,7 +160,9 @@ def Article0():
 
 
 def test_item_extract(element1, Article0):
-    assert Article0(CSSExtractor("li.article"), is_many=True).extract(element1) == [
+    assert Article0(CSSExtractor("li.article"), is_many=True).extract(
+        element1
+    ) == [
         {"title": "Title 1", "content": "Content 1"},
         {"title": "Title 2", "content": "Content 2"},
     ]
@@ -285,7 +294,10 @@ def test_complex_item_extract_xml_data():
             "guid": "http://liftoff.msfc.nasa.gov/2003/05/20.html#item570",
         },
     ]
-    assert ChannelItem(CSSExtractor("channel>item")).extract(element) == items_result[0]
+    assert (
+        ChannelItem(CSSExtractor("channel>item")).extract(element)
+        == items_result[0]
+    )
     assert (
         ChannelItem(CSSExtractor("channel>item"), is_many=True).extract(element)
         == items_result
@@ -329,7 +341,8 @@ def test_complex_item_extract_json_data(json0):
     ]
     assert User(JSONExtractor("data.users[*]")).extract(data) == users_result[0]
     assert (
-        User(JSONExtractor("data.users[*]"), is_many=True).extract(data) == users_result
+        User(JSONExtractor("data.users[*]"), is_many=True).extract(data)
+        == users_result
     )
     assert UserResponse(JSONExtractor("data")).extract(data) == {
         "start": 0,
@@ -386,7 +399,10 @@ def test_field_overwrites_item_property_oneline(stack_frame_support):
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
+        assert (
+            exc.text
+            == """name=Field(XPathExtractor("./span[@class='name']"))"""
+        )
 
 
 def test_field_overwrites_item_parameter_type_creation(
@@ -520,12 +536,18 @@ class User(Item):
         assert exc.filename == tmp_file
         assert exc.lineno == 3
         assert exc.offset == 4
-        assert exc.text == f"{item_property} = Field(JSONExtractor({item_property!r}))"
+        assert (
+            exc.text
+            == f"{item_property} = Field(JSONExtractor({item_property!r}))"
+        )
     else:
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == f"{item_property}=Field(JSONExtractor({item_property!r}))"
+        assert (
+            exc.text
+            == f"{item_property}=Field(JSONExtractor({item_property!r}))"
+        )
 
 
 def test_avoid_field_overwriting_item_property(json0, stack_frame_support):
@@ -572,7 +594,9 @@ def test_special_field_in_the_nested_class_definition(json0):
 
     first_row = {"uid": 0, "name": "Vang Stout"}
     assert User(JSONExtractor("data.users[*]")).extract(data) == first_row
-    assert UserResponse(JSONExtractor("data")).extract(data) == {"data": first_row}
+    assert UserResponse(JSONExtractor("data")).extract(data) == {
+        "data": first_row
+    }
 
 
 @pytest.fixture
@@ -794,7 +818,9 @@ class User(Item):
     ],
     ids=reprlib.repr,
 )
-def test_field_overwrites_method_in_item_in_repl(source_code, stack_frame_support):
+def test_field_overwrites_method_in_item_in_repl(
+    source_code, stack_frame_support
+):
     with pytest.raises(SyntaxError):
         exec(source_code)
 

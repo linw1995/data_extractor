@@ -49,6 +49,30 @@ linting = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort",
 test = ["pytest", "pytest-cov"]
 docs = ["sphinx"]
 
+[tool.black]
+line-length = 80
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
+
 [build-system]
 requires = ["poetry"]
 build-backend = "poetry.masonry.api"
