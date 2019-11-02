@@ -7,7 +7,7 @@ from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
 
 
-def test_exception_trace(json0):
+def test_exception_trace(json0, build_first):
     data = json0
 
     class User(Item):
@@ -22,8 +22,18 @@ def test_exception_trace(json0):
         data = User(JSONExtractor("users[*]"), is_many=True)
 
     extractor = UserResponse(JSONExtractor("data"))
+    assert not extractor.built
+    assert not extractor.extractor.built
+    if build_first:
+        extractor.build()
+        assert extractor.built
+        assert extractor.extractor.built
+
     with pytest.raises(ExtractError) as catch:
         extractor.extract(data)
+
+    assert extractor.built
+    assert extractor.extractor.built
 
     exc = catch.value
     assert len(exc.extractors) == 3

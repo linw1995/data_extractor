@@ -9,7 +9,11 @@ import warnings
 from typing import Any, Iterator
 
 # Local Folder
-from .abc import AbstractComplexExtractor, AbstractSimpleExtractor
+from .abc import (
+    AbstractComplexExtractor,
+    AbstractSimpleExtractor,
+    BuildProperty,
+)
 from .exceptions import ExtractError
 from .utils import Property, is_simple_extractor, sentinel
 
@@ -32,7 +36,7 @@ class Field(AbstractComplexExtractor):
     :raises ValueError: Can't both set default and is_manay=True.
     """
 
-    extractor = Property()
+    extractor = BuildProperty()
     name = Property()
     default = Property()
     is_many = Property()
@@ -44,6 +48,8 @@ class Field(AbstractComplexExtractor):
         default: Any = sentinel,
         is_many: bool = False,
     ):
+        super().__init__()
+
         if extractor is not None and not is_simple_extractor(extractor):
             raise ValueError(f"Invalid SimpleExtractor: {extractor!r}")
 
@@ -70,19 +76,17 @@ class Field(AbstractComplexExtractor):
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 
+    def build(self) -> None:
+        if self.extractor is not None:
+            self.extractor.build()
+
+        if self.__class__ is Field:
+            self.built = True
+
     def extract(self, element: Any) -> Any:
-        """
-        Extract the wanted data.
+        if not self.built:
+            self.build()
 
-        :param element: The target data node element.
-        :type element: Any
-
-        :returns: Data or subelement.
-        :rtype: Any
-
-        :raises ~data_extractor.exceptions.ExtractError: \
-            Thrown by extractor extracting wrong data.
-        """
         if self.extractor is None:
             rv = [element]
         else:
@@ -137,8 +141,17 @@ class Item(Field):
         """
         Iterate all `Item` or `Field` type attributes' name.
         """
-        for name in cls._field_names:
-            yield name
+        yield from cls._field_names
+
+    def build(self) -> None:
+        super().build()
+
+        for extractor_name in self.field_names():
+            extractor: Field = getattr(self, extractor_name)
+            if not extractor.built:
+                extractor.build()
+
+        self.built = True
 
     def simplify(self) -> AbstractSimpleExtractor:
         """
@@ -148,6 +161,9 @@ class Item(Field):
         :rtype: :class:`data_extractor.abc.AbstractSimpleExtractor`
         """
         duplicated = copy.deepcopy(self)
+
+        def build(self: AbstractSimpleExtractor) -> None:
+            duplicated.build()
 
         def extract(self: AbstractSimpleExtractor, element: Any) -> Any:
             duplicated.is_many = True
@@ -180,6 +196,7 @@ class Item(Field):
             classname,
             (base,),
             {
+                "build": build,
                 "extract": extract,
                 "extract_first": extract_first,
                 "__getattribute__": getter,

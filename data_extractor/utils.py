@@ -6,7 +6,7 @@
 import inspect
 
 from types import FrameType
-from typing import Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional
 
 
 class __Sentinel:
@@ -74,6 +74,13 @@ def getframe(depth: int = 0) -> Optional[FrameType]:
 
 
 class Property:
+    """
+    Extractor property.
+
+    :param name: The actual name of the property where value is stored.
+    :type name: Optional[str]
+    """
+
     def __init__(self, name: Optional[str] = None) -> None:
         self.name = name
 
@@ -89,8 +96,27 @@ class Property:
         setattr(obj, self.name, value)
 
 
+if TYPE_CHECKING:
+    from .abc import AbstractExtractors
+
+
+class BuildProperty(Property):
+    """
+    Extractor property is part of the function of extracting.
+    When it gets modified, it will unbuild its extractor.
+
+    :param name: The actual name of the property where value is stored.
+    :type name: Optional[str]
+    """
+
+    def __set__(self, obj: "AbstractExtractors", value: Any) -> None:
+        obj.built = False
+        return super().__set__(obj, value)
+
+
 __all__ = (
     "LazyStr",
+    "BuildProperty",
     "Property",
     "getframe",
     "is_complex_extractor",

@@ -13,7 +13,7 @@ from types import FrameType, FunctionType, MethodType
 from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Local Folder
-from .utils import Property, getframe, sentinel
+from .utils import BuildProperty, Property, getframe, sentinel
 
 
 _LineInfo = namedtuple("LineInfo", ["file", "lineno", "offset", "line"])
@@ -174,19 +174,34 @@ def _check_field_overwrites_method(cls: object) -> None:
     raise SyntaxError(msg, (filename, lineno, offset, line))
 
 
-class ComplexExtractorMeta(type):
+class SimpleExtractorMeta(type):
     """
-    Complex Extractor Meta Class.
+    Simple Extractor Meta Class.
     """
 
     def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
         super().__init__(name, bases, attr_dict)
 
-        field_names = []
         for key, attr in attr_dict.items():
             if isinstance(attr, Property) and attr.name is None:
                 attr.name = "__" + key
 
+
+class ComplexExtractorMeta(SimpleExtractorMeta):
+    """
+    Complex Extractor Meta Class.
+    """
+
+    def __init__(
+        cls,  # noqa: B902
+        name: str,
+        bases: Tuple[type],
+        attr_dict: Dict[str, Any],
+    ):
+        super().__init__(name, bases, attr_dict)
+
+        field_names = []
+        for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
                 # can't using data_extractor.utils.is_complex_extractor here,
                 # because AbstractComplexExtractor which being used in it
@@ -210,19 +225,33 @@ class ComplexExtractorMeta(type):
             cls._field_names = field_names
 
 
-class AbstractSimpleExtractor:
+class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
     """
     Abstract Simple Extractor Clase.
+
+    Its metaclass is :class:`data_extractor.abc.SimpleExtractorMeta`
 
     :param expr: Extractor selector expression.
     :type expr: str
     """
 
+    expr = BuildProperty()
+
     def __init__(self, expr: str):
         self.expr = expr
+        self.built = False
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.expr!r})"
+
+    @abstractmethod
+    def build(self) -> None:
+        """
+        Build the function of extracting explicitly.
+
+        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def extract(self, element: Any) -> Any:
@@ -281,6 +310,36 @@ class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
     Its metaclass is :class:`data_extractor.abc.ComplexExtractorMeta`
     """
 
+    built = Property()
+
+    def __init__(self) -> None:
+        self.built = False
+
+    @abstractmethod
+    def build(self) -> None:
+        """
+        Build the function of extracting explicitly.
+
+        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def extract(self, element: Any) -> Any:
+        """
+        Extract the wanted data.
+
+        :param element: The target data node element.
+        :type element: Any
+
+        :returns: Data or subelement.
+        :rtype: Any
+
+        :raises ~data_extractor.exceptions.ExtractError: \
+            Thrown by extractor extracting wrong data.
+        """
+        raise NotImplementedError
+
 
 AbstractExtractors = Union[AbstractSimpleExtractor, AbstractComplexExtractor]
 
@@ -289,4 +348,5 @@ __all__ = (
     "AbstractExtractors",
     "AbstractSimpleExtractor",
     "ComplexExtractorMeta",
+    "SimpleExtractorMeta",
 )
