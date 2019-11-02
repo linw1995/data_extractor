@@ -44,8 +44,15 @@ def element(text):
     ],
     ids=repr,
 )
-def test_extract(element, expr, expect):
-    assert expect == JSONExtractor(expr).extract(element)
+def test_extract(element, expr, expect, build_first):
+    extractor = JSONExtractor(expr)
+    assert not extractor.built
+    if build_first:
+        extractor.build()
+        assert extractor.built
+
+    assert expect == extractor.extract(element)
+    assert extractor.built
 
 
 @pytest.mark.parametrize(
@@ -59,13 +66,20 @@ def test_extract(element, expr, expect):
     ],
     ids=repr,
 )
-def test_extract_first(element, expr, expect):
-    assert expect == JSONExtractor(expr).extract_first(element, default="default")
+def test_extract_first(element, expr, expect, build_first):
+    extractor = JSONExtractor(expr)
+    if build_first:
+        extractor.build()
+
+    assert expect == extractor.extract_first(element, default="default")
 
 
 @pytest.mark.parametrize("expr", ["foo.baz", "foo[2].baz"], ids=repr)
-def test_extract_first_without_default(element, expr):
+def test_extract_first_without_default(element, expr, build_first):
     extractor = JSONExtractor(expr)
+    if build_first:
+        extractor.build()
+
     with pytest.raises(ExtractError) as catch:
         extractor.extract_first(element)
 
@@ -75,11 +89,15 @@ def test_extract_first_without_default(element, expr):
     assert exc.element is element
 
 
+@pytest.mark.parametrize("by", ["build", "extract"], ids=lambda x: f"by_{x}")
 @pytest.mark.parametrize("expr", ["foo..", "a[]", ""], ids=repr)
-def test_invalid_css_selector_expr(element, expr):
+def test_invalid_css_selector_expr(element, expr, by):
     extractor = JSONExtractor(expr)
     with pytest.raises(ExprError) as catch:
-        extractor.extract(element)
+        if by == "build":
+            extractor.build()
+        elif by == "extract":
+            extractor.extract(element)
 
     exc = catch.value
     assert exc.extractor is extractor
@@ -95,5 +113,9 @@ def test_invalid_css_selector_expr(element, expr):
         ("foo[?(baz > 2)].baz", []),
     ],
 )
-def test_json_ext(element, expr, expect):
-    assert expect == JSONExtractor(expr).extract(element)
+def test_json_ext(element, expr, expect, build_first):
+    extractor = JSONExtractor(expr)
+    if build_first:
+        extractor.build()
+
+    assert expect == extractor.extract(element)

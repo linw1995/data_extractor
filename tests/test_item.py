@@ -37,7 +37,9 @@ def element0():
     return fromstring(text)
 
 
-@pytest.fixture(params=["extractor", "name", "default", "is_many", "_field_names"])
+@pytest.fixture(
+    params=["extractor", "name", "default", "is_many", "_field_names", "built"]
+)
 def item_property(request):
     return request.param
 
@@ -52,14 +54,28 @@ def item_property(request):
     ],
     ids=repr,
 )
-def test_field_extract(element0, Extractor, expr, expect):
-    assert expect == Field(Extractor(expr)).extract(element0)
+def test_field_extract(element0, Extractor, expr, expect, build_first):
+    field = Field(Extractor(expr))
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert expect == field.extract(element0)
+    assert field.built
+    assert field.extractor.built
 
 
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
-        (XPathExtractor, "//div[@class='title']/text()", ["Title 1", "Title 2"]),
+        (
+            XPathExtractor,
+            "//div[@class='title']/text()",
+            ["Title 1", "Title 2"],
+        ),
         (XPathExtractor, "//div[@class='content']/text()", ["Content 1"]),
         (XPathExtractor, "//div[@class='notexists']/text()", []),
         (TextCSSExtractor, ".title", ["Title 1", "Title 2"]),
@@ -68,8 +84,20 @@ def test_field_extract(element0, Extractor, expr, expect):
     ],
     ids=repr,
 )
-def test_field_extract_with_is_many(element0, Extractor, expr, expect):
-    assert expect == Field(Extractor(expr), is_many=True).extract(element0)
+def test_field_extract_with_is_many(
+    element0, Extractor, expr, expect, build_first
+):
+    field = Field(Extractor(expr), is_many=True)
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert expect == field.extract(element0)
+    assert field.built
+    assert field.extractor.built
 
 
 @pytest.mark.parametrize(
@@ -80,8 +108,20 @@ def test_field_extract_with_is_many(element0, Extractor, expr, expect):
     ],
     ids=repr,
 )
-def test_field_extract_with_default(element0, Extractor, expr, expect):
-    assert expect == Field(Extractor(expr), default=expect).extract(element0)
+def test_field_extract_with_default(
+    element0, Extractor, expr, expect, build_first
+):
+    field = Field(Extractor(expr), default=expect)
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert expect == field.extract(element0)
+    assert field.built
+    assert field.extractor.built
 
 
 @pytest.mark.parametrize(
@@ -92,10 +132,20 @@ def test_field_extract_with_default(element0, Extractor, expr, expect):
     ],
     ids=repr,
 )
-def test_field_extract_without_default(element0, Extractor, expr):
+def test_field_extract_without_default(element0, Extractor, expr, build_first):
     extractor = Field(Extractor(expr))
+    assert not extractor.built
+    assert not extractor.extractor.built
+    if build_first:
+        extractor.build()
+        assert extractor.built
+        assert extractor.extractor.built
+
     with pytest.raises(ExtractError) as catch:
         extractor.extract(element0)
+
+    assert extractor.built
+    assert extractor.extractor.built
 
     exc = catch.value
     assert len(exc.extractors) == 1
@@ -108,20 +158,38 @@ def test_field_parameters_conflict():
         Field(TextCSSExtractor(".nomatter"), is_many=True, default=None)
 
 
-def test_field_xpath_extract_result_not_list(element0):
-    assert (
-        Field(XPathExtractor("normalize-space(//div[@class='title'])")).extract(
-            element0
-        )
-        == "Title 1"
-    )
+def test_field_xpath_extract_result_not_list(element0, build_first):
+    field = Field(XPathExtractor("normalize-space(//div[@class='title'])"))
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert field.extract(element0) == "Title 1"
+    assert field.built
+    assert field.extractor.built
 
 
-def test_field_xpath_extract_result_not_list_conflict_with_is_many(element0):
+def test_field_xpath_extract_result_not_list_conflict_with_is_many(
+    element0, build_first
+):
     with pytest.warns(UserWarning):
-        Field(
-            XPathExtractor("normalize-space(//div[@class='title'])"), is_many=True
-        ).extract(element0)
+        field = Field(
+            XPathExtractor("normalize-space(//div[@class='title'])"),
+            is_many=True,
+        )
+        assert not field.built
+        assert not field.extractor.built
+        if build_first:
+            field.build()
+            assert field.built
+            assert field.extractor.built
+
+        field.extract(element0)
+        assert field.built
+        assert field.extractor.built
 
 
 @pytest.fixture
@@ -152,18 +220,50 @@ def Article0():
     return Article
 
 
-def test_item_extract(element1, Article0):
-    assert Article0(CSSExtractor("li.article"), is_many=True).extract(element1) == [
+def test_item_extract(element1, Article0, build_first):
+    item = Article0(CSSExtractor("li.article"), is_many=True)
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
+    assert item.extract(element1) == [
         {"title": "Title 1", "content": "Content 1"},
         {"title": "Title 2", "content": "Content 2"},
     ]
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
 
-def test_item_extract_without_is_many(element1, Article0):
-    assert Article0(CSSExtractor("li.article")).extract(element1) == {
+def test_item_extract_without_is_many(element1, Article0, build_first):
+    item = Article0(CSSExtractor("li.article"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
+    assert item.extract(element1) == {
         "title": "Title 1",
         "content": "Content 1",
     }
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
 
 @pytest.fixture
@@ -184,28 +284,62 @@ def element2():
     return fromstring(text)
 
 
-def test_item_extract_failure_when_last_field_missing(element2, Article0):
-    extractor = Article0(CSSExtractor("li.article"), is_many=True)
+def test_item_extract_failure_when_last_field_missing(
+    element2, Article0, build_first
+):
+    item = Article0(CSSExtractor("li.article"), is_many=True)
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
     with pytest.raises(ExtractError) as catch:
-        extractor.extract(element2)
+        item.extract(element2)
+
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
     exc = catch.value
     assert len(exc.extractors) == 2
     assert exc.extractors[0] is Article0.content
-    assert exc.extractors[1] is extractor
+    assert exc.extractors[1] is item
     assert exc.element is element2.xpath("//li[@class='article'][2]")[0]
 
 
 def test_item_extract_success_without_is_many_when_last_field_missing(
-    element2, Article0
+    element2, Article0, build_first
 ):
-    assert Article0(CSSExtractor("li.article")).extract(element2) == {
+    item = Article0(CSSExtractor("li.article"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
+    assert item.extract(element2) == {
         "title": "Title 1",
         "content": "Content 1",
     }
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
 
-def test_complex_item_extract_xml_data():
+def test_complex_item_extract_xml_data(build_first):
     from lxml.etree import fromstring
 
     sample_rss_path = Path(__file__).parent / "assets" / "sample-rss-2.xml"
@@ -285,12 +419,20 @@ def test_complex_item_extract_xml_data():
             "guid": "http://liftoff.msfc.nasa.gov/2003/05/20.html#item570",
         },
     ]
-    assert ChannelItem(CSSExtractor("channel>item")).extract(element) == items_result[0]
-    assert (
-        ChannelItem(CSSExtractor("channel>item"), is_many=True).extract(element)
-        == items_result
-    )
-    assert Channel(XPathExtractor("//channel")).extract(element) == {
+    item = ChannelItem(CSSExtractor("channel>item"))
+    if build_first:
+        item.build()
+    assert item.extract(element) == items_result[0]
+
+    item = ChannelItem(CSSExtractor("channel>item"), is_many=True)
+    if build_first:
+        item.build()
+    assert item.extract(element) == items_result
+
+    item = Channel(XPathExtractor("//channel"))
+    if build_first:
+        item.build()
+    assert item.extract(element) == {
         "title": "Liftoff News",
         "link": "http://liftoff.msfc.nasa.gov/",
         "description": "Liftoff to Space Exploration.",
@@ -305,7 +447,7 @@ def test_complex_item_extract_xml_data():
     }
 
 
-def test_complex_item_extract_json_data(json0):
+def test_complex_item_extract_json_data(json0, build_first):
     data = json0
 
     class User(Item):
@@ -327,11 +469,20 @@ def test_complex_item_extract_json_data(json0):
         {"uid": 4, "name": "Clarke Patrick", "gender": "male"},
         {"uid": 5, "name": "Whitney Mcfadden", "gender": None},
     ]
-    assert User(JSONExtractor("data.users[*]")).extract(data) == users_result[0]
-    assert (
-        User(JSONExtractor("data.users[*]"), is_many=True).extract(data) == users_result
-    )
-    assert UserResponse(JSONExtractor("data")).extract(data) == {
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == users_result[0]
+
+    item = User(JSONExtractor("data.users[*]"), is_many=True)
+    if build_first:
+        item.build()
+    assert item.extract(data) == users_result
+
+    item = UserResponse(JSONExtractor("data"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {
         "start": 0,
         "size": 5,
         "total": 100,
@@ -386,7 +537,10 @@ def test_field_overwrites_item_property_oneline(stack_frame_support):
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == """name=Field(XPathExtractor("./span[@class='name']"))"""
+        assert (
+            exc.text
+            == """name=Field(XPathExtractor("./span[@class='name']"))"""
+        )
 
 
 def test_field_overwrites_item_parameter_type_creation(
@@ -520,15 +674,23 @@ class User(Item):
         assert exc.filename == tmp_file
         assert exc.lineno == 3
         assert exc.offset == 4
-        assert exc.text == f"{item_property} = Field(JSONExtractor({item_property!r}))"
+        assert (
+            exc.text
+            == f"{item_property} = Field(JSONExtractor({item_property!r}))"
+        )
     else:
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == f"{item_property}=Field(JSONExtractor({item_property!r}))"
+        assert (
+            exc.text
+            == f"{item_property}=Field(JSONExtractor({item_property!r}))"
+        )
 
 
-def test_avoid_field_overwriting_item_property(json0, stack_frame_support):
+def test_avoid_field_overwriting_item_parameter(
+    json0, stack_frame_support, build_first
+):
     data = json0
 
     with pytest.raises(SyntaxError):
@@ -541,26 +703,26 @@ def test_avoid_field_overwriting_item_property(json0, stack_frame_support):
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("name"), name="name")
 
-    assert User(JSONExtractor("data.users[*]")).extract(data) == {
-        "uid": 0,
-        "name": "Vang Stout",
-    }
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {"uid": 0, "name": "Vang Stout"}
 
 
-def test_special_field_name(json0):
+def test_special_field_name(json0, build_first):
     data = json0
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("name"), name="user.name")
 
-    assert User(JSONExtractor("data.users[*]")).extract(data) == {
-        "uid": 0,
-        "user.name": "Vang Stout",
-    }
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {"uid": 0, "user.name": "Vang Stout"}
 
 
-def test_special_field_in_the_nested_class_definition(json0):
+def test_special_field_in_the_nested_class_definition(json0, build_first):
     data = json0
 
     class User(Item):
@@ -571,8 +733,15 @@ def test_special_field_in_the_nested_class_definition(json0):
         _ = User(JSONExtractor("users[*]"), name="data")
 
     first_row = {"uid": 0, "name": "Vang Stout"}
-    assert User(JSONExtractor("data.users[*]")).extract(data) == first_row
-    assert UserResponse(JSONExtractor("data")).extract(data) == {"data": first_row}
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == first_row
+
+    item = UserResponse(JSONExtractor("data"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {"data": first_row}
 
 
 @pytest.fixture
@@ -586,17 +755,21 @@ def json1():
     }
 
 
-def test_item_extractor_is_none(json1):
+def test_item_extractor_is_none(json1, build_first):
     data = json1
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("username"))
 
-    assert User().extract(data) == {"uid": 1, "username": "Jack"}
+    item = User()
+    if build_first:
+        item.build()
+
+    assert item.extract(data) == {"uid": 1, "username": "Jack"}
 
 
-def test_nested_item_extractor_is_none(json1):
+def test_nested_item_extractor_is_none(json1, build_first):
     data = json1
 
     class Count(Item):
@@ -609,14 +782,23 @@ def test_nested_item_extractor_is_none(json1):
         username = Field(JSONExtractor("username"))
         count = Count()
 
-    assert User().extract(data) == {
+    item = User()
+    if build_first:
+        item.build()
+
+    assert item.extract(data) == {
         "uid": 1,
         "username": "Jack",
         "count": {"follower": 100, "following": 1, "like": 1_000_000},
     }
 
 
-def test_simplify(json0):
+@pytest.fixture(params=[True, False], ids=lambda x: f"before_simplify={x!r}")
+def simplify_first(request):
+    return request.param
+
+
+def test_simplify(json0, build_first, simplify_first):
     data = json0
 
     class User(Item):
@@ -624,7 +806,12 @@ def test_simplify(json0):
         username = Field(JSONExtractor("name"), name="name")
         gender = Field(JSONExtractor("gender"), default=None)
 
-    extractor = User(JSONExtractor("data.users[*]")).simplify()
+    item = User(JSONExtractor("data.users[*]"))
+    if not simplify_first and build_first:
+        item.build()
+    extractor = item.simplify()
+    if simplify_first and build_first:
+        extractor.build()
     users_result = [
         {"uid": 0, "name": "Vang Stout", "gender": "female"},
         {"uid": 1, "name": "Jeannie Gaines", "gender": "male"},
@@ -642,7 +829,7 @@ def test_simplify(json0):
     assert extractor.extract(data) == users_result
 
 
-def test_modify_simplified_item(json0):
+def test_modify_simplified_item(json0, build_first, simplify_first):
     data = json0
 
     class User(Item):
@@ -651,7 +838,11 @@ def test_modify_simplified_item(json0):
         gender = Field(JSONExtractor("gender"), default=None)
 
     complex_extractor = User(JSONExtractor("data.users[*]"))
+    if not simplify_first and build_first:
+        complex_extractor.build()
     extractor = complex_extractor.simplify()
+    if simplify_first and build_first:
+        extractor.build()
     assert complex_extractor.extractor.expr == extractor.expr
     extractor.expr = "data.users[0]"
     assert complex_extractor.extractor.expr != extractor.expr
@@ -671,7 +862,7 @@ def test_modify_simplified_item(json0):
     ]
 
 
-def test_simplified_item_extractor_is_none(json0):
+def test_simplified_item_extractor_is_none(json0, build_first, simplify_first):
     data = json0["data"]["users"][0]
 
     class User(Item):
@@ -679,7 +870,12 @@ def test_simplified_item_extractor_is_none(json0):
         username = Field(JSONExtractor("name"), name="name")
         gender = Field(JSONExtractor("gender"), default=None)
 
-    extractor = User().simplify()
+    complex_extractor = User()
+    if not simplify_first and build_first:
+        complex_extractor.build()
+    extractor = complex_extractor.simplify()
+    if simplify_first and build_first:
+        extractor.build()
     assert not isinstance(extractor, JSONExtractor)
     assert is_simple_extractor(extractor)
     assert not is_complex_extractor(extractor)
@@ -794,7 +990,9 @@ class User(Item):
     ],
     ids=reprlib.repr,
 )
-def test_field_overwrites_method_in_item_in_repl(source_code, stack_frame_support):
+def test_field_overwrites_method_in_item_in_repl(
+    source_code, stack_frame_support
+):
     with pytest.raises(SyntaxError):
         exec(source_code)
 
@@ -1040,3 +1238,90 @@ def test_avoid_field_overwriting_bases_method(stack_frame_support):
         field_names_ = Field(JSONExtractor("field_names"), name="field_names")
 
     assert User().extract(data) == {"field_names": ["field_names"]}
+
+
+def test_item_build_implicitly(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("data.users[0]"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    assert item.extract(data) == {"uid": 0}
+
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+
+def test_item_rebuild(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("data.users[0]"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    assert item.extract(data) == {"uid": 0}
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+    item.extractor = JSONExtractor("data.users[1]")
+    assert not item.built
+    assert not item.extractor.built
+    assert item.uid.built
+
+    assert item.extract(data) == {"uid": 1}
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+
+def test_item_build_explicitly(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("data.users[0]"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    item.build()
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+    assert item.extract(data) == {"uid": 0}
+
+
+def test_modify_built_item(json0):
+    data = json0["data"]["users"][0]
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("user"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    item.build()
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+    item.extractor = None
+    assert not item.built
+    assert item.uid.built
+
+    assert item.extract(data) == {"uid": 0}
+    assert item.built
