@@ -25,3 +25,6 @@ Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 - 90fa9c8 New:ExprError `__str__` implementation
 - d961768 Fix:Update mypy pre-commit config
 - e5d59c3 New:Raise SyntaxError when field overwrites method (#38)
+- 7720fb9 Feature/avoid field overwriting (#39)
+- b722717 Dev,Fix:Black configure not working
+- f8f0df8 New:Implement extractors' build method
