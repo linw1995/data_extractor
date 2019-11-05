@@ -67,7 +67,8 @@ jobs:
       deploy:
         provider: script
         script: .venv/bin/poetry publish
-        skip_cleanup: true
+        cleanup: false
+        edge: true
         on:
           all_branches: true
     - <<: *_deploy_base
@@ -77,11 +78,12 @@ jobs:
         - .venv/bin/poetry build
       deploy:
         provider: releases
-        api_key:
+        token:
           secure: MukueyqjKPF2XytNn1CyjZLHniNNo4/4hWgcoVQY02WnJa4uhrohJYsjI2ghQNC6yns40VqMrp6k8oWaNOkWxWcr7BV4AiX1RTO9Gpe4QoztFhdqecgxjEwYA+yAZT/TVy4Zuz+wI/rwOQcMtoAwnaU0ll2/+FJ6RHAV2pgHjV3gfUtjs6u9MQnx64p3XmUANjqDFGj0uGwK+nUc0Fbrd1uhaFit32cpjXtiBWm5cjgaKuT/pcLyd+Ike9f8ahwpYemir+E6YojjTRz+MxxZGIUXn+qj909Pj3T7ejTOaMnd9cDv7I4HhUcxxHDxvD0mv+2RvUR44HCBPLlGv7JA/9fQFrnC1Acan9UIvH6Vakz4J+onfivwcF0k1gpUXccP+Yh4xuAKtDre5xDkdZtvuU9UGzsvDQG09QWlo8bYkN4XdUcC4IFkyg9NtSfafsx8ERAnzQoKi3/k8N0ZRHc838DJWAYw2cQ3+PYPEfogs9a/7eiX9B5FsudtspGHU6Kp/5V1nanAWWzi6FZlpjEplBqcWjtOvxnv2VhqlXAiKmP+8XTYbIDNeXg5yvX9bKO1KSjXT/RUEedzXu1hMZUzd0/VjAsrmT8J5Mp3/BjEV9XioYLZt0UKYNl3SczioXKehhp6DvQ56MtWyBfwxOhXJIfUvDuaQCxXw8nuLm74uuE=
         file_glob: true
         file: dist/*
-        skip_cleanup: true
+        cleanup: false
+        edge: true
         on:
           all_branches: true
 
