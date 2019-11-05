@@ -2,7 +2,7 @@
 Data Extractor
 ==============
 
-|license| |Pypi Status| |Python version| |Python version| |PyPI - Downloads|
+|license| |Pypi Status| |Python version| |Package version| |PyPI - Downloads|
 |GitHub last commit| |Code style: black| |Build Status| |codecov|
 |Documentation Status|
 
