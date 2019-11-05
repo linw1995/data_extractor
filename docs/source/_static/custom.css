@@ -9,3 +9,7 @@ dl.class{
 dl.method, dl.field-list {
     margin-bottom: 0.5rem;
 }
+
+pre {
+    padding: 7px 15px;
+}

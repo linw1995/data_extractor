@@ -51,10 +51,16 @@ exclude_patterns = []
 #
 html_theme = "alabaster"
 html_theme_options = {
-    "description": "Combine XPath, CSS Selector and JSONPath for Web data extracting.",
+    "description": "Combine XPath, CSS Selectors and JSONPath for Web data extracting.",
+    "github_button": True,
+    "github_type": "star",
+    "travis_button": True,
+    "codecov_button": True,
     "github_user": "linw1995",
     "github_repo": "data_extractor",
-    "fixed_sidebar": True,
+    "fixed_sidebar": False,
+    "page_width": "1024px",
+    "sidebar_width": "230px",
 }
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
