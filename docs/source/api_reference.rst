@@ -1,5 +1,7 @@
+=============
 API Reference
-=======================
+=============
+
 .. automodule:: data_extractor
 
 .. toctree::
