@@ -9,16 +9,16 @@ os:
 
 python:
   - &mainstream_python 3.7
-  - 3.7-dev
+  - 3.8
 
 env:
   global:
     - POETRY_VERSION=0.12.17
 
 install:
-  - &install_poetry pip install "poetry==$POETRY_VERSION" && poetry --version && poetry config settings.virtualenvs.create false
-  - &install_test_deps poetry install --no-interaction --no-ansi -vvv --no-dev -E test
-  - pip install codecov
+  - &install_poetry pip install "poetry==$POETRY_VERSION" && poetry --version
+  - &install_test_deps make POETRY_EXTRAS=test init_by_poetry
+  - .venv/bin/pip install codecov
 
 before_script: skip
 
@@ -26,7 +26,7 @@ script:
   - make _cov
 
 after_success:
-  - codecov
+  - .venv/bin/codecov
 
 _helpers:
   - &_mainstream_python_base
@@ -43,6 +43,9 @@ _helpers:
     stage: &deploy_stage_name Deploy
     <<: *_mainstream_python_base
     <<: *_reset_steps
+    install:
+      - *install_poetry
+      - &install_common_deps make POETRY_EXTRAS= init_by_poetry
 
 jobs:
   include:
@@ -52,30 +55,26 @@ jobs:
       name: Check source code with pre-commit
       install:
         - *install_poetry
-        - &install_linting_deps poetry install --no-interaction --no-ansi -vvv -E linting
+        - &install_linting_deps make POETRY_EXTRAS=linting init_by_poetry
       script:
         - make check-all
     - <<: *_deploy_base
       name: PyPI deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_PYPI_DEBUG) = true)
-      install:
-        - *install_poetry
       before_deploy:
-        - poetry config http-basic.pypi $PYPI_USERNAME $PYPI_PASSWORD
-        - poetry build
+        - .venv/bin/poetry config http-basic.pypi $PYPI_USERNAME $PYPI_PASSWORD
+        - .venv/bin/poetry build
       deploy:
         provider: script
-        script: poetry publish
+        script: .venv/bin/poetry publish
         skip_cleanup: true
         on:
           all_branches: true
     - <<: *_deploy_base
       name: Github Release deployment
       if: ((tag =~ ^v) AND (branch = master)) OR ((tag =~ ^v) AND (tag = branch)) OR (env(DEPLOY_GH_RELEASE_DEBUG) = true)
-      install:
-        - *install_poetry
       script:
-        - poetry build
+        - .venv/bin/poetry build
       deploy:
         provider: releases
         api_key:

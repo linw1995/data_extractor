@@ -1,10 +1,15 @@
 """
 :mod:`data_extractor`
 =====================
-Combine **XPath**, **CSS Selector** and **JSONPath** for Web data extracting.
+Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 """
 # Local Folder
-from .abc import AbstractExtractor, ComplexExtractorMeta, SimpleExtractorBase
+from .abc import (
+    AbstractComplexExtractor,
+    AbstractExtractors,
+    AbstractSimpleExtractor,
+    ComplexExtractorMeta,
+)
 from .exceptions import ExprError, ExtractError
 from .item import Field, Item
 from .json import JSONExtractor
@@ -15,11 +20,19 @@ from .lxml import (
     TextCSSExtractor,
     XPathExtractor,
 )
-from .utils import LazyStr, sentinel
+from .utils import (
+    LazyStr,
+    is_complex_extractor,
+    is_extractor,
+    is_simple_extractor,
+    sentinel,
+)
 
 
 __all__ = (
-    "AbstractExtractor",
+    "AbstractComplexExtractor",
+    "AbstractExtractors",
+    "AbstractSimpleExtractor",
     "AttrCSSExtractor",
     "CSSExtractor",
     "ComplexExtractorMeta",
@@ -30,8 +43,10 @@ __all__ = (
     "Item",
     "JSONExtractor",
     "LazyStr",
-    "SimpleExtractorBase",
     "TextCSSExtractor",
     "XPathExtractor",
+    "is_complex_extractor",
+    "is_extractor",
+    "is_simple_extractor",
     "sentinel",
 )

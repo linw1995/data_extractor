@@ -1,120 +1,258 @@
 """
+====================================
 :mod:`abc` -- Abstract Base Classes.
 ====================================
 """
 # Standard Library
+import ast
 import inspect
 import warnings
 
 from abc import abstractmethod
-from typing import Any, Dict, List, Tuple
+from collections import namedtuple
+from types import FrameType, FunctionType, MethodType
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 # Local Folder
-from .utils import sentinel
+from .utils import BuildProperty, Property, getframe, sentinel
 
 
-class ComplexExtractorMeta(type):
+_LineInfo = namedtuple("LineInfo", ["file", "lineno", "offset", "line"])
+
+
+def _find_line_info_of_attr_in_source(
+    frame: Optional[FrameType], key: str, attr: "AbstractComplexExtractor"
+) -> _LineInfo:
+    if frame is None:
+        return _LineInfo(None, None, None, f"{key}={attr!r}")
+
+    file = frame.f_code.co_filename
+    firstlineno = frame.f_lineno
+    firstline_idx = firstlineno - 1
+    try:
+        lines, _ = inspect.findsource(frame)
+    except OSError:
+        # can't get the source code from python repl
+        return _LineInfo(None, None, None, f"{key}={attr!r}")
+
+    start_index = inspect.indentsize(lines[firstline_idx])
+    for lineno, line in enumerate(
+        lines[firstline_idx + 1 :], start=firstlineno + 1
+    ):
+        # iterate line in the code block body
+        cur_index = inspect.indentsize(line)
+        if cur_index <= start_index:
+            # reach end of the code block,
+            # use code block firstlineno as SyntaxError.lineno
+            line = lines[firstline_idx]
+            lineno = firstlineno
+            break
+
+        if line.lstrip().startswith(key):
+            # find the line as SyntaxError.text
+            break
+
+    else:
+        # reach EOF,
+        # use code block firstlineno as SyntaxError.lineno
+        line = lines[firstline_idx]
+        lineno = firstlineno
+
+    offset = inspect.indentsize(line)
+    line = line.strip()
+    return _LineInfo(file, lineno, offset, line)
+
+
+def _check_field_overwrites_bases_property(
+    cls: object,
+    name: str,
+    bases: Tuple[object],
+    key: str,
+    attr: "AbstractComplexExtractor",
+) -> None:
+    attr_from_bases = getattr(bases[-1], key, None)
+    if isinstance(attr_from_bases, Property) or key == "_field_names":
+        # Item's attribute overwrites its property.
+        frame = getframe(2)
+        exc_args = _find_line_info_of_attr_in_source(frame, key, attr)
+        *_, line = exc_args
+        err_msg = (
+            f"{line!r} overwriten "
+            f"the property {key!r} of {name}. "
+            f"Please using the optional parameter name={key!r} "
+            f"in {attr!r} to avoid overwriting property."
+        )
+        raise SyntaxError(err_msg, exc_args)
+
+
+def _check_field_overwrites_bases_method(
+    cls: object,
+    name: str,
+    bases: Tuple[object],
+    key: str,
+    attr: "AbstractComplexExtractor",
+) -> None:
+    attr_from_bases = getattr(bases[-1], key, None)
+    if isinstance(attr_from_bases, (FunctionType, MethodType)):
+        # Item's attribute overwrites its class bases' method.
+        frame = getframe(2)
+        exc_args = _find_line_info_of_attr_in_source(frame, key, attr)
+        *_, line = exc_args
+        err_msg = (
+            f"{line!r} overwriten "
+            f"the method {key!r} of {name!r}. "
+            f"Please using the optional parameter name={key!r} "
+            f"in {attr!r} to avoid overwriting method."
+        )
+        raise SyntaxError(err_msg, exc_args)
+
+
+def _check_field_overwrites_method(cls: object) -> None:
+    frame = getframe(2)
+    if frame is None:
+        return
+
+    filename = frame.f_code.co_filename
+    firstlineno = frame.f_lineno
+    try:
+        lines, _ = inspect.findsource(frame)
+    except OSError:
+        # can't get the source code from python repl
+        return
+
+    source = "".join(lines)
+    mod = ast.parse(source)
+    for node in ast.walk(mod):
+        if isinstance(node, ast.ClassDef) and node.lineno == firstlineno:
+            cls_node = node
+            break
+    else:  # pragma: no cover
+        assert 0, f"Can't find the source of {cls}."
+
+    assigns: Dict[str, ast.Assign] = {}
+    methods: Dict[str, ast.FunctionDef] = {}
+    for node in cls_node.body:
+        if isinstance(node, ast.Assign):
+            for target_ in node.targets:
+                if not isinstance(target_, ast.Name):
+                    continue
+
+                assigns[target_.id] = node
+        elif isinstance(node, ast.FunctionDef):
+            methods[node.name] = node
+
+    unions = assigns.keys() & methods.keys()
+    if not unions:
+        return
+
+    key = next(iter(unions))
+    assign = assigns[key]
+    method = methods[key]
+    if assign.lineno > method.lineno:
+        lineno = assign.lineno
+        offset = assign.col_offset
+        line = lines[lineno - 1].strip()
+
+        msg = (
+            f"method {lines[method.lineno - 1].strip()!r} "
+            f"on lineno={method.lineno} "
+            f"overwrited by assign {line!r}. "
+            f"Please using the optional parameter name={key!r} "
+            f"in {line!r} to avoid overwriting."
+        )
+    else:
+        lineno = method.lineno
+        offset = method.col_offset
+        line = lines[lineno - 1].strip()
+        msg = (
+            f"assign {lines[assign.lineno - 1].strip()!r} "
+            f"on lineno={assign.lineno} "
+            f"overwrited by method {line!r}. "
+            f"Please using the optional parameter name={key!r} "
+            f"in {lines[assign.lineno - 1].strip()!r} to avoid overwriting."
+        )
+
+    raise SyntaxError(msg, (filename, lineno, offset, line))
+
+
+class SimpleExtractorMeta(type):
+    """
+    Simple Extractor Meta Class.
+    """
+
+    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
+        super().__init__(name, bases, attr_dict)
+
+        for key, attr in attr_dict.items():
+            if isinstance(attr, Property) and attr.name is None:
+                attr.name = "__" + key
+
+
+class ComplexExtractorMeta(SimpleExtractorMeta):
     """
     Complex Extractor Meta Class.
     """
 
-    _field_names: List[str]
-
-    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
+    def __init__(
+        cls,  # noqa: B902
+        name: str,
+        bases: Tuple[type],
+        attr_dict: Dict[str, Any],
+    ):
         super().__init__(name, bases, attr_dict)
+
         field_names = []
-        if hasattr(cls, "_field_names"):
-            field_names.extend(cls._field_names)
-
-        __init_args = inspect.getfullargspec(getattr(cls, "__init__")).args
-
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
-                if key in __init_args[1:]:
-                    # Item's attribute overwrites
-                    # the 'Item.__init__' parameters except first parameter.
-                    exc_args = None
-                    frame = inspect.currentframe()
-                    assert frame is not None, (
-                        "If running in an implementation "
-                        "without Python stack frame support, "
-                        "this function returns None."
-                    )
-                    try:
-                        outer_frame = frame.f_back
-
-                        filename = outer_frame.f_code.co_filename
-                        firstlineno = outer_frame.f_lineno
-                        firstline_idx = firstlineno - 1
-                        lines = None
-                        try:
-                            lines, _ = inspect.findsource(outer_frame)
-                        except OSError:
-                            # can't get the source code from python repl
-                            pass
-
-                        if lines is not None:
-                            start_index = inspect.indentsize(lines[firstline_idx])
-                            for lineno, line in enumerate(
-                                lines[firstline_idx + 1 :], start=firstlineno + 1
-                            ):
-                                # iterate line in the code block body
-                                cur_index = inspect.indentsize(line)
-                                if cur_index <= start_index:
-                                    # reach end of the code block,
-                                    # use code block firstlineno as SyntaxError.lineno
-                                    line = lines[firstline_idx]
-                                    lineno = firstlineno
-                                    break
-
-                                if line.lstrip().startswith(key):
-                                    # find the line as SyntaxError.text
-                                    break
-
-                            else:
-                                # reach EOF,
-                                # use code block firstlineno as SyntaxError.lineno
-                                line = lines[firstline_idx]
-                                lineno = firstlineno
-
-                            offset = inspect.indentsize(line)
-                            line = line.strip()
-                            exc_args = (filename, lineno, offset, line)
-                        else:
-                            line = f"{key}={attr!r}"
-
-                    finally:
-                        del outer_frame
-                        del frame
-
-                    err_msg = (
-                        f"{line!r} overwriten "
-                        f"the parameter {key!r} of '{name}.__init__' method. "
-                        f"Please using the optional parameter name={key!r} "
-                        "in {attr!r} to avoid overwriting parameter name."
-                    )
-                    if exc_args is not None:
-                        raise SyntaxError(err_msg, exc_args)
-                    else:
-                        raise SyntaxError(err_msg)
+                # can't using data_extractor.utils.is_complex_extractor here,
+                # because AbstractComplexExtractor which being used in it
+                # bases on ComplexExtractorMeta.
+                _check_field_overwrites_bases_method(
+                    cls, name, bases, key, attr
+                )
+                _check_field_overwrites_bases_property(
+                    cls, name, bases, key, attr
+                )
 
                 field_names.append(key)
 
-        cls._field_names = field_names
+        # check field overwrites method
+        _check_field_overwrites_method(cls)
+
+        if not bases:
+            cls._field_names: List[str] = field_names
+        else:
+            field_names.extend(cls._field_names)
+            cls._field_names = field_names
 
 
-class AbstractExtractor(metaclass=ComplexExtractorMeta):
+class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
     """
-    All Extractors' Abstract Base Clase.
+    Abstract Simple Extractor Clase.
+
+    Its metaclass is :class:`data_extractor.abc.SimpleExtractorMeta`
 
     :param expr: Extractor selector expression.
+    :type expr: str
     """
+
+    expr = BuildProperty()
 
     def __init__(self, expr: str):
         self.expr = expr
+        self.built = False
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.expr!r})"
+
+    @abstractmethod
+    def build(self) -> None:
+        """
+        Build the function of extracting explicitly.
+
+        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
+        """
+        raise NotImplementedError
 
     @abstractmethod
     def extract(self, element: Any) -> Any:
@@ -122,36 +260,36 @@ class AbstractExtractor(metaclass=ComplexExtractorMeta):
         Extract data or subelement from element.
 
         :param element: The target data node element.
+        :type element: Any
 
         :returns: Data or subelement.
+        :rtype: Any
+
+        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
         """
         raise NotImplementedError
-
-
-class SimpleExtractorBase(AbstractExtractor):
-    """
-    Simple Extractor Base Class.
-
-    :param expr: extractor selector expression.
-    """
 
     def extract_first(self, element: Any, default: Any = sentinel) -> Any:
         """
         Extract the first data or subelement from `extract` method call result.
 
         :param element: The target data node element.
+        :type element: Any
         :param default: Default value when not found. \
             Default: :data:`data_extractor.utils.sentinel`.
+        :type default: Any, optional
 
         :returns: Data or subelement.
+        :rtype: Any
 
-        :raises data_extractor.exceptions.ExtractError: \
+        :raises ~data_extractor.exceptions.ExtractError: \
             Thrown by extractor extracting wrong data.
         """
         rv = self.extract(element)
         if not isinstance(rv, list):
             warnings.warn(
-                f"{self!r} can't extract first item from result {rv!r}", UserWarning
+                f"{self!r} can't extract first item from result {rv!r}",
+                UserWarning,
             )
             return rv
 
@@ -166,4 +304,50 @@ class SimpleExtractorBase(AbstractExtractor):
         return rv[0]
 
 
-__all__ = ("AbstractExtractor", "ComplexExtractorMeta", "SimpleExtractorBase")
+class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
+    """
+    Abstract Complex Extractor Clase.
+
+    Its metaclass is :class:`data_extractor.abc.ComplexExtractorMeta`
+    """
+
+    built = Property()
+
+    def __init__(self) -> None:
+        self.built = False
+
+    @abstractmethod
+    def build(self) -> None:
+        """
+        Build the function of extracting explicitly.
+
+        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def extract(self, element: Any) -> Any:
+        """
+        Extract the wanted data.
+
+        :param element: The target data node element.
+        :type element: Any
+
+        :returns: Data or subelement.
+        :rtype: Any
+
+        :raises ~data_extractor.exceptions.ExtractError: \
+            Thrown by extractor extracting wrong data.
+        """
+        raise NotImplementedError
+
+
+AbstractExtractors = Union[AbstractSimpleExtractor, AbstractComplexExtractor]
+
+__all__ = (
+    "AbstractComplexExtractor",
+    "AbstractExtractors",
+    "AbstractSimpleExtractor",
+    "ComplexExtractorMeta",
+    "SimpleExtractorMeta",
+)

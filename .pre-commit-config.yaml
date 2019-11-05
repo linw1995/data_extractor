@@ -27,51 +27,58 @@ repos:
       - id: check-black
         name: check-black
         description: The uncompromising code checker.
-        entry: black --check --diff --quiet
+        entry: .venv/bin/black --check --diff --quiet
         types: [python]
         language: system
       - id: flake8
         name: flake8
         description: the modular source code checker
-        entry: flake8
+        entry: .venv/bin/flake8
         types: [python]
         language: system
       - id: check-isort
         name: check-isort
         description: check all imports of all python files
-        entry: isort --diff -c
+        entry: .venv/bin/isort --diff -c
         types: [python]
         language: system
       - id: black
         name: black
         description: The uncompromising code formatter.
-        entry: black --safe --quiet
+        entry: .venv/bin/black --safe --quiet
         types: [python]
         language: system
       - id: isort
         name: isort
         description: sort all imports of all python files
-        entry: isort -y
+        entry: .venv/bin/isort -y
         types: [python]
         language: system
       - id: mypy
         name: mypy
         description: static typing for Python
         stages: [push]
-        entry: mypy
+        entry: .venv/bin/mypy data_extractor
         types: [python]
         exclude: (tests|docs)/
         language: system
+        pass_filenames: false
       - id: blacken-docs
         name: blacken-docs
         description: Run `black` on python code blocks in documentation files
-        entry: blacken-docs
-        exclude_types: ["python"]
-        types: ["file", "non-executable", "text"]
+        entry: .venv/bin/blacken-docs --line-length 80
+        exclude_types: [python, toml, yaml, ini, makefile]
+        types: [file, non-executable, text]
         language: system
       - id: doc8
         name: doc8
         description: Style checker for Sphinx (or other) RST documentation
-        entry: doc8 -q
+        entry: .venv/bin/doc8 -q
         types: [rst]
         language: system
+      - id: build_readme
+        name: build_readme
+        description: Build README.rst
+        entry: .venv/bin/python scripts/build_readme.py README.template.rst README.rst
+        language: system
+        pass_filenames: false

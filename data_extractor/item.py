@@ -1,4 +1,5 @@
 """
+=====================================================
 :mod:`item` -- Complex Extractor for data extracting.
 =====================================================
 """
@@ -9,38 +10,54 @@ import warnings
 from typing import Any, Iterator
 
 # Local Folder
-from .abc import AbstractExtractor, SimpleExtractorBase
+from .abc import (
+    AbstractComplexExtractor,
+    AbstractSimpleExtractor,
+    BuildProperty,
+)
 from .exceptions import ExtractError
-from .utils import sentinel
+from .utils import Property, is_simple_extractor, sentinel
 
 
-class Field(AbstractExtractor):
+class Field(AbstractComplexExtractor):
     """
     Extract data by cooperating with extractor.
 
-    :param extractor: The object for data extracting \
-        base on :class:`data_extractor.abc.SimpleExtractor`.
+    :param extractor: The object for data extracting
+    :type extractor: :class:`data_extractor.abc.AbstractSimpleExtractor`
     :param name: Optional parameter for special field name.
+    :type name: str, optional
     :param default: Default value when not found. \
         Default: :data:`data_extractor.utils.sentinel`.
+    :type default: Any
     :param is_many: Indicate the data which extractor extracting is more than one.
+    :type is_many: bool
 
     :raises ValueError: Invalid SimpleExtractor.
     :raises ValueError: Can't both set default and is_manay=True.
     """
 
+    extractor = BuildProperty()
+    name = Property()
+    default = Property()
+    is_many = Property()
+
     def __init__(
         self,
-        extractor: SimpleExtractorBase = None,
+        extractor: AbstractSimpleExtractor = None,
         name: str = None,
         default: Any = sentinel,
         is_many: bool = False,
     ):
-        if extractor is not None and not isinstance(extractor, SimpleExtractorBase):
+        super().__init__()
+
+        if extractor is not None and not is_simple_extractor(extractor):
             raise ValueError(f"Invalid SimpleExtractor: {extractor!r}")
 
         if default is not sentinel and is_many:
-            raise ValueError(f"Can't both set default={default} and is_many=True")
+            raise ValueError(
+                f"Can't both set default={default} and is_many=True"
+            )
 
         self.extractor = extractor
         self.name = name
@@ -60,17 +77,17 @@ class Field(AbstractExtractor):
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 
+    def build(self) -> None:
+        if self.extractor is not None:
+            self.extractor.build()
+
+        if self.__class__ is Field:
+            self.built = True
+
     def extract(self, element: Any) -> Any:
-        """
-        Extract the wanted data.
+        if not self.built:
+            self.build()
 
-        :param element: The target data node element.
-
-        :returns: Data or subelement.
-
-        :raises data_extractor.exceptions.ExtractError: \
-            Thrown by extractor extracting wrong data.
-        """
         if self.extractor is None:
             rv = [element]
         else:
@@ -125,27 +142,39 @@ class Item(Field):
         """
         Iterate all `Item` or `Field` type attributes' name.
         """
-        for name in cls._field_names:
-            yield name
+        yield from cls._field_names
 
-    def simplify(self) -> SimpleExtractorBase:
+    def build(self) -> None:
+        super().build()
+
+        for extractor_name in self.field_names():
+            extractor: Field = getattr(self, extractor_name)
+            if not extractor.built:
+                extractor.build()
+
+        self.built = True
+
+    def simplify(self) -> AbstractSimpleExtractor:
         """
         Create an extractor that has compatible API like SimpleExtractor's.
 
-        :returns: An simple extractor, \
-            its class base on :class:`data_extractor.abc.SimpleExtractorBase`
+        :returns: A simple extractor.
+        :rtype: :class:`data_extractor.abc.AbstractSimpleExtractor`
         """
         duplicated = copy.deepcopy(self)
 
-        def extract(self: SimpleExtractorBase, element: Any) -> Any:
+        def build(self: AbstractSimpleExtractor) -> None:
+            duplicated.build()
+
+        def extract(self: AbstractSimpleExtractor, element: Any) -> Any:
             duplicated.is_many = True
             return duplicated.extract(element)
 
-        def extract_first(self: SimpleExtractorBase, element: Any) -> Any:
+        def extract_first(self: AbstractSimpleExtractor, element: Any) -> Any:
             duplicated.is_many = False
             return duplicated.extract(element)
 
-        def getter(self: SimpleExtractorBase, name: str) -> Any:
+        def getter(self: AbstractSimpleExtractor, name: str) -> Any:
             if (
                 name not in ("extract", "extract_first")
                 and not name.startswith("__")
@@ -154,13 +183,13 @@ class Item(Field):
                 return getattr(duplicated.extractor, name)
             return super(type(self), self).__getattribute__(name)
 
-        def setter(self: SimpleExtractorBase, name: str, value: Any) -> Any:
+        def setter(self: AbstractSimpleExtractor, name: str, value: Any) -> Any:
             if hasattr(duplicated.extractor, name):
                 return setattr(duplicated.extractor, name, value)
             return super(type(self), self).__setattr__(name, value)
 
         classname = f"{type(duplicated).__name__}Simplified"
-        base = SimpleExtractorBase
+        base = AbstractSimpleExtractor
         if duplicated.extractor is not None:
             base = type(duplicated.extractor)
 
@@ -168,12 +197,17 @@ class Item(Field):
             classname,
             (base,),
             {
+                "build": build,
                 "extract": extract,
                 "extract_first": extract_first,
                 "__getattribute__": getter,
                 "__setattr__": setter,
             },
-        )(expr=duplicated.extractor.expr if duplicated.extractor is not None else None)
+        )(
+            expr=duplicated.extractor.expr
+            if duplicated.extractor is not None
+            else None
+        )
 
 
 __all__ = ("Field", "Item")

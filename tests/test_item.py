@@ -1,18 +1,20 @@
 # Standard Library
 import inspect
 import linecache
+import reprlib
 
 from pathlib import Path
+from types import FunctionType
 
 # Third Party Library
 import pytest
 
 # First Party Library
-from data_extractor.abc import SimpleExtractorBase
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
 from data_extractor.lxml import CSSExtractor, TextCSSExtractor, XPathExtractor
+from data_extractor.utils import is_complex_extractor, is_simple_extractor
 
 
 @pytest.fixture
@@ -35,6 +37,13 @@ def element0():
     return fromstring(text)
 
 
+@pytest.fixture(
+    params=["extractor", "name", "default", "is_many", "_field_names", "built"]
+)
+def item_property(request):
+    return request.param
+
+
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
@@ -45,14 +54,28 @@ def element0():
     ],
     ids=repr,
 )
-def test_field_extract(element0, Extractor, expr, expect):
-    assert expect == Field(Extractor(expr)).extract(element0)
+def test_field_extract(element0, Extractor, expr, expect, build_first):
+    field = Field(Extractor(expr))
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert expect == field.extract(element0)
+    assert field.built
+    assert field.extractor.built
 
 
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
-        (XPathExtractor, "//div[@class='title']/text()", ["Title 1", "Title 2"]),
+        (
+            XPathExtractor,
+            "//div[@class='title']/text()",
+            ["Title 1", "Title 2"],
+        ),
         (XPathExtractor, "//div[@class='content']/text()", ["Content 1"]),
         (XPathExtractor, "//div[@class='notexists']/text()", []),
         (TextCSSExtractor, ".title", ["Title 1", "Title 2"]),
@@ -61,8 +84,20 @@ def test_field_extract(element0, Extractor, expr, expect):
     ],
     ids=repr,
 )
-def test_field_extract_with_is_many(element0, Extractor, expr, expect):
-    assert expect == Field(Extractor(expr), is_many=True).extract(element0)
+def test_field_extract_with_is_many(
+    element0, Extractor, expr, expect, build_first
+):
+    field = Field(Extractor(expr), is_many=True)
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert expect == field.extract(element0)
+    assert field.built
+    assert field.extractor.built
 
 
 @pytest.mark.parametrize(
@@ -73,8 +108,20 @@ def test_field_extract_with_is_many(element0, Extractor, expr, expect):
     ],
     ids=repr,
 )
-def test_field_extract_with_default(element0, Extractor, expr, expect):
-    assert expect == Field(Extractor(expr), default=expect).extract(element0)
+def test_field_extract_with_default(
+    element0, Extractor, expr, expect, build_first
+):
+    field = Field(Extractor(expr), default=expect)
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert expect == field.extract(element0)
+    assert field.built
+    assert field.extractor.built
 
 
 @pytest.mark.parametrize(
@@ -85,10 +132,20 @@ def test_field_extract_with_default(element0, Extractor, expr, expect):
     ],
     ids=repr,
 )
-def test_field_extract_without_default(element0, Extractor, expr):
+def test_field_extract_without_default(element0, Extractor, expr, build_first):
     extractor = Field(Extractor(expr))
+    assert not extractor.built
+    assert not extractor.extractor.built
+    if build_first:
+        extractor.build()
+        assert extractor.built
+        assert extractor.extractor.built
+
     with pytest.raises(ExtractError) as catch:
         extractor.extract(element0)
+
+    assert extractor.built
+    assert extractor.extractor.built
 
     exc = catch.value
     assert len(exc.extractors) == 1
@@ -101,20 +158,38 @@ def test_field_parameters_conflict():
         Field(TextCSSExtractor(".nomatter"), is_many=True, default=None)
 
 
-def test_field_xpath_extract_result_not_list(element0):
-    assert (
-        Field(XPathExtractor("normalize-space(//div[@class='title'])")).extract(
-            element0
-        )
-        == "Title 1"
-    )
+def test_field_xpath_extract_result_not_list(element0, build_first):
+    field = Field(XPathExtractor("normalize-space(//div[@class='title'])"))
+    assert not field.built
+    assert not field.extractor.built
+    if build_first:
+        field.build()
+        assert field.built
+        assert field.extractor.built
+
+    assert field.extract(element0) == "Title 1"
+    assert field.built
+    assert field.extractor.built
 
 
-def test_field_xpath_extract_result_not_list_conflict_with_is_many(element0):
+def test_field_xpath_extract_result_not_list_conflict_with_is_many(
+    element0, build_first
+):
     with pytest.warns(UserWarning):
-        Field(
-            XPathExtractor("normalize-space(//div[@class='title'])"), is_many=True
-        ).extract(element0)
+        field = Field(
+            XPathExtractor("normalize-space(//div[@class='title'])"),
+            is_many=True,
+        )
+        assert not field.built
+        assert not field.extractor.built
+        if build_first:
+            field.build()
+            assert field.built
+            assert field.extractor.built
+
+        field.extract(element0)
+        assert field.built
+        assert field.extractor.built
 
 
 @pytest.fixture
@@ -145,18 +220,50 @@ def Article0():
     return Article
 
 
-def test_item_extract(element1, Article0):
-    assert Article0(CSSExtractor("li.article"), is_many=True).extract(element1) == [
+def test_item_extract(element1, Article0, build_first):
+    item = Article0(CSSExtractor("li.article"), is_many=True)
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
+    assert item.extract(element1) == [
         {"title": "Title 1", "content": "Content 1"},
         {"title": "Title 2", "content": "Content 2"},
     ]
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
 
-def test_item_extract_without_is_many(element1, Article0):
-    assert Article0(CSSExtractor("li.article")).extract(element1) == {
+def test_item_extract_without_is_many(element1, Article0, build_first):
+    item = Article0(CSSExtractor("li.article"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
+    assert item.extract(element1) == {
         "title": "Title 1",
         "content": "Content 1",
     }
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
 
 @pytest.fixture
@@ -177,28 +284,62 @@ def element2():
     return fromstring(text)
 
 
-def test_item_extract_failure_when_last_field_missing(element2, Article0):
-    extractor = Article0(CSSExtractor("li.article"), is_many=True)
+def test_item_extract_failure_when_last_field_missing(
+    element2, Article0, build_first
+):
+    item = Article0(CSSExtractor("li.article"), is_many=True)
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
     with pytest.raises(ExtractError) as catch:
-        extractor.extract(element2)
+        item.extract(element2)
+
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
     exc = catch.value
     assert len(exc.extractors) == 2
     assert exc.extractors[0] is Article0.content
-    assert exc.extractors[1] is extractor
+    assert exc.extractors[1] is item
     assert exc.element is element2.xpath("//li[@class='article'][2]")[0]
 
 
 def test_item_extract_success_without_is_many_when_last_field_missing(
-    element2, Article0
+    element2, Article0, build_first
 ):
-    assert Article0(CSSExtractor("li.article")).extract(element2) == {
+    item = Article0(CSSExtractor("li.article"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.title.built
+    assert not item.content.built
+    if build_first:
+        item.build()
+        assert item.built
+        assert item.extractor.built
+        assert item.title.built
+        assert item.content.built
+
+    assert item.extract(element2) == {
         "title": "Title 1",
         "content": "Content 1",
     }
+    assert item.built
+    assert item.extractor.built
+    assert item.title.built
+    assert item.content.built
 
 
-def test_complex_item_extract_xml_data():
+def test_complex_item_extract_xml_data(build_first):
     from lxml.etree import fromstring
 
     sample_rss_path = Path(__file__).parent / "assets" / "sample-rss-2.xml"
@@ -278,12 +419,20 @@ def test_complex_item_extract_xml_data():
             "guid": "http://liftoff.msfc.nasa.gov/2003/05/20.html#item570",
         },
     ]
-    assert ChannelItem(CSSExtractor("channel>item")).extract(element) == items_result[0]
-    assert (
-        ChannelItem(CSSExtractor("channel>item"), is_many=True).extract(element)
-        == items_result
-    )
-    assert Channel(XPathExtractor("//channel")).extract(element) == {
+    item = ChannelItem(CSSExtractor("channel>item"))
+    if build_first:
+        item.build()
+    assert item.extract(element) == items_result[0]
+
+    item = ChannelItem(CSSExtractor("channel>item"), is_many=True)
+    if build_first:
+        item.build()
+    assert item.extract(element) == items_result
+
+    item = Channel(XPathExtractor("//channel"))
+    if build_first:
+        item.build()
+    assert item.extract(element) == {
         "title": "Liftoff News",
         "link": "http://liftoff.msfc.nasa.gov/",
         "description": "Liftoff to Space Exploration.",
@@ -298,7 +447,7 @@ def test_complex_item_extract_xml_data():
     }
 
 
-def test_complex_item_extract_json_data(json0):
+def test_complex_item_extract_json_data(json0, build_first):
     data = json0
 
     class User(Item):
@@ -320,11 +469,20 @@ def test_complex_item_extract_json_data(json0):
         {"uid": 4, "name": "Clarke Patrick", "gender": "male"},
         {"uid": 5, "name": "Whitney Mcfadden", "gender": None},
     ]
-    assert User(JSONExtractor("data.users[*]")).extract(data) == users_result[0]
-    assert (
-        User(JSONExtractor("data.users[*]"), is_many=True).extract(data) == users_result
-    )
-    assert UserResponse(JSONExtractor("data")).extract(data) == {
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == users_result[0]
+
+    item = User(JSONExtractor("data.users[*]"), is_many=True)
+    if build_first:
+        item.build()
+    assert item.extract(data) == users_result
+
+    item = UserResponse(JSONExtractor("data"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {
         "start": 0,
         "size": 5,
         "total": 100,
@@ -340,7 +498,7 @@ def test_misplacing():
         Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))
 
 
-def test_field_name_overwrite_item_parameter_common():
+def test_field_overwrites_item_property_common(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
         class User(Item):
@@ -348,76 +506,128 @@ def test_field_name_overwrite_item_parameter_common():
             name = Field(JSONExtractor("name"))
 
     exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 4
-    assert exc.offset == 12
-    assert exc.text == 'name = Field(JSONExtractor("name"))'
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 5
+        assert exc.offset == 12
+        assert exc.text == 'name = Field(JSONExtractor("name"))'
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == "name=Field(JSONExtractor('name'))"
 
 
-def test_field_name_overwrite_item_parameter_oneline():
+def test_field_overwrites_item_property_oneline(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
         class Parameter(Item): name = Field(XPathExtractor("./span[@class='name']"))  # noqa: B950, E701
         # fmt: on
 
     exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 5
-    assert exc.offset == 8
-    assert (
-        exc.text
-        == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701"
-    )
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 6
+        assert exc.offset == 8
+        assert (
+            exc.text
+            == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701"
+        )
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert (
+            exc.text
+            == """name=Field(XPathExtractor("./span[@class='name']"))"""
+        )
 
 
-def test_field_name_overwrite_item_parameter_type_creation():
+def test_field_overwrites_item_parameter_type_creation(
+    stack_frame_support, item_property
+):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
-        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
+        type("Parameter", (Item,), {item_property: Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
         # fmt: on
 
     exc = catch.value
-    assert exc.filename == __file__
-    assert exc.lineno == inspect.currentframe().f_lineno - 5
-    assert exc.offset == 8
-    assert (
-        exc.text
-        == """
-        type("Parameter", (Item,), {"name": Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 6
+        assert exc.offset == 8
+        assert (
+            exc.text
+            == """
+        type("Parameter", (Item,), {item_property: Field(XPathExtractor("./span[@class='name']"))})  # noqa: E950
         """.strip()
-    )
+        )
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert (
+            exc.text
+            == f"""{item_property}=Field(XPathExtractor("./span[@class='name']"))"""
+        )
 
 
-source_codes = [
-    """
-    type("Parameter",(Item,),{"name": Field(XPathExtractor("./span[@class='name']"))})
+@pytest.mark.parametrize(
+    "template, text_template",
+    [
+        (
+            """
+    type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})
     """.strip(),
-    "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
-    """class User(Item):
-    uid = Field(JSONExtractor("id")); name = Field(JSONExtractor("name"))
-    """,
-    """
+            """%s=Field(XPathExtractor("./span[@class='name']"))""",
+        ),
+        (
+            "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
+            """%s=Field(XPathExtractor(\"./span[@class='name']\"))""",
+        ),
+        (
+            """
+class User(Item):
+    uid = Field(JSONExtractor("id")); %s = Field(JSONExtractor("name"))
+    """.strip(),
+            "%s=Field(JSONExtractor('name'))",
+        ),
+        (
+            """
 class User(Item):
     uid = Field(JSONExtractor("id"))
-    name = Field(JSONExtractor("name"))
-    """,
-]
-
-
-@pytest.mark.parametrize("source_code", source_codes)
-def test_field_name_overwrite_item_parameter_in_repl(source_code):
+    %s = Field(JSONExtractor("name"))
+    """.strip(),
+            "%s=Field(JSONExtractor('name'))",
+        ),
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_item_property_in_repl(
+    template, text_template, item_property, stack_frame_support
+):
     with pytest.raises(SyntaxError) as catch:
-        exec(source_code)
+        exec(template % (item_property,))
 
     exc = catch.value
     assert exc.filename is None
     assert exc.lineno is None
     assert exc.offset is None
-    assert exc.text is None
+    assert exc.text == text_template % (item_property,)
 
 
-@pytest.mark.parametrize("source_code", source_codes[:-1])
-def test_field_name_overwrite_item_parameter_oneline_in_script(source_code, tmp_path):
+@pytest.mark.parametrize(
+    "template",
+    [
+        """type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})""",  # noqa: B950
+        "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))",  # noqa: B950
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_item_property_oneline_in_script(
+    tmp_path, stack_frame_support, template, item_property
+):
+    source_code = template % (item_property,)
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
     tmp_file = str(tmp_file)
@@ -427,14 +637,29 @@ def test_field_name_overwrite_item_parameter_oneline_in_script(source_code, tmp_
         exec(compile(source_code, tmp_file, "exec"))
 
     exc = catch.value
-    assert exc.filename == tmp_file
-    assert exc.lineno == 1
-    assert exc.offset == 0
-    assert exc.text == source_code.split("\n")[0].strip()
+    if stack_frame_support:
+        assert exc.filename == tmp_file
+        assert exc.lineno == 1
+        assert exc.offset == 0
+        assert exc.text == source_code
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert (
+            exc.text
+            == f"""{item_property}=Field(XPathExtractor("./span[@class='name']"))"""
+        )
 
 
-def test_field_name_overwrite_item_parameter_common_in_script(tmp_path):
-    source_code = source_codes[-1]
+def test_field_overwrites_item_property_common_in_script(
+    tmp_path, stack_frame_support, item_property
+):
+    source_code = f"""
+class User(Item):
+    uid = Field(JSONExtractor("id"))
+    {item_property} = Field(JSONExtractor({item_property!r}))
+    """.strip()
 
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
@@ -445,13 +670,27 @@ def test_field_name_overwrite_item_parameter_common_in_script(tmp_path):
         exec(compile(source_code, tmp_file, "exec"))
 
     exc = catch.value
-    assert exc.filename == tmp_file
-    assert exc.lineno == 4
-    assert exc.offset == 4
-    assert exc.text == 'name = Field(JSONExtractor("name"))'
+    if stack_frame_support:
+        assert exc.filename == tmp_file
+        assert exc.lineno == 3
+        assert exc.offset == 4
+        assert (
+            exc.text
+            == f"{item_property} = Field(JSONExtractor({item_property!r}))"
+        )
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert (
+            exc.text
+            == f"{item_property}=Field(JSONExtractor({item_property!r}))"
+        )
 
 
-def test_avoid_field_name_overwriting_item_parameter(json0):
+def test_avoid_field_overwriting_item_parameter(
+    json0, stack_frame_support, build_first
+):
     data = json0
 
     with pytest.raises(SyntaxError):
@@ -464,26 +703,26 @@ def test_avoid_field_name_overwriting_item_parameter(json0):
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("name"), name="name")
 
-    assert User(JSONExtractor("data.users[*]")).extract(data) == {
-        "uid": 0,
-        "name": "Vang Stout",
-    }
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {"uid": 0, "name": "Vang Stout"}
 
 
-def test_special_field_name(json0):
+def test_special_field_name(json0, build_first):
     data = json0
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("name"), name="user.name")
 
-    assert User(JSONExtractor("data.users[*]")).extract(data) == {
-        "uid": 0,
-        "user.name": "Vang Stout",
-    }
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {"uid": 0, "user.name": "Vang Stout"}
 
 
-def test_special_field_name_in_the_nested_class_definition(json0):
+def test_special_field_in_the_nested_class_definition(json0, build_first):
     data = json0
 
     class User(Item):
@@ -494,8 +733,15 @@ def test_special_field_name_in_the_nested_class_definition(json0):
         _ = User(JSONExtractor("users[*]"), name="data")
 
     first_row = {"uid": 0, "name": "Vang Stout"}
-    assert User(JSONExtractor("data.users[*]")).extract(data) == first_row
-    assert UserResponse(JSONExtractor("data")).extract(data) == {"data": first_row}
+    item = User(JSONExtractor("data.users[*]"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == first_row
+
+    item = UserResponse(JSONExtractor("data"))
+    if build_first:
+        item.build()
+    assert item.extract(data) == {"data": first_row}
 
 
 @pytest.fixture
@@ -509,17 +755,21 @@ def json1():
     }
 
 
-def test_item_extractor_is_none(json1):
+def test_item_extractor_is_none(json1, build_first):
     data = json1
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("username"))
 
-    assert User().extract(data) == {"uid": 1, "username": "Jack"}
+    item = User()
+    if build_first:
+        item.build()
+
+    assert item.extract(data) == {"uid": 1, "username": "Jack"}
 
 
-def test_nested_item_extractor_is_none(json1):
+def test_nested_item_extractor_is_none(json1, build_first):
     data = json1
 
     class Count(Item):
@@ -532,14 +782,23 @@ def test_nested_item_extractor_is_none(json1):
         username = Field(JSONExtractor("username"))
         count = Count()
 
-    assert User().extract(data) == {
+    item = User()
+    if build_first:
+        item.build()
+
+    assert item.extract(data) == {
         "uid": 1,
         "username": "Jack",
         "count": {"follower": 100, "following": 1, "like": 1_000_000},
     }
 
 
-def test_simplify(json0):
+@pytest.fixture(params=[True, False], ids=lambda x: f"before_simplify={x!r}")
+def simplify_first(request):
+    return request.param
+
+
+def test_simplify(json0, build_first, simplify_first):
     data = json0
 
     class User(Item):
@@ -547,7 +806,12 @@ def test_simplify(json0):
         username = Field(JSONExtractor("name"), name="name")
         gender = Field(JSONExtractor("gender"), default=None)
 
-    extractor = User(JSONExtractor("data.users[*]")).simplify()
+    item = User(JSONExtractor("data.users[*]"))
+    if not simplify_first and build_first:
+        item.build()
+    extractor = item.simplify()
+    if simplify_first and build_first:
+        extractor.build()
     users_result = [
         {"uid": 0, "name": "Vang Stout", "gender": "female"},
         {"uid": 1, "name": "Jeannie Gaines", "gender": "male"},
@@ -557,13 +821,15 @@ def test_simplify(json0):
         {"uid": 5, "name": "Whitney Mcfadden", "gender": None},
     ]
     assert isinstance(extractor, JSONExtractor)
+    assert is_simple_extractor(extractor)
+    assert not is_complex_extractor(extractor)
     assert repr(extractor) == "UserSimplified('data.users[*]')"
     assert extractor.expr == "data.users[*]"
     assert extractor.extract_first(data) == users_result[0]
     assert extractor.extract(data) == users_result
 
 
-def test_modify_simplified_item(json0):
+def test_modify_simplified_item(json0, build_first, simplify_first):
     data = json0
 
     class User(Item):
@@ -572,12 +838,18 @@ def test_modify_simplified_item(json0):
         gender = Field(JSONExtractor("gender"), default=None)
 
     complex_extractor = User(JSONExtractor("data.users[*]"))
+    if not simplify_first and build_first:
+        complex_extractor.build()
     extractor = complex_extractor.simplify()
+    if simplify_first and build_first:
+        extractor.build()
     assert complex_extractor.extractor.expr == extractor.expr
     extractor.expr = "data.users[0]"
     assert complex_extractor.extractor.expr != extractor.expr
 
     assert isinstance(extractor, JSONExtractor)
+    assert is_simple_extractor(extractor)
+    assert not is_complex_extractor(extractor)
     assert repr(extractor) == "UserSimplified('data.users[0]')"
 
     assert extractor.extract_first(data) == {
@@ -590,7 +862,7 @@ def test_modify_simplified_item(json0):
     ]
 
 
-def test_simplified_item_extractor_is_none(json0):
+def test_simplified_item_extractor_is_none(json0, build_first, simplify_first):
     data = json0["data"]["users"][0]
 
     class User(Item):
@@ -598,9 +870,15 @@ def test_simplified_item_extractor_is_none(json0):
         username = Field(JSONExtractor("name"), name="name")
         gender = Field(JSONExtractor("gender"), default=None)
 
-    extractor = User().simplify()
+    complex_extractor = User()
+    if not simplify_first and build_first:
+        complex_extractor.build()
+    extractor = complex_extractor.simplify()
+    if simplify_first and build_first:
+        extractor.build()
     assert not isinstance(extractor, JSONExtractor)
-    assert isinstance(extractor, SimpleExtractorBase)
+    assert is_simple_extractor(extractor)
+    assert not is_complex_extractor(extractor)
     assert repr(extractor) == "UserSimplified(None)"
     assert extractor.extract_first(data) == {
         "uid": 0,
@@ -624,3 +902,426 @@ def test_inheritance(json0):
 
     assert User().extract(data) == {"uid": 0}
     assert UserWithGender().extract(data) == {"uid": 0, "gender": "female"}
+
+
+def test_field_overwrites_bases_method_in_item(stack_frame_support):
+    with pytest.raises(SyntaxError) as catch:
+
+        class User(Item):
+            field_names = Field(JSONExtractor("field_names"))
+
+    exc = catch.value
+    if stack_frame_support:
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 5
+        assert exc.offset == 12
+        assert exc.text == 'field_names = Field(JSONExtractor("field_names"))'
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == "field_names=Field(JSONExtractor('field_names'))"
+
+
+def test_field_overwrites_method_in_item(stack_frame_support):
+    exc = None
+    try:
+
+        class User(Item):
+            baz = Field(JSONExtractor("baz"))
+
+            def baz(self):
+                pass
+
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 9
+        assert exc.offset == 12
+        assert exc.text == "def baz(self):"
+    else:
+        assert exc is None
+
+
+def test_method_overwrites_field_in_item(stack_frame_support):
+    exc = None
+    try:
+
+        class User(Item):
+            def baz(self):
+                pass
+
+            baz = Field(JSONExtractor("baz"))  # noqa: F811
+
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+        assert exc.filename == __file__
+        assert exc.lineno == inspect.currentframe().f_lineno - 8
+        assert exc.offset == 12
+        assert exc.text == 'baz = Field(JSONExtractor("baz"))  # noqa: F811'
+    else:
+        assert exc is None
+
+
+@pytest.mark.xfail(reason="can't get the source code from python repl")
+@pytest.mark.parametrize(
+    "source_code",
+    [
+        """
+class User(Item):
+    baz = Field(JSONExtractor("baz"))
+
+    def baz(self):
+        pass
+    """,
+        """
+class User(Item):
+    def baz(self):
+        pass
+
+    baz = Field(JSONExtractor("baz"))
+    """,
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_method_in_item_in_repl(
+    source_code, stack_frame_support
+):
+    with pytest.raises(SyntaxError):
+        exec(source_code)
+
+
+@pytest.mark.parametrize(
+    "source_code, text",
+    [
+        (
+            """
+class User(Item):
+    field_names = Field(JSONExtractor("field_names"))
+    """,
+            "field_names=Field(JSONExtractor('field_names'))",
+        ),
+        (
+            """
+class User(Item):
+    extract = Field(JSONExtractor("extract"))
+    """,
+            "extract=Field(JSONExtractor('extract'))",
+        ),
+        (
+            """
+class User(Item):
+    simplify = Field(JSONExtractor("simplify"))
+    """,
+            "simplify=Field(JSONExtractor('simplify'))",
+        ),
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_bases_method_in_item_in_repl(
+    source_code, text, stack_frame_support
+):
+    with pytest.raises(SyntaxError) as catch:
+        exec(source_code)
+    exc = catch.value
+    assert exc.filename is None
+    assert exc.lineno is None
+    assert exc.offset is None
+    assert exc.text == text
+
+
+@pytest.mark.parametrize(
+    "source_code, lineno, offset, text",
+    [
+        (
+            """
+class User(Item):
+    field_names = Field(JSONExtractor("field_names"))
+    """,
+            3,
+            4,
+            'field_names = Field(JSONExtractor("field_names"))',
+        ),
+        (
+            """
+class User(Item):
+    extract = Field(JSONExtractor("extract"))
+    """,
+            3,
+            4,
+            'extract = Field(JSONExtractor("extract"))',
+        ),
+        (
+            """
+class User(Item):
+    simplify = Field(JSONExtractor("simplify"))
+    """,
+            3,
+            4,
+            'simplify = Field(JSONExtractor("simplify"))',
+        ),
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_bases_method_in_item_in_script(
+    tmp_path, source_code, lineno, offset, text, stack_frame_support
+):
+    tmp_file = tmp_path / "foo.py"
+    tmp_file.write_text(source_code)
+    tmp_file = str(tmp_file)
+    linecache.updatecache(tmp_file)
+
+    exc = None
+    try:
+        exec(compile(source_code, tmp_file, "exec"))
+    except Exception as exc_:
+        exc = exc_
+
+    assert isinstance(exc, SyntaxError)
+    if stack_frame_support:
+        assert exc.filename == tmp_file
+        assert exc.lineno == lineno
+        assert exc.offset == offset
+        assert exc.text == text
+    else:
+        assert exc.filename is None
+        assert exc.lineno is None
+        assert exc.offset is None
+        assert exc.text == text.replace(" ", "").replace('"', "'")
+
+
+@pytest.mark.parametrize(
+    "source_code, lineno, offset, text",
+    [
+        (
+            """
+class User(Item):
+    baz = Field(JSONExtractor("baz"))
+
+    def baz(self):
+        pass
+    """,
+            5,
+            4,
+            "def baz(self):",
+        ),
+        (
+            """
+class User(Item):
+    def baz(self):
+        pass
+
+    baz = Field(JSONExtractor("baz"))
+            """,
+            6,
+            4,
+            'baz = Field(JSONExtractor("baz"))',
+        ),
+        (
+            """
+class User(Item):
+    def baz(self):
+        pass
+
+    boo = [None]
+    baz = boo[0] = Field(JSONExtractor("baz"))
+    """,
+            7,
+            4,
+            'baz = boo[0] = Field(JSONExtractor("baz"))',
+        ),
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_method_in_item_in_script(
+    tmp_path, source_code, lineno, offset, text, stack_frame_support
+):
+    tmp_file = tmp_path / "foo.py"
+    tmp_file.write_text(source_code)
+    tmp_file = str(tmp_file)
+    linecache.updatecache(tmp_file)
+
+    exc = None
+    try:
+        exec(compile(source_code, tmp_file, "exec"))
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+        assert exc.filename == tmp_file
+        assert exc.lineno == lineno
+        assert exc.offset == offset
+        assert exc.text == text
+    else:
+        assert exc is None
+
+
+def test_avoid_method_overwriting_field(stack_frame_support):
+    data = {"baz": "baz", "boo": "boo"}
+
+    exc = None
+    try:
+
+        class User(Item):
+            baz = Field(JSONExtractor("baz"))
+
+            def baz(self):
+                pass
+
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+    else:
+        assert exc is None
+        assert User().extract(data) == {}
+        assert isinstance(User.baz, FunctionType)
+
+    class User(Item):  # noqa: F811
+        baz_ = Field(JSONExtractor("baz"), name="baz")
+
+        def baz(self):
+            pass
+
+    assert User().extract(data) == {"baz": "baz"}
+
+
+def test_avoid_field_overwriting_method(stack_frame_support):
+
+    data = {"baz": "baz", "boo": "boo"}
+
+    exc = None
+    try:
+
+        class User(Item):
+            def baz(self):
+                pass
+
+            baz = Field(JSONExtractor("baz"))  # noqa: F811
+
+    except Exception as exc_:
+        exc = exc_
+
+    if stack_frame_support:
+        assert isinstance(exc, SyntaxError)
+    else:
+        assert exc is None
+        assert User().extract(data) == {"baz": "baz"}
+        assert isinstance(User.baz, Field)
+
+    class User(Item):  # noqa: F811
+        baz_ = Field(JSONExtractor("baz"), name="baz")
+
+        def baz(self):
+            pass
+
+    assert User().extract(data) == {"baz": "baz"}
+
+
+def test_avoid_field_overwriting_bases_method(stack_frame_support):
+    data = {"field_names": ["field_names"], "baz": "baz"}
+
+    with pytest.raises(SyntaxError):
+
+        class User(Item):
+            field_names = Field(JSONExtractor("field_names"))
+
+    class User(Item):  # noqa: F811
+        field_names_ = Field(JSONExtractor("field_names"), name="field_names")
+
+    assert User().extract(data) == {"field_names": ["field_names"]}
+
+
+def test_item_build_implicitly(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("data.users[0]"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    assert item.extract(data) == {"uid": 0}
+
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+
+def test_item_rebuild(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("data.users[0]"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    assert item.extract(data) == {"uid": 0}
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+    item.extractor = JSONExtractor("data.users[1]")
+    assert not item.built
+    assert not item.extractor.built
+    assert item.uid.built
+
+    assert item.extract(data) == {"uid": 1}
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+
+def test_item_build_explicitly(json0):
+    data = json0
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("data.users[0]"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    item.build()
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+    assert item.extract(data) == {"uid": 0}
+
+
+def test_modify_built_item(json0):
+    data = json0["data"]["users"][0]
+
+    class User(Item):
+        uid = Field(JSONExtractor("id"))
+
+    item = User(JSONExtractor("user"))
+    assert not item.built
+    assert not item.extractor.built
+    assert not item.uid.built
+
+    item.build()
+    assert item.built
+    assert item.extractor.built
+    assert item.uid.built
+
+    item.extractor = None
+    assert not item.built
+    assert item.uid.built
+
+    assert item.extract(data) == {"uid": 0}
+    assert item.built

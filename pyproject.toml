@@ -1,10 +1,10 @@
 [tool.poetry]
 name = "data_extractor"
-version = "0.4.2"
+version = "0.5.0"
 license = "MIT"
 description = "Combine XPath, CSS Selectors and JSONPath for Web data extracting."
 authors = ["linw1995 <linw1995@icloud.com>"]
-readme = "README.md"
+readme = "README.rst"
 homepage = "https://github.com/linw1995/data_extractor"
 repository = "https://github.com/linw1995/data_extractor"
 documentation = "https://data-extractor.readthedocs.io/en/latest/"
@@ -14,12 +14,13 @@ classifiers = [
     "Programming Language :: Python",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
     "Development Status :: 4 - Beta",
     "Operating System :: POSIX",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
 ]
-include = ["CHANGES.md", "HISTORY.md", "LICENSE"]
+include = ["HISTORY.md", "LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -48,6 +49,30 @@ pre-commit = "^1.18"
 linting = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "mypy", "pygments", "pytest"]
 test = ["pytest", "pytest-cov"]
 docs = ["sphinx"]
+
+[tool.black]
+line-length = 80
+target-version = ['py37']
+include = '\.pyi?$'
+exclude = '''
+
+(
+  /(
+      \.eggs         # exclude a few common directories in the
+    | \.git          # root of the project
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+  )/
+  | foo.py           # also separately exclude a file named foo.py in
+                     # the root of the project
+)
+'''
 
 [build-system]
 requires = ["poetry"]
