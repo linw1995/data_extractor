@@ -87,6 +87,7 @@ v0.5.0
 - 7720fb9 Feature/avoid field overwriting (#39)
 - b722717 Dev,Fix:Black configure not working
 - f8f0df8 New:Implement extractors' build method
+- 98ada74 Chg:Update docs
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
