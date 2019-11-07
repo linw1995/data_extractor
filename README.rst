@@ -72,11 +72,10 @@ Usage
 Changelog
 <<<<<<<<<
 
-v0.5.1
+v0.5.2
 ~~~~~~
 
-- c9b07f4 Fix:Wrong shield placing
-- b198712 Dev,Fix:Build travis-ci config validation
+- 0561672 Fix:Wrong parameter name
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
