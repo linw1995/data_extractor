@@ -111,7 +111,7 @@ class AttrCSSExtractor(CSSExtractor):
             f"{self.__class__.__name__}(expr={self.expr!r}, attr={self.attr!r})"
         )
 
-    def extract(self, root: Element) -> List[str]:
+    def extract(self, element: Element) -> List[str]:
         """
         Extract subelements' attribute value from XML or HTML data.
 
@@ -125,7 +125,7 @@ class AttrCSSExtractor(CSSExtractor):
         """
         return [
             ele.get(self.attr)
-            for ele in super().extract(root)
+            for ele in super().extract(element)
             if self.attr in ele.keys()
         ]
 
