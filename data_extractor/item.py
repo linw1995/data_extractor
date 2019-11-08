@@ -5,7 +5,6 @@
 """
 # Standard Library
 import copy
-import warnings
 
 from typing import Any, Iterator
 
@@ -92,15 +91,6 @@ class Field(AbstractComplexExtractor):
             rv = [element]
         else:
             rv = self.extractor.extract(element)
-
-        if not isinstance(rv, list):
-            if self.is_many:
-                warnings.warn(
-                    f"Expr of {self!r} conflict wiht parameter is_many=True",
-                    UserWarning,
-                )
-
-            return rv
 
         if self.is_many:
             return [self._extract(r) for r in rv]

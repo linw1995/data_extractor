@@ -172,26 +172,6 @@ def test_field_xpath_extract_result_not_list(element0, build_first):
     assert field.extractor.built
 
 
-def test_field_xpath_extract_result_not_list_conflict_with_is_many(
-    element0, build_first
-):
-    with pytest.warns(UserWarning):
-        field = Field(
-            XPathExtractor("normalize-space(//div[@class='title'])"),
-            is_many=True,
-        )
-        assert not field.built
-        assert not field.extractor.built
-        if build_first:
-            field.build()
-            assert field.built
-            assert field.extractor.built
-
-        field.extract(element0)
-        assert field.built
-        assert field.extractor.built
-
-
 @pytest.fixture
 def element1():
     from lxml.html import fromstring

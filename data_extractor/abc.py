@@ -6,7 +6,6 @@
 # Standard Library
 import ast
 import inspect
-import warnings
 
 from abc import abstractmethod
 from collections import namedtuple
@@ -286,13 +285,6 @@ class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
             Thrown by extractor extracting wrong data.
         """
         rv = self.extract(element)
-        if not isinstance(rv, list):
-            warnings.warn(
-                f"{self!r} can't extract first item from result {rv!r}",
-                UserWarning,
-            )
-            return rv
-
         if not rv:
             if default is sentinel:
                 from .exceptions import ExtractError
