@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "data_extractor"
-version = "0.5.2"
+version = "0.5.3"
 license = "MIT"
 description = "Combine XPath, CSS Selectors and JSONPath for Web data extracting."
 authors = ["linw1995 <linw1995@icloud.com>"]
@@ -20,7 +20,7 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
 ]
-include = ["HISTORY.md", "LICENSE"]
+include = ["LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
