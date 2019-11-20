@@ -56,9 +56,7 @@ class CSSExtractor(AbstractSimpleExtractor):
             self.build()
 
         assert self._extractor is not None
-        result = self._extractor.extract(element)
-        assert not isinstance(result, str)
-        return result
+        return self._extractor.extract(element)
 
 
 class TextCSSExtractor(CSSExtractor):
@@ -152,7 +150,7 @@ class XPathExtractor(AbstractSimpleExtractor):
         except XPathSyntaxError as exc:
             raise ExprError(extractor=self, exc=exc) from exc
 
-    def extract(self, element: Element) -> Union[List[Element], List[str], str]:
+    def extract(self, element: Element) -> Union[List[Element], List[str]]:
         """
         Extract subelements or data from XML or HTML data.
 
@@ -161,7 +159,7 @@ class XPathExtractor(AbstractSimpleExtractor):
 
         :returns: List of :class:`data_extractor.lxml.Element` objects, \
             List of str, or str.
-        :rtype: list, str
+        :rtype: list
 
         :raises data_extractor.exceptions.ExprError: XPath Expression Error.
         """
@@ -170,7 +168,11 @@ class XPathExtractor(AbstractSimpleExtractor):
 
         try:
             assert self._find is not None
-            return self._find(element)
+            rv = self._find(element)
+            if not isinstance(rv, list):
+                return [rv]
+            else:
+                return rv
         except XPathEvalError as exc:
             raise ExprError(extractor=self, exc=exc) from exc
 

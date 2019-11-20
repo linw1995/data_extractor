@@ -172,26 +172,6 @@ def test_field_xpath_extract_result_not_list(element0, build_first):
     assert field.extractor.built
 
 
-def test_field_xpath_extract_result_not_list_conflict_with_is_many(
-    element0, build_first
-):
-    with pytest.warns(UserWarning):
-        field = Field(
-            XPathExtractor("normalize-space(//div[@class='title'])"),
-            is_many=True,
-        )
-        assert not field.built
-        assert not field.extractor.built
-        if build_first:
-            field.build()
-            assert field.built
-            assert field.extractor.built
-
-        field.extract(element0)
-        assert field.built
-        assert field.extractor.built
-
-
 @pytest.fixture
 def element1():
     from lxml.html import fromstring
@@ -768,6 +748,9 @@ def test_item_extractor_is_none(json1, build_first):
 
     assert item.extract(data) == {"uid": 1, "username": "Jack"}
 
+    item.is_many = True
+    assert item.extract([data]) == [{"uid": 1, "username": "Jack"}]
+
 
 def test_nested_item_extractor_is_none(json1, build_first):
     data = json1
@@ -791,6 +774,15 @@ def test_nested_item_extractor_is_none(json1, build_first):
         "username": "Jack",
         "count": {"follower": 100, "following": 1, "like": 1_000_000},
     }
+
+    item.is_many = True
+    assert item.extract([data]) == [
+        {
+            "uid": 1,
+            "username": "Jack",
+            "count": {"follower": 100, "following": 1, "like": 1_000_000},
+        }
+    ]
 
 
 @pytest.fixture(params=[True, False], ids=lambda x: f"before_simplify={x!r}")
@@ -880,13 +872,13 @@ def test_simplified_item_extractor_is_none(json0, build_first, simplify_first):
     assert is_simple_extractor(extractor)
     assert not is_complex_extractor(extractor)
     assert repr(extractor) == "UserSimplified(None)"
-    assert extractor.extract_first(data) == {
+    assert extractor.extract_first([data]) == {
         "uid": 0,
         "name": "Vang Stout",
         "gender": "female",
     }
 
-    assert extractor.extract(data) == [
+    assert extractor.extract([data]) == [
         {"uid": 0, "name": "Vang Stout", "gender": "female"}
     ]
 

@@ -254,8 +254,5 @@ def test_invalid_css_selector_expr(element, expr, by):
 
 def test_xpath_result_not_list(element):
     extractor = XPathExtractor("normalize-space(//span)")
-
-    assert extractor.extract(element) == "a"
-
-    with pytest.warns(UserWarning):
-        extractor.extract_first(element) == "a"
+    assert extractor.extract(element) == ["a"]
+    assert extractor.extract_first(element) == "a"

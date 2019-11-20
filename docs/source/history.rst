@@ -2,6 +2,11 @@
 History
 =======
 
+v0.5.2
+~~~~~~
+
+- 0561672 Fix:Wrong parameter name
+
 v0.5.1
 ~~~~~~
 
