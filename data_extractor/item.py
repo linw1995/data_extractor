@@ -88,7 +88,10 @@ class Field(AbstractComplexExtractor):
             self.build()
 
         if self.extractor is None:
-            rv = [element]
+            if isinstance(element, list):
+                rv = element
+            else:
+                rv = [element]
         else:
             rv = self.extractor.extract(element)
 
