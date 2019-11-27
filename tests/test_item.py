@@ -1317,3 +1317,45 @@ def test_modify_built_item(json0):
 
     assert item.extract(data) == {"uid": 0}
     assert item.built
+
+
+@pytest.mark.parametrize(
+    "data, len_extractors_stack, target, method",
+    [
+        (
+            {"result": {"gender": "female", "id": 0}},
+            2,
+            {"gender": "female", "id": 0},
+            "extract",
+        ),
+        (
+            {"result": {"gender": "female", "id": 0}},
+            2,
+            {"gender": "female", "id": 0},
+            "extract_first",
+        ),
+        ({"result": None}, 2, None, "extract"),
+        ({"result": None}, 2, None, "extract_first"),
+        ({"result": []}, 2, [], "extract"),
+        ({"result": []}, 2, [], "extract_first"),
+        ({}, 1, {}, "extract_first"),
+    ],
+    ids=reprlib.repr,
+)
+def test_simplified_item_extract_no_result(
+    data, len_extractors_stack, target, method
+):
+    class User(Item):
+        id = Field(JSONExtractor("id"))
+        name_ = Field(JSONExtractor("name"), name="name")
+
+    extractor = User(JSONExtractor("result")).simplify()
+    with pytest.raises(ExtractError) as catch:
+        if method == "extract":
+            extractor.extract(data)
+        elif method == "extract_first":
+            extractor.extract_first(data)
+
+    exc: ExtractError = catch.value
+    assert len(exc.extractors) == len_extractors_stack
+    assert exc.element == target

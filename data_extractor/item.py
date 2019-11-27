@@ -6,7 +6,7 @@
 # Standard Library
 import copy
 
-from typing import Any, Iterator
+from typing import Any, Dict, Iterator
 
 # Local Folder
 from .abc import (
@@ -108,6 +108,18 @@ class Field(AbstractComplexExtractor):
 
     def _extract(self, element: Any) -> Any:
         return element
+
+    def __deepcopy__(self, memo: Dict[int, Any]) -> AbstractComplexExtractor:
+        deepcopy_method = self.__deepcopy__
+        self.__deepcopy__ = None  # type: ignore
+        cp = copy.deepcopy(self, memo)
+        self.__deepcopy__ = deepcopy_method  # type: ignore
+
+        # avoid duplicating the sentinel object.
+        if self.default is sentinel:
+            cp.default = self.default
+
+        return cp
 
 
 class Item(Field):
