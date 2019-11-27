@@ -3,6 +3,7 @@ import inspect
 import linecache
 import reprlib
 
+from itertools import product
 from pathlib import Path
 from types import FunctionType
 
@@ -14,7 +15,11 @@ from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
 from data_extractor.lxml import CSSExtractor, TextCSSExtractor, XPathExtractor
-from data_extractor.utils import is_complex_extractor, is_simple_extractor
+from data_extractor.utils import (
+    is_complex_extractor,
+    is_simple_extractor,
+    sentinel,
+)
 
 
 @pytest.fixture
@@ -1320,30 +1325,85 @@ def test_modify_built_item(json0):
 
 
 @pytest.mark.parametrize(
-    "data, len_extractors_stack, target, method",
+    "data, len_extractors_stack, target",
     [
         (
             {"result": {"gender": "female", "id": 0}},
             2,
             {"gender": "female", "id": 0},
-            "extract",
         ),
+        ({"result": None}, 2, None),
+        ({"result": []}, 2, []),
+    ],
+    ids=reprlib.repr,
+)
+def test_simplified_item_extract_error(data, len_extractors_stack, target):
+    class User(Item):
+        id = Field(JSONExtractor("id"))
+        name_ = Field(JSONExtractor("name"), name="name")
+
+    extractor = User(JSONExtractor("result")).simplify()
+    with pytest.raises(ExtractError) as catch:
+        extractor.extract(data)
+
+    exc: ExtractError = catch.value
+    assert len(exc.extractors) == len_extractors_stack
+    assert exc.element == target
+
+
+@pytest.mark.parametrize(
+    "data, len_extractors_stack, target",
+    [
         (
             {"result": {"gender": "female", "id": 0}},
             2,
             {"gender": "female", "id": 0},
-            "extract_first",
         ),
-        ({"result": None}, 2, None, "extract"),
-        ({"result": None}, 2, None, "extract_first"),
-        ({"result": []}, 2, [], "extract"),
-        ({"result": []}, 2, [], "extract_first"),
-        ({}, 1, {}, "extract_first"),
+        ({"result": None}, 2, None),
+        ({"result": []}, 2, []),
     ],
     ids=reprlib.repr,
 )
-def test_simplified_item_extract_no_result(
-    data, len_extractors_stack, target, method
+def test_simplified_item_with_default_extract_error(
+    data, len_extractors_stack, target
+):
+    class User(Item):
+        id = Field(JSONExtractor("id"))
+        name_ = Field(JSONExtractor("name"), name="name")
+
+    extractor = User(JSONExtractor("result"), default=None).simplify()
+    with pytest.raises(ExtractError) as catch:
+        extractor.extract(data)
+
+    exc: ExtractError = catch.value
+    assert len(exc.extractors) == len_extractors_stack
+    assert exc.element == target
+
+
+@pytest.mark.parametrize(
+    "data, len_extractors_stack, target, default",
+    [
+        *[
+            (*pair[0], pair[1])
+            for pair in product(
+                [
+                    (
+                        {"result": {"gender": "female", "id": 0}},
+                        2,
+                        {"gender": "female", "id": 0},
+                    ),
+                    ({"result": None}, 2, None),
+                    ({"result": []}, 2, []),
+                ],
+                [sentinel, None],
+            )
+        ],
+        [{}, 1, {}, sentinel],
+    ],
+    ids=reprlib.repr,
+)
+def test_simplified_item_extract_first_error(
+    data, len_extractors_stack, target, default
 ):
     class User(Item):
         id = Field(JSONExtractor("id"))
@@ -1351,11 +1411,37 @@ def test_simplified_item_extract_no_result(
 
     extractor = User(JSONExtractor("result")).simplify()
     with pytest.raises(ExtractError) as catch:
-        if method == "extract":
-            extractor.extract(data)
-        elif method == "extract_first":
-            extractor.extract_first(data)
+        extractor.extract_first(data, default)
 
     exc: ExtractError = catch.value
     assert len(exc.extractors) == len_extractors_stack
     assert exc.element == target
+
+
+@pytest.mark.parametrize(
+    "data, expect",
+    [
+        ({}, None),
+        ({"result": {"id": 0, "name": "Jack"}}, {"id": 0, "name": "Jack"}),
+    ],
+)
+def test_simplified_item_extract_first_with_default(data, expect):
+    class User(Item):
+        id = Field(JSONExtractor("id"))
+        name_ = Field(JSONExtractor("name"), name="name")
+
+    extractor = User(JSONExtractor("result")).simplify()
+    assert extractor.extract_first(data, None) == expect
+
+
+def test_simplified_nested_item_extract():
+    class User(Item):
+        id = Field(JSONExtractor("id"))
+        name_ = Field(JSONExtractor("name"), name="name")
+
+    class Users(Item):
+        users = User(JSONExtractor("users"), is_many=True)
+        count = Field(JSONExtractor("count"), default=0)
+
+    extractor = Users().simplify()
+    assert extractor.extract_first({}) == {"users": [], "count": 0}
