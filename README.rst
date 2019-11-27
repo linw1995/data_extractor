@@ -101,8 +101,8 @@ v0.5.3
 .. |Code style: black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. |Build Status| image:: https://travis-ci.org/linw1995/data_extractor.svg?branch=master
-    :target: https://travis-ci.org/linw1995/data_extractor
+.. |Build Status| image:: https://travis-ci.com/linw1995/data_extractor.svg?branch=master
+    :target: https://travis-ci.com/linw1995/data_extractor
 
 .. |codecov| image:: https://codecov.io/gh/linw1995/data_extractor/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/linw1995/data_extractor
