@@ -175,10 +175,6 @@ class Item(Field):
             duplicated.is_many = True
             return duplicated.extract(element)
 
-        def extract_first(self: AbstractSimpleExtractor, element: Any) -> Any:
-            duplicated.is_many = False
-            return duplicated.extract(element)
-
         def getter(self: AbstractSimpleExtractor, name: str) -> Any:
             if (
                 name not in ("extract", "extract_first")
@@ -204,7 +200,6 @@ class Item(Field):
             {
                 "build": build,
                 "extract": extract,
-                "extract_first": extract_first,
                 "__getattribute__": getter,
                 "__setattr__": setter,
             },
