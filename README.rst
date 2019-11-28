@@ -72,12 +72,16 @@ Usage
 Changelog
 <<<<<<<<<
 
-v0.5.3
+v0.5.4
 ~~~~~~
 
-- 6a26be5 Chg:Wrap the single return value as a list
-- 0b63927 Fix:Item can not extract the data is list type
-- 9deeb5f Chg:Update poetry.lock
+- 9552c79 Fix:Simplified item's extract_first method fail to raise ExtractError
+- 08167ab Fix:Simplified item's extract_first method
+  should support param default
+
+- 6e4c269 New:More unittest for testing the simplified items
+- a35b85a Chg:Update poetry.lock
+- e5ff37b Docs,Chg:Update travis-ci status source in the README.rst
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
@@ -101,8 +105,8 @@ v0.5.3
 .. |Code style: black| image:: https://img.shields.io/badge/code%20style-black-000000.svg
     :target: https://github.com/ambv/black
 
-.. |Build Status| image:: https://travis-ci.org/linw1995/data_extractor.svg?branch=master
-    :target: https://travis-ci.org/linw1995/data_extractor
+.. |Build Status| image:: https://travis-ci.com/linw1995/data_extractor.svg?branch=master
+    :target: https://travis-ci.com/linw1995/data_extractor
 
 .. |codecov| image:: https://codecov.io/gh/linw1995/data_extractor/branch/master/graph/badge.svg
     :target: https://codecov.io/gh/linw1995/data_extractor
