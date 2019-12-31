@@ -2,11 +2,20 @@
 import pytest
 
 # First Party Library
+import data_extractor.json
+
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
 
 
+def test_no_needed_packages():
+    data_extractor.json.json_extractor_backend = None
+    with pytest.raises(RuntimeError):
+        JSONExtractor()
+
+
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_exception_trace(json0, build_first):
     data = json0
 

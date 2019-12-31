@@ -25,9 +25,11 @@ include = ["LICENSE"]
 [tool.poetry.dependencies]
 python = "^3.7"
 cssselect = "^1.0.3"
-jsonpath-rw = "^1.4.0"
 lxml = "^4.3.0"
-jsonpath-rw-ext = "^1.2"
+
+# json extractor backend
+jsonpath-rw = {version = "^1.4.0", optional = true}
+jsonpath-rw-ext = {version = "^1.2", optional = true}
 
 black = {version = "^19.3b0", optional = true}
 flake8 = {version = "^3.7.8", optional = true}
@@ -46,9 +48,23 @@ rope = {version = "^0.14.0"}
 pre-commit = "^1.18"
 
 [tool.poetry.extras]
-lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "mypy", "pygments", "pytest"]
+lint = [
+  "black",
+  "blacken-docs",
+  "doc8",
+  "flake8",
+  "flake8-bugbear",
+  "isort",
+  "jsonpath-rw",
+  "jsonpath-rw-ext",
+  "mypy",
+  "pygments",
+  "pytest"
+]
 test = ["pytest", "pytest-cov"]
-docs = ["sphinx"]
+docs = ["jsonpath-rw", "jsonpath-rw-ext", "sphinx"]
+jsonpath-rw = ["jsonpath-rw"]
+jsonpath-rw-ext = ["jsonpath-rw", "jsonpath-rw-ext"]
 
 [tool.black]
 line-length = 80

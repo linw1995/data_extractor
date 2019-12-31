@@ -33,6 +33,7 @@ def element(text):
     return json.loads(text)
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "expr,expect",
     [
@@ -55,6 +56,7 @@ def test_extract(element, expr, expect, build_first):
     assert extractor.built
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "expr,expect",
     [
@@ -74,6 +76,7 @@ def test_extract_first(element, expr, expect, build_first):
     assert expect == extractor.extract_first(element, default="default")
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize("expr", ["foo.baz", "foo[2].baz"], ids=repr)
 def test_extract_first_without_default(element, expr, build_first):
     extractor = JSONExtractor(expr)
@@ -89,6 +92,7 @@ def test_extract_first_without_default(element, expr, build_first):
     assert exc.element is element
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize("by", ["build", "extract"], ids=lambda x: f"by_{x}")
 @pytest.mark.parametrize("expr", ["foo..", "a[]", ""], ids=repr)
 def test_invalid_css_selector_expr(element, expr, by):
@@ -103,19 +107,3 @@ def test_invalid_css_selector_expr(element, expr, by):
     assert exc.extractor is extractor
     assert isinstance(exc.exc, (JsonPathLexerError, Exception))
     assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
-
-
-@pytest.mark.parametrize(
-    "expr,expect",
-    [
-        ("foo[?(baz > 0)].baz", [1, 2]),
-        ("foo[?(baz > 1)].baz", [2]),
-        ("foo[?(baz > 2)].baz", []),
-    ],
-)
-def test_json_ext(element, expr, expect, build_first):
-    extractor = JSONExtractor(expr)
-    if build_first:
-        extractor.build()
-
-    assert expect == extractor.extract(element)
