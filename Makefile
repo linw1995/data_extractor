@@ -4,7 +4,7 @@ EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
 POETRY_VERSION = 0.12.17
-POETRY_EXTRAS = lint test docs
+POETRY_EXTRAS = lint test docs jsonpath-rw jsonpath-rw-ext
 POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
 
 init_by_venv:

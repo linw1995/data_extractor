@@ -145,7 +145,7 @@ version = "1.1.0"
 category = "main"
 description = "Decorators for Humans"
 name = "decorator"
-optional = false
+optional = true
 python-versions = ">=2.6, !=3.0.*, !=3.1.*"
 version = "4.4.1"
 
@@ -265,7 +265,7 @@ MarkupSafe = ">=0.23"
 category = "main"
 description = "A robust and significantly extended implementation of JSONPath for Python, with a clear AST for metaprogramming."
 name = "jsonpath-rw"
-optional = false
+optional = true
 python-versions = "*"
 version = "1.4.0"
 
@@ -278,7 +278,7 @@ six = "*"
 category = "main"
 description = "Extensions for JSONPath RW"
 name = "jsonpath-rw-ext"
-optional = false
+optional = true
 python-versions = "*"
 version = "1.2.2"
 
@@ -371,7 +371,7 @@ version = "0.7.0"
 category = "main"
 description = "Python Build Reasonableness"
 name = "pbr"
-optional = false
+optional = true
 python-versions = "*"
 version = "5.4.4"
 
@@ -392,7 +392,7 @@ version = ">=0.12"
 category = "main"
 description = "Python Lex & Yacc"
 name = "ply"
-optional = false
+optional = true
 python-versions = "*"
 version = "3.11"
 
@@ -713,12 +713,14 @@ version = "0.6.0"
 more-itertools = "*"
 
 [extras]
-docs = ["sphinx"]
-lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "mypy", "pygments", "pytest"]
+docs = ["jsonpath-rw", "jsonpath-rw-ext", "sphinx"]
+jsonpath-rw = ["jsonpath-rw"]
+jsonpath-rw-ext = ["jsonpath-rw", "jsonpath-rw-ext"]
+lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "jsonpath-rw", "jsonpath-rw-ext", "mypy", "pygments", "pytest"]
 test = ["pytest", "pytest-cov"]
 
 [metadata]
-content-hash = "48c4722f0d5b525d8767e1aae54f18494f8eb51046bb7f084ef635ee00b06a9c"
+content-hash = "7f9f5ab785204027190b286acb980742c48a5d8eb24392f5c399521c24bb3bad"
 python-versions = "^3.7"
 
 [metadata.hashes]

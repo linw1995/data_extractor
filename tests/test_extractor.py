@@ -27,7 +27,13 @@ target_element = html_element[1]
 @pytest.mark.parametrize(
     "Extractor, kwargs, element, expect",
     [
-        (JSONExtractor, {"expr": "boo"}, {"boo": "boo"}, "boo"),
+        pytest.param(
+            JSONExtractor,
+            {"expr": "boo"},
+            {"boo": "boo"},
+            "boo",
+            marks=pytest.mark.usefixtures("json_extractor_backend"),
+        ),
         (
             AttrCSSExtractor,
             {"expr": "span.boo", "attr": "id"},
@@ -55,7 +61,13 @@ def test_build_implicitly(Extractor, kwargs, element, expect):
 @pytest.mark.parametrize(
     "Extractor, kwargs, element, expect",
     [
-        (JSONExtractor, {"expr": "boo"}, {"boo": "boo"}, "boo"),
+        pytest.param(
+            JSONExtractor,
+            {"expr": "boo"},
+            {"boo": "boo"},
+            "boo",
+            marks=pytest.mark.usefixtures("json_extractor_backend"),
+        ),
         (
             AttrCSSExtractor,
             {"expr": "span.boo", "attr": "id"},
@@ -86,7 +98,13 @@ def test_build_explicitly(Extractor, kwargs, element, expect):
 @pytest.mark.parametrize(
     "Extractor, kwargs, element, expect",
     [
-        (JSONExtractor, {"expr": "boo"}, {"boo": "boo"}, "boo"),
+        pytest.param(
+            JSONExtractor,
+            {"expr": "boo"},
+            {"boo": "boo"},
+            "boo",
+            marks=pytest.mark.usefixtures("json_extractor_backend"),
+        ),
         (
             AttrCSSExtractor,
             {"expr": "span.boo", "attr": "id"},

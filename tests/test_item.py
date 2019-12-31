@@ -2,6 +2,7 @@
 import inspect
 import linecache
 import reprlib
+import textwrap
 
 from itertools import product
 from pathlib import Path
@@ -432,6 +433,7 @@ def test_complex_item_extract_xml_data(build_first):
     }
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_complex_item_extract_json_data(json0, build_first):
     data = json0
 
@@ -475,6 +477,7 @@ def test_complex_item_extract_json_data(json0, build_first):
     }
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_misplacing():
     class ComplexExtractor(Item):
         pass
@@ -483,6 +486,7 @@ def test_misplacing():
         Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_field_overwrites_item_property_common(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
@@ -561,29 +565,37 @@ def test_field_overwrites_item_parameter_type_creation(
     "template, text_template",
     [
         (
-            """
-    type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})
-    """.strip(),
+            textwrap.dedent(
+                """
+        type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})
+        """.strip()
+            ),
             """%s=Field(XPathExtractor("./span[@class='name']"))""",
         ),
         (
             "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
             """%s=Field(XPathExtractor(\"./span[@class='name']\"))""",
         ),
-        (
-            """
-class User(Item):
-    uid = Field(JSONExtractor("id")); %s = Field(JSONExtractor("name"))
-    """.strip(),
+        pytest.param(
+            textwrap.dedent(
+                """
+                class User(Item):
+                    uid = Field(JSONExtractor("id")); %s = Field(JSONExtractor("name"))
+                """.strip()
+            ),
             "%s=Field(JSONExtractor('name'))",
+            marks=pytest.mark.usefixtures("json_extractor_backend"),
         ),
-        (
-            """
-class User(Item):
-    uid = Field(JSONExtractor("id"))
-    %s = Field(JSONExtractor("name"))
-    """.strip(),
+        pytest.param(
+            textwrap.dedent(
+                """
+                class User(Item):
+                    uid = Field(JSONExtractor("id"))
+                    %s = Field(JSONExtractor("name"))
+                """.strip()
+            ),
             "%s=Field(JSONExtractor('name'))",
+            marks=pytest.mark.usefixtures("json_extractor_backend"),
         ),
     ],
     ids=reprlib.repr,
@@ -637,6 +649,7 @@ def test_field_overwrites_item_property_oneline_in_script(
         )
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_field_overwrites_item_property_common_in_script(
     tmp_path, stack_frame_support, item_property
 ):
@@ -673,6 +686,7 @@ class User(Item):
         )
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_avoid_field_overwriting_item_parameter(
     json0, stack_frame_support, build_first
 ):
@@ -694,6 +708,7 @@ def test_avoid_field_overwriting_item_parameter(
     assert item.extract(data) == {"uid": 0, "name": "Vang Stout"}
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_special_field_name(json0, build_first):
     data = json0
 
@@ -707,6 +722,7 @@ def test_special_field_name(json0, build_first):
     assert item.extract(data) == {"uid": 0, "user.name": "Vang Stout"}
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_special_field_in_the_nested_class_definition(json0, build_first):
     data = json0
 
@@ -740,6 +756,7 @@ def json1():
     }
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_item_extractor_is_none(json1, build_first):
     data = json1
 
@@ -757,6 +774,7 @@ def test_item_extractor_is_none(json1, build_first):
     assert item.extract([data]) == [{"uid": 1, "username": "Jack"}]
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_nested_item_extractor_is_none(json1, build_first):
     data = json1
 
@@ -795,6 +813,7 @@ def simplify_first(request):
     return request.param
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_simplify(json0, build_first, simplify_first):
     data = json0
 
@@ -826,6 +845,7 @@ def test_simplify(json0, build_first, simplify_first):
     assert extractor.extract(data) == users_result
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_modify_simplified_item(json0, build_first, simplify_first):
     data = json0
 
@@ -859,6 +879,7 @@ def test_modify_simplified_item(json0, build_first, simplify_first):
     ]
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_simplified_item_extractor_is_none(json0, build_first, simplify_first):
     data = json0["data"]["users"][0]
 
@@ -888,6 +909,7 @@ def test_simplified_item_extractor_is_none(json0, build_first, simplify_first):
     ]
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_inheritance(json0):
     data = json0["data"]["users"][0]
 
@@ -901,6 +923,7 @@ def test_inheritance(json0):
     assert UserWithGender().extract(data) == {"uid": 0, "gender": "female"}
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_field_overwrites_bases_method_in_item(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
@@ -920,6 +943,7 @@ def test_field_overwrites_bases_method_in_item(stack_frame_support):
         assert exc.text == "field_names=Field(JSONExtractor('field_names'))"
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_field_overwrites_method_in_item(stack_frame_support):
     exc = None
     try:
@@ -943,6 +967,7 @@ def test_field_overwrites_method_in_item(stack_frame_support):
         assert exc is None
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_method_overwrites_field_in_item(stack_frame_support):
     exc = None
     try:
@@ -966,6 +991,7 @@ def test_method_overwrites_field_in_item(stack_frame_support):
         assert exc is None
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.xfail(reason="can't get the source code from python repl")
 @pytest.mark.parametrize(
     "source_code",
@@ -994,6 +1020,7 @@ def test_field_overwrites_method_in_item_in_repl(
         exec(source_code)
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "source_code, text",
     [
@@ -1033,6 +1060,7 @@ def test_field_overwrites_bases_method_in_item_in_repl(
     assert exc.text == text
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "source_code, lineno, offset, text",
     [
@@ -1093,6 +1121,7 @@ def test_field_overwrites_bases_method_in_item_in_script(
         assert exc.text == text.replace(" ", "").replace('"', "'")
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "source_code, lineno, offset, text",
     [
@@ -1160,6 +1189,7 @@ def test_field_overwrites_method_in_item_in_script(
         assert exc is None
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_avoid_method_overwriting_field(stack_frame_support):
     data = {"baz": "baz", "boo": "boo"}
 
@@ -1191,6 +1221,7 @@ def test_avoid_method_overwriting_field(stack_frame_support):
     assert User().extract(data) == {"baz": "baz"}
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_avoid_field_overwriting_method(stack_frame_support):
 
     data = {"baz": "baz", "boo": "boo"}
@@ -1223,6 +1254,7 @@ def test_avoid_field_overwriting_method(stack_frame_support):
     assert User().extract(data) == {"baz": "baz"}
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_avoid_field_overwriting_bases_method(stack_frame_support):
     data = {"field_names": ["field_names"], "baz": "baz"}
 
@@ -1237,6 +1269,7 @@ def test_avoid_field_overwriting_bases_method(stack_frame_support):
     assert User().extract(data) == {"field_names": ["field_names"]}
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_item_build_implicitly(json0):
     data = json0
 
@@ -1255,6 +1288,7 @@ def test_item_build_implicitly(json0):
     assert item.uid.built
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_item_rebuild(json0):
     data = json0
 
@@ -1282,6 +1316,7 @@ def test_item_rebuild(json0):
     assert item.uid.built
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_item_build_explicitly(json0):
     data = json0
 
@@ -1300,6 +1335,7 @@ def test_item_build_explicitly(json0):
     assert item.extract(data) == {"uid": 0}
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_modify_built_item(json0):
     data = json0["data"]["users"][0]
 
@@ -1324,6 +1360,7 @@ def test_modify_built_item(json0):
     assert item.built
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "data, len_extractors_stack, target",
     [
@@ -1351,6 +1388,7 @@ def test_simplified_item_extract_error(data, len_extractors_stack, target):
     assert exc.element == target
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "data, len_extractors_stack, target",
     [
@@ -1380,6 +1418,7 @@ def test_simplified_item_with_default_extract_error(
     assert exc.element == target
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "data, len_extractors_stack, target, default",
     [
@@ -1418,6 +1457,7 @@ def test_simplified_item_extract_first_error(
     assert exc.element == target
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
     "data, expect",
     [
@@ -1434,6 +1474,7 @@ def test_simplified_item_extract_first_with_default(data, expect):
     assert extractor.extract_first(data, None) == expect
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
 def test_simplified_nested_item_extract():
     class User(Item):
         id = Field(JSONExtractor("id"))

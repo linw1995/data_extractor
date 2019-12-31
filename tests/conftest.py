@@ -4,6 +4,26 @@ from unittest import mock
 # Third Party Library
 import pytest
 
+# First Party Library
+import data_extractor.json
+
+
+@pytest.fixture(
+    params=[
+        ("jsonpath-rw", data_extractor.json.JSONPathRWExtractor),
+        ("jsonpath-rw-ext", data_extractor.json.JSONPathRWExtExtractor),
+    ],
+    ids=lambda r: r[1] if r[1] else f"Missing {r[0]!r}",
+)
+def json_extractor_backend(request):
+    package_name, backend_cls = request.param
+    if not backend_cls:
+        pytest.skip(f"missing {package_name!r}")
+        return
+
+    data_extractor.json.json_extractor_backend = backend_cls
+    return backend_cls
+
 
 @pytest.fixture
 def json0():
