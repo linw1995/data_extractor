@@ -291,6 +291,22 @@ i18n = ["Babel (>=0.8)"]
 
 [[package]]
 category = "main"
+description = "A selector expression for extracting data from JSON."
+name = "jsonpath-extractor"
+optional = true
+python-versions = ">=3.7,<4.0"
+version = "0.1.1"
+
+[package.dependencies]
+sly = ">=0.3.0,<0.4.0"
+typing_extensions = ">=3.7,<4.0"
+
+[package.extras]
+lint = ["black (>=19.3b0,<20.0)", "flake8 (>=3.7.8,<4.0.0)", "isort (>=4.3.21,<5.0.0)", "mypy (>=0.750,<0.751)", "pytest (>=5.2.0,<6.0.0)", "flake8-bugbear (>=19.8,<20.0)"]
+test = ["pytest (>=5.2.0,<6.0.0)", "pytest-cov (>=2.7.1,<3.0.0)"]
+
+[[package]]
+category = "main"
 description = "A robust and significantly extended implementation of JSONPath for Python, with a clear AST for metaprogramming."
 name = "jsonpath-rw"
 optional = true
@@ -609,6 +625,17 @@ version = "1.13.0"
 
 [[package]]
 category = "main"
+description = "SLY - Sly Lex Yacc"
+name = "sly"
+optional = true
+python-versions = "*"
+version = "0.3"
+
+[package.extras]
+test = ["pytest"]
+
+[[package]]
+category = "main"
 description = "This package provides 26 stemmers for 25 languages generated from Snowball algorithms."
 name = "snowballstemmer"
 optional = true
@@ -798,14 +825,15 @@ docs = ["sphinx", "jaraco.packaging (>=3.2)", "rst.linker (>=1.9)"]
 testing = ["pathlib2", "contextlib2", "unittest2"]
 
 [extras]
-docs = ["jsonpath-rw", "jsonpath-rw-ext", "sphinx"]
+docs = ["jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "sphinx"]
+jsonpath-extractor = ["jsonpath-extractor"]
 jsonpath-rw = ["jsonpath-rw"]
 jsonpath-rw-ext = ["jsonpath-rw", "jsonpath-rw-ext"]
-lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "jsonpath-rw", "jsonpath-rw-ext", "mypy", "pygments", "pytest"]
+lint = ["black", "blacken-docs", "doc8", "flake8", "flake8-bugbear", "isort", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "mypy", "pygments", "pytest"]
 test = ["pytest", "pytest-cov"]
 
 [metadata]
-content-hash = "7f9f5ab785204027190b286acb980742c48a5d8eb24392f5c399521c24bb3bad"
+content-hash = "95b5683726e910983ed6f60ede0c55be6dd152f60157c7a7ddf84e72a02d3801"
 python-versions = "^3.7"
 
 [metadata.files]
@@ -946,6 +974,10 @@ isort = [
 jinja2 = [
     {file = "Jinja2-2.10.3-py2.py3-none-any.whl", hash = "sha256:74320bb91f31270f9551d46522e33af46a80c3d619f4a4bf42b3164d30b5911f"},
     {file = "Jinja2-2.10.3.tar.gz", hash = "sha256:9fe95f19286cfefaa917656583d020be14e7859c6b0252588391e47db34527de"},
+]
+jsonpath-extractor = [
+    {file = "jsonpath-extractor-0.1.1.tar.gz", hash = "sha256:3cfc86c109aaba149f2ec6df48efab0cfc45edcd50522866ee736bb1654d33eb"},
+    {file = "jsonpath_extractor-0.1.1-py3-none-any.whl", hash = "sha256:0ec995489d56e68a6432d5cf38f0becd506e56bc4329dc6c7aa753dc9733e318"},
 ]
 jsonpath-rw = [
     {file = "jsonpath-rw-1.4.0.tar.gz", hash = "sha256:05c471281c45ae113f6103d1268ec7a4831a2e96aa80de45edc89b11fac4fbec"},
@@ -1147,6 +1179,9 @@ rope = [
 six = [
     {file = "six-1.13.0-py2.py3-none-any.whl", hash = "sha256:1f1b7d42e254082a9db6279deae68afb421ceba6158efa6131de7b3003ee93fd"},
     {file = "six-1.13.0.tar.gz", hash = "sha256:30f610279e8b2578cab6db20741130331735c781b56053c59c4076da27f06b66"},
+]
+sly = [
+    {file = "sly-0.3.tar.gz", hash = "sha256:be6a3825b042a9e1b6f5730fc747e6d983c917f0f002d798d0b9f86ca5c05ad9"},
 ]
 snowballstemmer = [
     {file = "snowballstemmer-2.0.0-py2.py3-none-any.whl", hash = "sha256:209f257d7533fdb3cb73bdbd24f436239ca3b2fa67d56f6ff88e86be08cc5ef0"},

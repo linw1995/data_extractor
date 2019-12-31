@@ -51,7 +51,7 @@ jobs:
         fail_ci_if_error: true
     - name: Test with JSON extractor backend
       run: |
-        make POETRY_EXTRAS='test jsonpath-rw jsonpath-rw-ext' init_by_poetry
+        make POETRY_EXTRAS='test jsonpath-rw jsonpath-rw-ext jsonpath-extractor' init_by_poetry
         make cov
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v1.0.5

@@ -10,6 +10,7 @@ import data_extractor.json
 
 @pytest.fixture(
     params=[
+        ("jsonpath-extractor", data_extractor.json.JSONPathExtractor),
         ("jsonpath-rw", data_extractor.json.JSONPathRWExtractor),
         ("jsonpath-rw-ext", data_extractor.json.JSONPathRWExtExtractor),
     ],
