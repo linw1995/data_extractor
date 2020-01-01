@@ -5,8 +5,6 @@ import re
 # Third Party Library
 import pytest
 
-from jsonpath_rw.lexer import JsonPathLexerError
-
 # First Party Library
 from data_extractor.exceptions import ExprError, ExtractError
 from data_extractor.json import JSONExtractor
@@ -105,5 +103,7 @@ def test_invalid_css_selector_expr(element, expr, by):
 
     exc = catch.value
     assert exc.extractor is extractor
+    from jsonpath_rw.lexer import JsonPathLexerError
+
     assert isinstance(exc.exc, (JsonPathLexerError, Exception))
     assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))

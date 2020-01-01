@@ -27,13 +27,6 @@ target_element = html_element[1]
 @pytest.mark.parametrize(
     "Extractor, kwargs, element, expect",
     [
-        pytest.param(
-            JSONExtractor,
-            {"expr": "boo"},
-            {"boo": "boo"},
-            "boo",
-            marks=pytest.mark.usefixtures("json_extractor_backend"),
-        ),
         (
             AttrCSSExtractor,
             {"expr": "span.boo", "attr": "id"},
@@ -50,7 +43,20 @@ target_element = html_element[1]
         ),
     ],
 )
-def test_build_implicitly(Extractor, kwargs, element, expect):
+def test_build_implicitly_by_xpath(Extractor, kwargs, element, expect):
+    extractor = Extractor(**kwargs)
+    assert not extractor.built
+
+    assert extractor.extract_first(element) == expect
+    assert extractor.built
+
+
+@pytest.mark.usefixtures("json_extractor_backend")
+@pytest.mark.parametrize(
+    "Extractor, kwargs, element, expect",
+    [(JSONExtractor, {"expr": "boo"}, {"boo": "boo"}, "boo",)],
+)
+def test_build_implicitly_by_jpath(Extractor, kwargs, element, expect):
     extractor = Extractor(**kwargs)
     assert not extractor.built
 
@@ -61,13 +67,6 @@ def test_build_implicitly(Extractor, kwargs, element, expect):
 @pytest.mark.parametrize(
     "Extractor, kwargs, element, expect",
     [
-        pytest.param(
-            JSONExtractor,
-            {"expr": "boo"},
-            {"boo": "boo"},
-            "boo",
-            marks=pytest.mark.usefixtures("json_extractor_backend"),
-        ),
         (
             AttrCSSExtractor,
             {"expr": "span.boo", "attr": "id"},
@@ -84,7 +83,23 @@ def test_build_implicitly(Extractor, kwargs, element, expect):
         ),
     ],
 )
-def test_build_explicitly(Extractor, kwargs, element, expect):
+def test_build_explicitly_by_xpath(Extractor, kwargs, element, expect):
+    extractor = Extractor(**kwargs)
+    assert not extractor.built
+
+    extractor.build()
+    assert extractor.built
+
+    assert extractor.extract_first(element) == expect
+    assert extractor.built
+
+
+@pytest.mark.usefixtures("json_extractor_backend")
+@pytest.mark.parametrize(
+    "Extractor, kwargs, element, expect",
+    [(JSONExtractor, {"expr": "boo"}, {"boo": "boo"}, "boo",)],
+)
+def test_build_explicitly_by_jpath(Extractor, kwargs, element, expect):
     extractor = Extractor(**kwargs)
     assert not extractor.built
 
@@ -98,13 +113,6 @@ def test_build_explicitly(Extractor, kwargs, element, expect):
 @pytest.mark.parametrize(
     "Extractor, kwargs, element, expect",
     [
-        pytest.param(
-            JSONExtractor,
-            {"expr": "boo"},
-            {"boo": "boo"},
-            "boo",
-            marks=pytest.mark.usefixtures("json_extractor_backend"),
-        ),
         (
             AttrCSSExtractor,
             {"expr": "span.boo", "attr": "id"},
@@ -121,7 +129,29 @@ def test_build_explicitly(Extractor, kwargs, element, expect):
         ),
     ],
 )
-def test_modify_built(Extractor, kwargs, element, expect):
+def test_modify_built_by_xpath(Extractor, kwargs, element, expect):
+    extractor = Extractor(**kwargs)
+    assert not extractor.built
+
+    extractor.build()
+    assert extractor.built
+
+    extractor.expr = kwargs["expr"]
+    assert not extractor.built
+
+    extractor.build()
+    assert extractor.built
+
+    assert extractor.extract_first(element) == expect
+    assert extractor.built
+
+
+@pytest.mark.usefixtures("json_extractor_backend")
+@pytest.mark.parametrize(
+    "Extractor, kwargs, element, expect",
+    [(JSONExtractor, {"expr": "boo"}, {"boo": "boo"}, "boo",)],
+)
+def test_modify_built_by_jpath(Extractor, kwargs, element, expect):
     extractor = Extractor(**kwargs)
     assert not extractor.built
 
