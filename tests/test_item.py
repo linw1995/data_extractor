@@ -576,7 +576,27 @@ def test_field_overwrites_item_parameter_type_creation(
             "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: B950, E701",
             """%s=Field(XPathExtractor(\"./span[@class='name']\"))""",
         ),
-        pytest.param(
+    ],
+    ids=reprlib.repr,
+)
+def test_field_overwrites_item_property_in_repl_by_xpath(
+    template, text_template, item_property, stack_frame_support
+):
+    with pytest.raises(SyntaxError) as catch:
+        exec(template % (item_property,))
+
+    exc = catch.value
+    assert exc.filename is None
+    assert exc.lineno is None
+    assert exc.offset is None
+    assert exc.text == text_template % (item_property,)
+
+
+@pytest.mark.usefixtures("json_extractor_backend")
+@pytest.mark.parametrize(
+    "template, text_template",
+    [
+        (
             textwrap.dedent(
                 """
                 class User(Item):
@@ -584,9 +604,8 @@ def test_field_overwrites_item_parameter_type_creation(
                 """.strip()
             ),
             "%s=Field(JSONExtractor('name'))",
-            marks=pytest.mark.usefixtures("json_extractor_backend"),
         ),
-        pytest.param(
+        (
             textwrap.dedent(
                 """
                 class User(Item):
@@ -595,12 +614,11 @@ def test_field_overwrites_item_parameter_type_creation(
                 """.strip()
             ),
             "%s=Field(JSONExtractor('name'))",
-            marks=pytest.mark.usefixtures("json_extractor_backend"),
         ),
     ],
     ids=reprlib.repr,
 )
-def test_field_overwrites_item_property_in_repl(
+def test_field_overwrites_item_property_in_repl_by_jpath(
     template, text_template, item_property, stack_frame_support
 ):
     with pytest.raises(SyntaxError) as catch:
