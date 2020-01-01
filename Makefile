@@ -7,6 +7,11 @@ POETRY_VERSION = 1.0.0
 POETRY_EXTRAS = lint test docs jsonpath-rw jsonpath-rw-ext
 POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
 
+deinit:
+	@echo ">> remove venv..."
+	@[ -h .venv ] && rm -rf `realpath .venv` && rm .venv && echo ">> remove success" || true
+	@[ -d .venv ] && rm -rf .venv && echo ">> remove success" || true
+
 init_by_venv:
 	@echo ">> initing by venv..."
 	@echo ">> creating venv..."
