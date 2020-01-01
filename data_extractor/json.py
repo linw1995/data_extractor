@@ -106,10 +106,8 @@ def __getattr__(name: str) -> Any:
         # Make different implementations of JSONExtractor optional.
         # Return None when required dependencies missing.
         return globals().get(name)
-    if name not in globals():
-        raise AttributeError(f"module {__name__} has no attribute {name}")
 
-    return globals()[name]
+    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
 __all__ = (
