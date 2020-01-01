@@ -82,3 +82,10 @@ repos:
         entry: .venv/bin/python scripts/build_readme.py README.template.rst README.rst
         language: system
         pass_filenames: false
+      - id: requirement
+        name: requirement
+        description: create requirement file for python
+        entry: ./scripts/export_requirements_txt.sh
+        files: (pyproject.toml|poetry.lock)
+        language: system
+        pass_filenames: false
