@@ -4,7 +4,7 @@ EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
 POETRY_VERSION = 0.12.17
-POETRY_EXTRAS = linting test docs
+POETRY_EXTRAS = lint test docs
 POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
 
 init_by_venv:
@@ -101,6 +101,7 @@ vtest: _stash
 
 _cov:
 	@.venv/bin/pytest -vv --cov=data_extractor
+	@.venv/bin/coverage xml
 	@.venv/bin/coverage html
 	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
 

@@ -49,13 +49,13 @@ _helpers:
 
 jobs:
   include:
-    - stage: &pre_test_stage_name Linting and pre-test checks
+    - stage: &pre_test_stage_name Lint
       <<: *_mainstream_python_base
       <<: *_reset_steps
       name: Check source code with pre-commit
       install:
         - *install_poetry
-        - &install_linting_deps make POETRY_EXTRAS=linting init_by_poetry
+        - &install_linting_deps make POETRY_EXTRAS=lint init_by_poetry
       script:
         - make check-all
     - <<: *_deploy_base
