@@ -35,7 +35,7 @@ jobs:
       run: |
         make POETRY_EXTRAS=lint init_by_poetry
         make check-all
-    - name: Test
+    - name: Test without JSON extractor backend
       run: |
         make POETRY_EXTRAS=test init_by_poetry
         make cov
@@ -44,8 +44,23 @@ jobs:
       with:
         # Repository upload token - get it from codecov.io
         token: ${{ secrets.CODECOV_TOKEN }}
+        # Flag the upload to group coverage metrics (unittests, uitests, etc.)
+        flags: test_without_json_extractor_backend
         # Specify whether or not CI build should fail if Codecov runs into an error during upload
-        fail_ci_if_error: true # optional
+        fail_ci_if_error: true
+    - name: Test with JSON extractor backend
+      run: |
+        make POETRY_EXTRAS='test jsonpath-rw jsonpath-rw-ext' init_by_poetry
+        make cov
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v1.0.5
+      with:
+        # Repository upload token - get it from codecov.io
+        token: ${{ secrets.CODECOV_TOKEN }}
+        # Flag the upload to group coverage metrics (unittests, uitests, etc.)
+        flags: test_with_json_extractor_backend
+        # Specify whether or not CI build should fail if Codecov runs into an error during upload
+        fail_ci_if_error: true
     # Build, Upload and Publish to PYPI and GitHub Release
     - name: Build release
       run: poetry build
