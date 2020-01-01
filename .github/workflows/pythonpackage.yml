@@ -37,6 +37,7 @@ jobs:
         make check-all
     - name: Test without JSON extractor backend
       run: |
+        make deinit
         make POETRY_EXTRAS=test init_by_poetry
         make cov
     - name: Upload coverage to Codecov
