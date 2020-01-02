@@ -19,14 +19,14 @@ init_by_venv:
 	@echo ">> installing Poetry ${POETRY_VERSION}"
 	@.venv/bin/pip install poetry==$(POETRY_VERSION)
 	@echo ">> installing $(if $(POETRY_EXTRAS),\"$(POETRY_EXTRAS)\" ,)dependencies by poetry"
-	@.venv/bin/poetry install $(POETRY_EXTRAS_ARGS)
+	@.venv/bin/poetry -v install $(POETRY_EXTRAS_ARGS)
 	@echo ">> all dependencies installed completed! please execute below command for development"
 	@echo "> source .venv/bin/acitvate"
 
 init_by_poetry:
 	@echo ">> initing by `poetry --version`..."
 	@echo ">> installing $(if $(POETRY_EXTRAS),\"$(POETRY_EXTRAS)\" ,)dependencies by poetry"
-	@poetry install $(POETRY_EXTRAS_ARGS)
+	@poetry install -v $(POETRY_EXTRAS_ARGS)
 	@echo ">> make a symlink from the env created by poetry to ./.venv"
 	@[ -h .venv ] && unlink .venv && echo ">> remove old link" || true
 	@poetry run python -c "import sys; print(sys.prefix)" | { \
@@ -114,6 +114,16 @@ _cov:
 cov: _stash
 	@make _cov $(_finally)
 
+_nox:
+	@rm -f .coverage
+	@.venv/bin/nox
+	@.venv/bin/coverage xml
+	@.venv/bin/coverage html
+	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
+
+nox: _stash
+	@make _nox $(_finally)
+
 clean:
 	@rm -f .coverage
 	@rm -rf .mypy_cache
@@ -123,4 +133,4 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy test vtest _cov cov clean doc8
+.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy nox test vtest _cov cov clean doc8
