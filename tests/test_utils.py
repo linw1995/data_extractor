@@ -3,7 +3,11 @@ import pytest
 
 # First Party Library
 from data_extractor.item import Field, Item
-from data_extractor.json import JSONPathRWExtExtractor, JSONPathRWExtractor
+from data_extractor.json import (
+    JSONPathExtractor,
+    JSONPathRWExtExtractor,
+    JSONPathRWExtractor,
+)
 from data_extractor.lxml import (
     AttrCSSExtractor,
     CSSExtractor,
@@ -41,6 +45,11 @@ def complex_extractor(request):
     params=[
         AttrCSSExtractor(expr="div.class", attr="id"),
         CSSExtractor(expr="div.class"),
+        JSONPathExtractor(expr="boo")
+        if JSONPathExtractor
+        else pytest.param(
+            "Missing 'jsonpath-extractor'", marks=pytest.mark.skip()
+        ),
         JSONPathRWExtractor(expr="boo")
         if JSONPathRWExtractor
         else pytest.param("Missing 'jsonpath-rw'", marks=pytest.mark.skip()),
