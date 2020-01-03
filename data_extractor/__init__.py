@@ -12,7 +12,12 @@ from .abc import (
 )
 from .exceptions import ExprError, ExtractError
 from .item import Field, Item
-from .json import JSONExtractor, JSONPathRWExtExtractor, JSONPathRWExtractor
+from .json import (
+    JSONExtractor,
+    JSONPathExtractor,
+    JSONPathRWExtExtractor,
+    JSONPathRWExtractor,
+)
 from .lxml import (
     AttrCSSExtractor,
     CSSExtractor,
@@ -42,6 +47,7 @@ __all__ = (
     "Field",
     "Item",
     "JSONExtractor",
+    "JSONPathExtractor",
     "JSONPathRWExtExtractor",
     "JSONPathRWExtractor",
     "LazyStr",
