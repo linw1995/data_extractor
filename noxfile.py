@@ -22,9 +22,16 @@ pythons = [current_python_version]
 )
 def test(session, json_extractor_backend):
     session.run(
-        "make",
-        f"POETRY_EXTRAS=test {json_extractor_backend or ''}".rstrip(),
-        "init_by_poetry",
+        "poetry",
+        "install",
+        "-v",
+        "-E",
+        "test",
+        *(
+            ("-E", json_extractor_backend)
+            if json_extractor_backend
+            else tuple()
+        ),
         external=True,
     )
     session.run("pytest", "-vv", "--cov=data_extractor", "--cov-append")
