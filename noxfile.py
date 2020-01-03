@@ -32,6 +32,7 @@ def test(session, json_extractor_backend):
             if json_extractor_backend
             else tuple()
         ),
+        "--no-dev",
         external=True,
     )
     session.run("pytest", "-vv", "--cov=data_extractor", "--cov-append")
