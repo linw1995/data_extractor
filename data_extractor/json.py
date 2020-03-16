@@ -124,6 +124,8 @@ try:
     # Third Party Library
     import jsonpath
 
+    from jsonpath import Expr
+
     class JSONPathExtractor(JSONExtractor):
         """
         Use JSONPath expression implementated by **jsonpath-extractor** package
@@ -137,7 +139,7 @@ try:
 
         def __init__(self, expr: str) -> None:
             super().__init__(expr)
-            self._jsonpath: Optional[JSONPath] = None
+            self._jsonpath: Optional[Expr] = None
 
         def build(self) -> None:
             try:
