@@ -72,10 +72,12 @@ Usage
 Changelog
 <<<<<<<<<
 
-v0.6.0-alpha.3
-~~~~~~~~~~~~~~
+v0.6.0
+~~~~~~
 
-- 1982302 Fix:Type annotation error
+- f1d21fe New:Make different implementations of JSONExtractor optional
+- 0175cde New:Add jsonpath-extractor as opitional json extractor backend
+- 3b6da8b Chg:Upgrade dependencies
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
