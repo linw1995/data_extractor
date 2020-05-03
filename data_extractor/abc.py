@@ -122,15 +122,23 @@ def _check_field_overwrites_method(cls: object) -> None:
     source = "".join(lines)
     mod = ast.parse(source)
     for node in ast.walk(mod):
-        if isinstance(node, ast.ClassDef) and node.lineno == firstlineno:
-            cls_node = node
+        if (
+            isinstance(node, (ast.ClassDef, ast.Call))
+            and node.lineno == firstlineno
+        ):
+            item_node = node
             break
     else:  # pragma: no cover
         assert 0, f"Can't find the source of {cls}."
 
+    if isinstance(item_node, ast.Call):
+        # There is no point to check if field overwrites method,
+        # due to item is created by `type` function.
+        return
+
     assigns: Dict[str, ast.Assign] = {}
     methods: Dict[str, ast.FunctionDef] = {}
-    for node in cls_node.body:
+    for node in item_node.body:
         if isinstance(node, ast.Assign):
             for target_ in node.targets:
                 if not isinstance(target_, ast.Name):

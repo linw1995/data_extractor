@@ -532,6 +532,11 @@ def test_field_overwrites_item_property_oneline(stack_frame_support):
         )
 
 
+@pytest.mark.usefixtures("json_extractor_backend")
+def test_type_creation():
+    type("Foo", (Item,), {"bar": Field(JSONExtractor("bar"))})
+
+
 def test_field_overwrites_item_parameter_type_creation(
     stack_frame_support, item_property
 ):
