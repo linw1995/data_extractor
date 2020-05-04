@@ -95,7 +95,7 @@ def test_extract_first_without_default(element, expr, build_first):
 @pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize("by", ["build", "extract"], ids=lambda x: f"by_{x}")
 @pytest.mark.parametrize("expr", ["foo..", "a[]", ""], ids=repr)
-def test_invalid_css_selector_expr(element, expr, by):
+def test_invalid_jsonpath_expr(element, expr, by):
     extractor = JSONExtractor(expr)
     with pytest.raises(ExprError) as catch:
         if by == "build":
