@@ -124,6 +124,11 @@ _nox:
 nox: _stash
 	@make _nox $(_finally)
 
+export_requirements_txt:
+	@.venv/bin/nox -k export_requirements_txt
+
+export: export_requirements_txt
+
 clean:
 	@rm -f .coverage
 	@rm -rf .mypy_cache
@@ -133,4 +138,5 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy nox test vtest _cov cov clean doc8
+.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy nox \
+		test vtest _cov cov clean doc8 export_requirements_txt export
