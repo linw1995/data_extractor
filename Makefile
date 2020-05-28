@@ -129,6 +129,9 @@ export_requirements_txt:
 
 export: export_requirements_txt
 
+pre-commit_init:
+	@.venv/bin/pre-commit install
+
 clean:
 	@rm -f .coverage
 	@rm -rf .mypy_cache
@@ -139,4 +142,4 @@ clean:
 	@rm -rf dist
 
 .PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy nox \
-		test vtest _cov cov clean doc8 export_requirements_txt export
+		test vtest _cov cov clean doc8 export_requirements_txt export pre-commit_init
