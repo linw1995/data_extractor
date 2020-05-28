@@ -3,43 +3,50 @@ all: test
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-POETRY_VERSION = 1.0.0
 POETRY_EXTRAS = lint test docs jsonpath-rw jsonpath-rw-ext jsonpath-extractor
 POETRY_EXTRAS_ARGS = $(if $(POETRY_EXTRAS),-E,) $(subst $(SPACE),$(SPACE)-E$(SPACE),$(POETRY_EXTRAS))
+
+PYTHON = system
+QUIET =
+
+link_venv:
+	@[ $(QUIET) ] || echo ">> make a symlink from the env created by poetry to ./.venv"
+	@[ -h .venv ] && unlink .venv && ( [ $(QUIET) ] || echo ">> remove old link" ) || true
+	@poetry run python -c "import sys; print(sys.prefix)" | tail -n 1 | { \
+		read PYTHON_PREFIX; \
+		[ -d $$PYTHON_PREFIX ] && { \
+			[ $(QUIET) ] || echo ">> link .venv -> $$PYTHON_PREFIX"; \
+			ln -s $$PYTHON_PREFIX .venv; \
+			ln -s `which poetry` .venv/bin/poetry >/dev/null 2>&1 || true; \
+		} \
+	}
+	@[ $(QUIET) ] || { \
+		echo ">> please execute below command for development"; \
+		echo "> poetry shell"; \
+		echo ">> or:"; \
+		echo "> source .venv/bin/activate"; \
+	}
+
+activate:
+	@poetry env use $(PYTHON)
+	@make PYTHON=$(PYTHON) QUIET=$(QUIET) link_venv
+
+deactivate: # must deactivate before using nox
+	@make PYTHON=$(PYTHON) QUIET=true activate
+	@poetry env use system
 
 deinit:
 	@echo ">> remove venv..."
 	@[ -h .venv ] && rm -rf `realpath .venv` && rm .venv && echo ">> remove success" || true
 	@[ -d .venv ] && rm -rf .venv && echo ">> remove success" || true
 
-init_by_venv:
-	@echo ">> initing by venv..."
-	@echo ">> creating venv..."
-	@python3 -m virtualenv .venv
-	@echo ">> installing Poetry ${POETRY_VERSION}"
-	@.venv/bin/pip install poetry==$(POETRY_VERSION)
-	@echo ">> installing $(if $(POETRY_EXTRAS),\"$(POETRY_EXTRAS)\" ,)dependencies by poetry"
-	@.venv/bin/poetry -v install $(POETRY_EXTRAS_ARGS)
-	@echo ">> all dependencies installed completed! please execute below command for development"
-	@echo "> source .venv/bin/acitvate"
-
 init_by_poetry:
 	@echo ">> initing by `poetry --version`..."
 	@echo ">> installing $(if $(POETRY_EXTRAS),\"$(POETRY_EXTRAS)\" ,)dependencies by poetry"
+	@make activate
 	@poetry install -v $(POETRY_EXTRAS_ARGS)
-	@echo ">> make a symlink from the env created by poetry to ./.venv"
-	@[ -h .venv ] && unlink .venv && echo ">> remove old link" || true
-	@poetry run python -c "import sys; print(sys.prefix)" | { \
-		read PYTHON_PREFIX; \
-		echo ">> link .venv -> $$PYTHON_PREFIX"; \
-		ln -s $$PYTHON_PREFIX .venv; \
-		ln -s `which poetry` .venv/bin/poetry >/dev/null 2>&1 || true; \
-	}
-	@echo ">> all dependencies installed completed! please execute below command for development"
-	@echo "> poetry shell"
-	@echo ">> or:"
-	@echo "> source .venv/bin/acitvate"
-
+	@echo ">> all dependencies installation completed!"
+	@make QUIET=true activate
 
 isort:
 	@.venv/bin/pre-commit run isort
@@ -115,14 +122,24 @@ cov: _stash
 	@make _cov $(_finally)
 
 _nox:
+	@make QUIET=true deactivate
 	@rm -f .coverage
-	@.venv/bin/nox
+	@.venv/bin/nox -k test
 	@.venv/bin/coverage xml
 	@.venv/bin/coverage html
 	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
+	@make QUIET=true activate
 
 nox: _stash
 	@make _nox $(_finally)
+
+export_requirements_txt: deactivate
+	@.venv/bin/nox -k export_requirements_txt
+
+export: export_requirements_txt
+
+pre-commit_init:
+	@.venv/bin/pre-commit install
 
 clean:
 	@rm -f .coverage
@@ -133,4 +150,6 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy nox test vtest _cov cov clean doc8
+.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy nox \
+		test vtest _cov cov clean doc8 export_requirements_txt export pre-commit_init \
+		activate deactivate link_venv

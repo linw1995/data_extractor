@@ -36,3 +36,9 @@ def test(session, json_extractor_backend):
         external=True,
     )
     session.run("pytest", "-vv", "--cov=data_extractor", "--cov-append")
+
+
+@nox.session(python="3.7", reuse_venv=True)
+def export_requirements_txt(session):
+    session.install("poetry")
+    session.run("python", "scripts/export_requirements_txt.py")
