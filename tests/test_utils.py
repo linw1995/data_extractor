@@ -1,4 +1,7 @@
 # Third Party Library
+# Standard Library
+import importlib.util
+
 import pytest
 
 # First Party Library
@@ -7,17 +10,21 @@ from data_extractor.json import (
     JSONPathExtractor,
     JSONPathRWExtExtractor,
     JSONPathRWExtractor,
+    _missing_jsonpath,
+    _missing_jsonpath_rw,
+    _missing_jsonpath_rw_ext,
 )
 from data_extractor.lxml import (
     AttrCSSExtractor,
     CSSExtractor,
     TextCSSExtractor,
     XPathExtractor,
+    _missing_cssselect,
+    _missing_lxml,
 )
 from data_extractor.utils import (
     LazyStr,
     is_complex_extractor,
-    is_dummy_extractor_cls,
     is_extractor,
     is_simple_extractor,
 )
@@ -45,29 +52,29 @@ def complex_extractor(request):
 @pytest.fixture(
     params=[
         AttrCSSExtractor(expr="div.class", attr="id")
-        if not is_dummy_extractor_cls(AttrCSSExtractor)
+        if not _missing_cssselect
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         CSSExtractor(expr="div.class")
-        if not is_dummy_extractor_cls(CSSExtractor)
+        if not _missing_cssselect
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         JSONPathExtractor(expr="boo")
-        if not is_dummy_extractor_cls(JSONPathExtractor)
+        if not _missing_jsonpath
         else pytest.param(
             "Missing 'jsonpath-extractor'", marks=pytest.mark.skip()
         ),
         JSONPathRWExtractor(expr="boo")
-        if not is_dummy_extractor_cls(JSONPathRWExtractor)
+        if not _missing_jsonpath_rw
         else pytest.param("Missing 'jsonpath-rw'", marks=pytest.mark.skip()),
         JSONPathRWExtExtractor(expr="boo")
-        if not is_dummy_extractor_cls(JSONPathRWExtExtractor)
+        if not _missing_jsonpath_rw_ext
         else pytest.param(
             "Missing 'jsonpath-rw-ext'", marks=pytest.mark.skip()
         ),
         TextCSSExtractor(expr="div.class")
-        if not is_dummy_extractor_cls(TextCSSExtractor)
+        if not _missing_cssselect
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         XPathExtractor(expr="//div")
-        if not is_dummy_extractor_cls(XPathExtractor)
+        if not _missing_lxml
         else pytest.param("Missing 'lxml'", marks=pytest.mark.skip()),
     ],
     ids=repr,
@@ -100,15 +107,65 @@ def test_is_not_simple_extractor(complex_extractor):
     assert not is_simple_extractor(complex_extractor)
 
 
-def test_create_dummy_extractor():
-    from data_extractor.utils import create_dummy_extractor_cls
+@pytest.mark.skipif(
+    importlib.util.find_spec("cssselect") is not None,
+    reason="'cssselect' installed",
+)
+def test_missing_cssselect():
+    with pytest.raises(RuntimeError) as catch:
+        CSSExtractor("a>b")
 
-    DummyExtractor = create_dummy_extractor_cls(
-        "DummyExtractor", "optional_dependency"
-    )
-    assert is_dummy_extractor_cls(DummyExtractor)
+    assert "cssselect" in str(catch.value)
 
-    with pytest.raises(RuntimeError) as catched:
-        DummyExtractor()
+    with pytest.raises(RuntimeError) as catch:
+        AttrCSSExtractor("a>b", "href")
 
-    assert "optional_dependency" in str(catched.value)
+    assert "cssselect" in str(catch.value)
+
+    with pytest.raises(RuntimeError) as catch:
+        TextCSSExtractor("a>b")
+
+    assert "cssselect" in str(catch.value)
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("lxml") is not None, reason="'lxml' installed"
+)
+def test_missing_lxml():
+    with pytest.raises(RuntimeError) as catch:
+        XPathExtractor("//boo")
+
+    assert "lxml" in str(catch.value)
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("jsonpath") is not None,
+    reason="'jsonpath-extractor' installed",
+)
+def test_missing_jsonpath_extractor():
+    with pytest.raises(RuntimeError) as catch:
+        JSONPathExtractor("boo")
+
+    assert "jsonpath-extractor" in str(catch.value)
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("jsonpath_rw") is not None,
+    reason="'jsonpath-rw' installed",
+)
+def test_missing_jsonpath_rw():
+    with pytest.raises(RuntimeError) as catch:
+        JSONPathRWExtractor("boo")
+
+    assert "jsonpath-rw" in str(catch.value)
+
+
+@pytest.mark.skipif(
+    importlib.util.find_spec("jsonpath_rw_ext") is not None,
+    reason="'jsonpath-rw-ext' installed",
+)
+def test_missing_jsonpath_rw_ext():
+    with pytest.raises(RuntimeError) as catch:
+        JSONPathRWExtExtractor("boo")
+
+    assert "jsonpath-rw-ext" in str(catch.value)

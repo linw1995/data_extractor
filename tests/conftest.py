@@ -1,4 +1,6 @@
 # Standard Library
+import importlib.util
+
 from unittest import mock
 
 # Third Party Library
@@ -11,15 +13,23 @@ import data_extractor.utils
 
 @pytest.fixture(
     params=[
-        ("jsonpath-extractor", data_extractor.json.JSONPathExtractor),
-        ("jsonpath-rw", data_extractor.json.JSONPathRWExtractor),
-        ("jsonpath-rw-ext", data_extractor.json.JSONPathRWExtExtractor),
+        (
+            "jsonpath-extractor",
+            "jsonpath",
+            data_extractor.json.JSONPathExtractor,
+        ),
+        ("jsonpath-rw", "jsonpath_rw", data_extractor.json.JSONPathRWExtractor),
+        (
+            "jsonpath-rw-ext",
+            "jsonpath_rw_ext",
+            data_extractor.json.JSONPathRWExtExtractor,
+        ),
     ],
     ids=lambda r: r[1] if r[1] else f"Missing {r[0]!r}",
 )
 def json_extractor_backend(request):
-    package_name, backend_cls = request.param
-    if data_extractor.utils.is_dummy_extractor_cls(backend_cls):
+    package_name, module_name, backend_cls = request.param
+    if not importlib.util.find_spec(module_name):
         pytest.skip(f"missing {package_name!r}")
         return
 
