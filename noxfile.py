@@ -17,21 +17,24 @@ pythons = [current_python_version]
 
 @nox.session(python=pythons, reuse_venv=True)
 @nox.parametrize(
-    "json_extractor_backend",
-    [None, "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext"],
+    "extractor_backend",
+    [
+        None,
+        "jsonpath-extractor",
+        "jsonpath-rw",
+        "jsonpath-rw-ext",
+        "lxml",
+        "cssselect",
+    ],
 )
-def test(session, json_extractor_backend):
+def test(session, extractor_backend):
     session.run(
         "poetry",
         "install",
         "-v",
         "-E",
         "test",
-        *(
-            ("-E", json_extractor_backend)
-            if json_extractor_backend
-            else tuple()
-        ),
+        *(("-E", extractor_backend) if extractor_backend else tuple()),
         "--no-dev",
         external=True,
     )

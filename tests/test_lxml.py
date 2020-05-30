@@ -1,11 +1,9 @@
 # Standard Library
+import importlib.util
 import re
 
 # Third Party Library
 import pytest
-
-from cssselect.parser import SelectorError
-from lxml.etree import XPathError, XPathEvalError
 
 # First Party Library
 from data_extractor.exceptions import ExprError, ExtractError
@@ -14,6 +12,14 @@ from data_extractor.lxml import (
     CSSExtractor,
     TextCSSExtractor,
     XPathExtractor,
+)
+
+
+need_cssselect = pytest.mark.skipif(
+    importlib.util.find_spec("cssselect") is None, reason="Missing 'cssselect'",
+)
+need_lxml = pytest.mark.skipif(
+    importlib.util.find_spec("lxml") is None, reason="Missing 'lxml'"
 )
 
 
@@ -44,7 +50,10 @@ def text():
 
 @pytest.fixture(scope="module")
 def element(text):
-    from lxml.html import fromstring
+    try:
+        from lxml.html import fromstring
+    except ImportError:
+        pytest.skip("Missing 'lxml'")
 
     return fromstring(text)
 
@@ -52,10 +61,16 @@ def element(text):
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
-        (TextCSSExtractor, "span.class_a", ["a"]),
-        (TextCSSExtractor, "span.class_b", ["b"]),
-        (TextCSSExtractor, "span", ["a", "b", "c"]),
-        (TextCSSExtractor, "notexits", []),
+        pytest.param(
+            TextCSSExtractor, "span.class_a", ["a"], marks=need_cssselect
+        ),
+        pytest.param(
+            TextCSSExtractor, "span.class_b", ["b"], marks=need_cssselect
+        ),
+        pytest.param(
+            TextCSSExtractor, "span", ["a", "b", "c"], marks=need_cssselect
+        ),
+        pytest.param(TextCSSExtractor, "notexits", [], marks=need_cssselect),
         (XPathExtractor, "//span[@class='class_a']/text()", ["a"]),
         (XPathExtractor, "//span[@class='class_b']/text()", ["b"]),
         (XPathExtractor, "//span[@class]/text()", ["a", "b"]),
@@ -78,10 +93,16 @@ def test_extract(element, Extractor, expr, expect, build_first):
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
-        (TextCSSExtractor, "span.class_a", "a"),
-        (TextCSSExtractor, "span.class_b", "b"),
-        (TextCSSExtractor, "span", "a"),
-        (TextCSSExtractor, "notexits", "default"),
+        pytest.param(
+            TextCSSExtractor, "span.class_a", "a", marks=need_cssselect
+        ),
+        pytest.param(
+            TextCSSExtractor, "span.class_b", "b", marks=need_cssselect
+        ),
+        pytest.param(TextCSSExtractor, "span", "a", marks=need_cssselect),
+        pytest.param(
+            TextCSSExtractor, "notexits", "default", marks=need_cssselect
+        ),
         (XPathExtractor, "//span[@class='class_a']/text()", "a"),
         (XPathExtractor, "//span[@class='class_b']/text()", "b"),
         (XPathExtractor, "//span[@class]/text()", "a"),
@@ -103,7 +124,10 @@ def test_extract_first(element, Extractor, expr, expect, build_first):
 
 @pytest.mark.parametrize(
     "Extractor,expr",
-    [(TextCSSExtractor, "notexits"), (XPathExtractor, "//notexists/text()")],
+    [
+        pytest.param(TextCSSExtractor, "notexits", marks=need_cssselect),
+        (XPathExtractor, "//notexists/text()"),
+    ],
     ids=repr,
 )
 def test_extract_first_without_default(element, Extractor, expr, build_first):
@@ -123,6 +147,7 @@ def test_extract_first_without_default(element, Extractor, expr, build_first):
     assert exc.element is element
 
 
+@need_cssselect
 @pytest.mark.parametrize(
     "expr,attr,expect",
     [
@@ -145,6 +170,7 @@ def test_attr_css_extract(element, expr, attr, expect, build_first):
     assert extractor.built
 
 
+@need_cssselect
 @pytest.mark.parametrize(
     "expr,attr,expect",
     [
@@ -167,6 +193,7 @@ def test_attr_css_extract_first(element, expr, attr, expect, build_first):
     assert extractor.built
 
 
+@need_cssselect
 @pytest.mark.parametrize(
     "expr,attr", [("span", "notexists"), ("notexists", "class")], ids=repr
 )
@@ -189,6 +216,7 @@ def test_attr_css_extract_first_without_default(
     assert exc.element is element
 
 
+@need_lxml
 @pytest.mark.parametrize("expr", ["///", "/text(", ""])
 def test_invalid_xpath_expr_by_build(expr):
     extractor = XPathExtractor(expr)
@@ -199,6 +227,8 @@ def test_invalid_xpath_expr_by_build(expr):
     assert not extractor.built
     exc = catch.value
     assert exc.extractor is extractor
+    from lxml.etree import XPathError
+
     assert isinstance(exc.exc, XPathError)
     assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
 
@@ -213,6 +243,8 @@ def test_invalid_xpath_expr_by_extract(element, expr):
     assert not extractor.built
     exc = catch.value
     assert exc.extractor is extractor
+    from lxml.etree import XPathError
+
     assert isinstance(exc.exc, XPathError)
     assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
 
@@ -230,10 +262,13 @@ def test_invalid_xpath_expr_by_XPathEvalError_from_extract(element, expr):
 
     exc = catch.value
     assert exc.extractor is extractor
+    from lxml.etree import XPathEvalError
+
     assert isinstance(exc.exc, XPathEvalError)
     assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
 
 
+@need_cssselect
 @pytest.mark.parametrize("by", ["build", "extract"], ids=lambda x: f"by_{x}")
 @pytest.mark.parametrize("expr", ["<", "a##", ""])
 def test_invalid_css_selector_expr(element, expr, by):
@@ -248,6 +283,8 @@ def test_invalid_css_selector_expr(element, expr, by):
     assert not extractor.built
     exc = catch.value
     assert exc.extractor is extractor
+    from cssselect.parser import SelectorError
+
     assert isinstance(exc.exc, SelectorError)
     assert re.match(r"ExprError with .+? raised by .+? extracting", str(exc))
 

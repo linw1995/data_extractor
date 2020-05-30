@@ -24,14 +24,18 @@ include = ["LICENSE"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
-cssselect = "^1.0.3"
-lxml = "^4.3.0"
 
-# json extractor backend
+# XPath extractor backend
+lxml = {version = "^4.3.0", optional = true}
+# CSS-Selector extractor backend
+cssselect = {version = "^1.0.3", optional = true}
+
+# JSON extractor backend
 jsonpath-rw = {version = "^1.4.0", optional = true}
 jsonpath-rw-ext = {version = "^1.2", optional = true}
 jsonpath-extractor = {version = "^0.5.0", optional = true}
 
+# Optional Development
 black = {version = "^19.3b0", optional = true}
 flake8 = {version = "^3.7.8", optional = true}
 isort = {version = "^4.3.21", optional = true}
@@ -54,6 +58,7 @@ coverage = "^5.0.1"
 lint = [
   "black",
   "blacken-docs",
+  "cssselect",
   "doc8",
   "flake8",
   "flake8-bugbear",
@@ -61,13 +66,23 @@ lint = [
   "jsonpath-extractor",
   "jsonpath-rw",
   "jsonpath-rw-ext",
+  "lxml",
   "mypy",
   "nox",
   "pygments",
   "pytest"
 ]
 test = ["pytest", "pytest-cov"]
-docs = ["jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "sphinx"]
+docs = [
+  "cssselect",
+  "jsonpath-extractor",
+  "jsonpath-rw",
+  "jsonpath-rw-ext",
+  "lxml",
+  "sphinx"
+]
+cssselect = ["cssselect", "lxml"]
+lxml = ["lxml"]
 jsonpath-extractor = ["jsonpath-extractor"]
 jsonpath-rw = ["jsonpath-rw"]
 jsonpath-rw-ext = ["jsonpath-rw", "jsonpath-rw-ext"]

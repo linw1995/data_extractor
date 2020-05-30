@@ -1,4 +1,6 @@
 # Standard Library
+import importlib
+import importlib.util
 import inspect
 import linecache
 import reprlib
@@ -23,9 +25,20 @@ from data_extractor.utils import (
 )
 
 
+need_cssselect = pytest.mark.skipif(
+    importlib.util.find_spec("cssselect") is None, reason="Missing 'cssselect'",
+)
+need_lxml = pytest.mark.skipif(
+    importlib.util.find_spec("lxml") is None, reason="Missing 'lxml'"
+)
+
+
 @pytest.fixture
 def element0():
-    from lxml.html import fromstring
+    try:
+        from lxml.html import fromstring
+    except ImportError:
+        pytest.skip("Missing 'lxml'")
 
     text = """
         <ul class="articles">
@@ -55,8 +68,12 @@ def item_property(request):
     [
         (XPathExtractor, "//div[@class='title']/text()", "Title 1"),
         (XPathExtractor, "//div[@class='content']/text()", "Content 1"),
-        (TextCSSExtractor, ".title", "Title 1"),
-        (TextCSSExtractor, ".content", "Content 1"),
+        pytest.param(
+            TextCSSExtractor, ".title", "Title 1", marks=need_cssselect
+        ),
+        pytest.param(
+            TextCSSExtractor, ".content", "Content 1", marks=need_cssselect
+        ),
     ],
     ids=repr,
 )
@@ -84,9 +101,16 @@ def test_field_extract(element0, Extractor, expr, expect, build_first):
         ),
         (XPathExtractor, "//div[@class='content']/text()", ["Content 1"]),
         (XPathExtractor, "//div[@class='notexists']/text()", []),
-        (TextCSSExtractor, ".title", ["Title 1", "Title 2"]),
-        (TextCSSExtractor, ".content", ["Content 1"]),
-        (TextCSSExtractor, ".notexists", []),
+        pytest.param(
+            TextCSSExtractor,
+            ".title",
+            ["Title 1", "Title 2"],
+            marks=need_cssselect,
+        ),
+        pytest.param(
+            TextCSSExtractor, ".content", ["Content 1"], marks=need_cssselect
+        ),
+        pytest.param(TextCSSExtractor, ".notexists", [], marks=need_cssselect),
     ],
     ids=repr,
 )
@@ -110,7 +134,9 @@ def test_field_extract_with_is_many(
     "Extractor,expr,expect",
     [
         (XPathExtractor, "//div[@class='notexists']/text()", "default"),
-        (TextCSSExtractor, ".notexists", "default"),
+        pytest.param(
+            TextCSSExtractor, ".notexists", "default", marks=need_cssselect
+        ),
     ],
     ids=repr,
 )
@@ -134,7 +160,7 @@ def test_field_extract_with_default(
     "Extractor,expr",
     [
         (XPathExtractor, "//div[@class='notexists']/text()"),
-        (TextCSSExtractor, ".notexists"),
+        pytest.param(TextCSSExtractor, ".notexists", marks=need_cssselect),
     ],
     ids=repr,
 )
@@ -159,6 +185,7 @@ def test_field_extract_without_default(element0, Extractor, expr, build_first):
     assert exc.element is element0
 
 
+@need_cssselect
 def test_field_parameters_conflict():
     with pytest.raises(ValueError):
         Field(TextCSSExtractor(".nomatter"), is_many=True, default=None)
@@ -178,9 +205,13 @@ def test_field_xpath_extract_result_not_list(element0, build_first):
     assert field.extractor.built
 
 
+@need_lxml
 @pytest.fixture
 def element1():
-    from lxml.html import fromstring
+    try:
+        from lxml.html import fromstring
+    except ImportError:
+        pytest.skip("Missing 'lxml'")
 
     text = """
         <ul class="articles">
@@ -197,6 +228,7 @@ def element1():
     return fromstring(text)
 
 
+@need_lxml
 @pytest.fixture
 def Article0():
     class Article(Item):
@@ -206,6 +238,7 @@ def Article0():
     return Article
 
 
+@need_cssselect
 def test_item_extract(element1, Article0, build_first):
     item = Article0(CSSExtractor("li.article"), is_many=True)
     assert not item.built
@@ -229,6 +262,7 @@ def test_item_extract(element1, Article0, build_first):
     assert item.content.built
 
 
+@need_cssselect
 def test_item_extract_without_is_many(element1, Article0, build_first):
     item = Article0(CSSExtractor("li.article"))
     assert not item.built
@@ -254,7 +288,10 @@ def test_item_extract_without_is_many(element1, Article0, build_first):
 
 @pytest.fixture
 def element2():
-    from lxml.html import fromstring
+    try:
+        from lxml.html import fromstring
+    except ImportError:
+        pytest.skip("Missing 'lxml'")
 
     text = """
         <ul class="articles">
@@ -270,6 +307,7 @@ def element2():
     return fromstring(text)
 
 
+@need_cssselect
 def test_item_extract_failure_when_last_field_missing(
     element2, Article0, build_first
 ):
@@ -300,6 +338,7 @@ def test_item_extract_failure_when_last_field_missing(
     assert exc.element is element2.xpath("//li[@class='article'][2]")[0]
 
 
+@need_cssselect
 def test_item_extract_success_without_is_many_when_last_field_missing(
     element2, Article0, build_first
 ):
@@ -325,6 +364,8 @@ def test_item_extract_success_without_is_many_when_last_field_missing(
     assert item.content.built
 
 
+@need_lxml
+@need_cssselect
 def test_complex_item_extract_xml_data(build_first):
     from lxml.etree import fromstring
 
@@ -507,6 +548,7 @@ def test_field_overwrites_item_property_common(stack_frame_support):
         assert exc.text == "name=Field(JSONExtractor('name'))"
 
 
+@need_lxml
 def test_field_overwrites_item_property_oneline(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
@@ -537,6 +579,7 @@ def test_type_creation():
     type("Foo", (Item,), {"bar": Field(JSONExtractor("bar"))})
 
 
+@need_lxml
 def test_field_overwrites_item_parameter_type_creation(
     stack_frame_support, item_property
 ):
@@ -566,6 +609,7 @@ def test_field_overwrites_item_parameter_type_creation(
         )
 
 
+@need_lxml
 @pytest.mark.parametrize(
     "template, text_template",
     [
@@ -636,6 +680,7 @@ def test_field_overwrites_item_property_in_repl_by_jpath(
     assert exc.text == text_template % (item_property,)
 
 
+@need_lxml
 @pytest.mark.parametrize(
     "template",
     [

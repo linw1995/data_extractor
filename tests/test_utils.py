@@ -43,8 +43,12 @@ def complex_extractor(request):
 
 @pytest.fixture(
     params=[
-        AttrCSSExtractor(expr="div.class", attr="id"),
-        CSSExtractor(expr="div.class"),
+        AttrCSSExtractor(expr="div.class", attr="id")
+        if AttrCSSExtractor
+        else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
+        CSSExtractor(expr="div.class")
+        if CSSExtractor
+        else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         JSONPathExtractor(expr="boo")
         if JSONPathExtractor
         else pytest.param(
@@ -58,8 +62,12 @@ def complex_extractor(request):
         else pytest.param(
             "Missing 'jsonpath-rw-ext'", marks=pytest.mark.skip()
         ),
-        TextCSSExtractor(expr="div.class"),
-        XPathExtractor(expr="//div"),
+        TextCSSExtractor(expr="div.class")
+        if TextCSSExtractor
+        else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
+        XPathExtractor(expr="//div")
+        if XPathExtractor
+        else pytest.param("Missing 'lxml'", marks=pytest.mark.skip()),
     ],
     ids=repr,
 )
