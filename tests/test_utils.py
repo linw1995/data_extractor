@@ -159,10 +159,18 @@ def test_missing_jsonpath_rw():
 
     assert "jsonpath-rw" in str(catch.value)
 
+    with pytest.raises(RuntimeError) as catch:
+        JSONPathRWExtExtractor("boo")
+
+    assert "jsonpath-rw" in str(catch.value)
+
 
 @pytest.mark.skipif(
-    importlib.util.find_spec("jsonpath_rw_ext") is not None,
-    reason="'jsonpath-rw-ext' installed",
+    not (
+        importlib.util.find_spec("jsonpath_rw_ext") is None
+        and importlib.util.find_spec("jsonpath_rw") is not None
+    ),
+    reason="'jsonpath-rw-ext' installed or 'jsonpath-rw' uninstalled",
 )
 def test_missing_jsonpath_rw_ext():
     with pytest.raises(RuntimeError) as catch:
