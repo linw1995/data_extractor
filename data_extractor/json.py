@@ -40,10 +40,15 @@ class JSONExtractor(AbstractSimpleExtractor):
             # __new__ called by deep copy
             return super(JSONExtractor, cls).__new__(cls)
 
-        # rename into JSONExtractor
-        obj = super(JSONExtractor, cls).__new__(
-            type("JSONExtractor", (json_extractor_backend,), {})
-        )
+        if cls is JSONExtractor:
+            obj = super(JSONExtractor, cls).__new__(
+                type(
+                    "JSONExtractor", (json_extractor_backend,), {}
+                )  # rename into JSONExtractor
+            )
+        else:
+            obj = super(JSONExtractor, cls).__new__(cls)
+
         obj.__init__(*args, **kwargs)
         return obj
 
