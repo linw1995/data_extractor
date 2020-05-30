@@ -342,6 +342,10 @@ class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
         raise NotImplementedError
 
 
+class DummyExtractor(AbstractSimpleExtractor):
+    pass
+
+
 AbstractExtractors = Union[AbstractSimpleExtractor, AbstractComplexExtractor]
 
 __all__ = (
@@ -350,4 +354,5 @@ __all__ = (
     "AbstractSimpleExtractor",
     "ComplexExtractorMeta",
     "SimpleExtractorMeta",
+    "DummyExtractor",
 )

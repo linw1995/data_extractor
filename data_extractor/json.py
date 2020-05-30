@@ -4,10 +4,10 @@
 ===================================================
 """
 # Standard Library
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Any, Dict, Optional, Tuple, Type, Union
 
 # Local Folder
-from .abc import AbstractSimpleExtractor
+from .abc import AbstractSimpleExtractor, DummyExtractor
 from .exceptions import ExprError
 from .utils import create_dummy_extractor_cls, is_dummy_extractor_cls
 
@@ -48,8 +48,6 @@ class JSONExtractor(AbstractSimpleExtractor):
         obj.__init__(*args, **kwargs)
         return obj
 
-
-JSONPathRWExtractor = None
 
 try:
     # Third Party Library
@@ -97,6 +95,14 @@ try:
             assert self._jsonpath is not None
             return [m.value for m in self._jsonpath.find(element)]
 
+
+except ImportError:
+    JSONPathRWExtractor = create_dummy_extractor_cls(
+        "JSONPathRWExtractor", "jsonpath-rw"
+    )
+
+try:
+
     # Third Party Library
     import jsonpath_rw_ext
 
@@ -121,11 +127,6 @@ try:
 
 
 except ImportError:
-    if JSONPathRWExtractor is None:
-        JSONPathRWExtractor = create_dummy_extractor_cls(
-            "JSONPathRWExtractor", "jsonpath-rw"
-        )
-
     JSONPathRWExtExtractor = create_dummy_extractor_cls(
         "JSONPathRWExtExtractor", "jsonpath-rw-ext"
     )
@@ -181,7 +182,9 @@ except ImportError:
     )
 
 
-json_extractor_backend: Optional[Type[JSONExtractor]] = None
+json_extractor_backend: Optional[
+    Type[Union[JSONExtractor, DummyExtractor]]
+] = None
 if not is_dummy_extractor_cls(JSONPathExtractor):
     json_extractor_backend = JSONPathExtractor
 elif not is_dummy_extractor_cls(JSONPathRWExtExtractor):

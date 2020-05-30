@@ -7,7 +7,7 @@
 import inspect
 
 from types import FrameType
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional, Type, TypeVar
 
 
 class __Sentinel:
@@ -98,7 +98,9 @@ class Property:
 
 
 if TYPE_CHECKING:
-    from .abc import AbstractExtractors
+    from .abc import AbstractExtractors, AbstractSimpleExtractor
+
+    T = TypeVar("T", bound=AbstractSimpleExtractor)
 
 
 class BuildProperty(Property):
@@ -115,33 +117,33 @@ class BuildProperty(Property):
         return super().__set__(obj, value)
 
 
-class DummyMixin:
-    pass
-
-
-def create_dummy_extractor_cls(cls_name, dependency):
+def create_dummy_extractor_cls(cls_name: str, dependency: str) -> Type["T"]:
     """
     Create a dummy extractor class
     for the extractor class that missing optional dependency.
     """
 
-    def __init__(self, *args, **kwargs):
+    from .abc import AbstractSimpleExtractor
+
+    T = TypeVar("T", bound=AbstractSimpleExtractor)
+
+    def __init__(self: T, *args: Any, **kwargs: Any) -> None:
         raise RuntimeError(
             f"{dependency!r} package is needed, run pip to install it. "
         )
 
-    from .abc import AbstractSimpleExtractor
+    from .abc import DummyExtractor
 
-    return type(
-        cls_name, (AbstractSimpleExtractor, DummyMixin), {"__init__": __init__}
-    )
+    return type(cls_name, (DummyExtractor,), {"__init__": __init__})
 
 
-def is_dummy_extractor_cls(cls):
+def is_dummy_extractor_cls(cls: Type["T"]) -> bool:
     """
     Determine the extractor class if it is a dummy class, return :obj:`True` if it is.
     """
-    return issubclass(cls, DummyMixin)
+    from .abc import DummyExtractor
+
+    return issubclass(cls, DummyExtractor)
 
 
 __all__ = (
@@ -153,7 +155,6 @@ __all__ = (
     "is_extractor",
     "is_simple_extractor",
     "sentinel",
-    "DummyMixin",
     "create_dummy_extractor_cls",
     "is_dummy_extractor_cls",
 )

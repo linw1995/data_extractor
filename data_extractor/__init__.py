@@ -9,6 +9,7 @@ from .abc import (
     AbstractExtractors,
     AbstractSimpleExtractor,
     ComplexExtractorMeta,
+    DummyExtractor,
 )
 from .exceptions import ExprError, ExtractError
 from .item import Field, Item
@@ -26,7 +27,6 @@ from .lxml import (
     XPathExtractor,
 )
 from .utils import (
-    DummyMixin,
     LazyStr,
     create_dummy_extractor_cls,
     is_complex_extractor,
@@ -44,7 +44,7 @@ __all__ = (
     "AttrCSSExtractor",
     "CSSExtractor",
     "ComplexExtractorMeta",
-    "DummyMixin",
+    "DummyExtractor",
     "Element",
     "ExprError",
     "ExtractError",
