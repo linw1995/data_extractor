@@ -17,6 +17,7 @@ from data_extractor.lxml import (
 from data_extractor.utils import (
     LazyStr,
     is_complex_extractor,
+    is_dummy_extractor_cls,
     is_extractor,
     is_simple_extractor,
 )
@@ -44,29 +45,29 @@ def complex_extractor(request):
 @pytest.fixture(
     params=[
         AttrCSSExtractor(expr="div.class", attr="id")
-        if AttrCSSExtractor
+        if not is_dummy_extractor_cls(AttrCSSExtractor)
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         CSSExtractor(expr="div.class")
-        if CSSExtractor
+        if not is_dummy_extractor_cls(CSSExtractor)
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         JSONPathExtractor(expr="boo")
-        if JSONPathExtractor
+        if not is_dummy_extractor_cls(JSONPathExtractor)
         else pytest.param(
             "Missing 'jsonpath-extractor'", marks=pytest.mark.skip()
         ),
         JSONPathRWExtractor(expr="boo")
-        if JSONPathRWExtractor
+        if not is_dummy_extractor_cls(JSONPathRWExtractor)
         else pytest.param("Missing 'jsonpath-rw'", marks=pytest.mark.skip()),
         JSONPathRWExtExtractor(expr="boo")
-        if JSONPathRWExtExtractor
+        if not is_dummy_extractor_cls(JSONPathRWExtExtractor)
         else pytest.param(
             "Missing 'jsonpath-rw-ext'", marks=pytest.mark.skip()
         ),
         TextCSSExtractor(expr="div.class")
-        if TextCSSExtractor
+        if not is_dummy_extractor_cls(TextCSSExtractor)
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         XPathExtractor(expr="//div")
-        if XPathExtractor
+        if not is_dummy_extractor_cls(XPathExtractor)
         else pytest.param("Missing 'lxml'", marks=pytest.mark.skip()),
     ],
     ids=repr,
@@ -97,3 +98,17 @@ def test_is_simple_extractor(simple_extractor):
 
 def test_is_not_simple_extractor(complex_extractor):
     assert not is_simple_extractor(complex_extractor)
+
+
+def test_create_dummy_extractor():
+    from data_extractor.utils import create_dummy_extractor_cls
+
+    DummyExtractor = create_dummy_extractor_cls(
+        "DummyExtractor", "optional_dependency"
+    )
+    assert is_dummy_extractor_cls(DummyExtractor)
+
+    with pytest.raises(RuntimeError) as catched:
+        DummyExtractor()
+
+    assert "optional_dependency" in str(catched.value)

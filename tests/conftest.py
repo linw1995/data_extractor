@@ -6,6 +6,7 @@ import pytest
 
 # First Party Library
 import data_extractor.json
+import data_extractor.utils
 
 
 @pytest.fixture(
@@ -18,7 +19,7 @@ import data_extractor.json
 )
 def json_extractor_backend(request):
     package_name, backend_cls = request.param
-    if not backend_cls:
+    if data_extractor.utils.is_dummy_extractor_cls(backend_cls):
         pytest.skip(f"missing {package_name!r}")
         return
 

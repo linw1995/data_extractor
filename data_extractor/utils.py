@@ -115,6 +115,35 @@ class BuildProperty(Property):
         return super().__set__(obj, value)
 
 
+class DummyMixin:
+    pass
+
+
+def create_dummy_extractor_cls(cls_name, dependency):
+    """
+    Create a dummy extractor class
+    for the extractor class that missing optional dependency.
+    """
+
+    def __init__(self, *args, **kwargs):
+        raise RuntimeError(
+            f"{dependency!r} package is needed, run pip to install it. "
+        )
+
+    from .abc import AbstractSimpleExtractor
+
+    return type(
+        cls_name, (AbstractSimpleExtractor, DummyMixin), {"__init__": __init__}
+    )
+
+
+def is_dummy_extractor_cls(cls):
+    """
+    Determine the extractor class if it is a dummy class, return :obj:`True` if it is.
+    """
+    return issubclass(cls, DummyMixin)
+
+
 __all__ = (
     "LazyStr",
     "BuildProperty",
@@ -124,4 +153,7 @@ __all__ = (
     "is_extractor",
     "is_simple_extractor",
     "sentinel",
+    "DummyMixin",
+    "create_dummy_extractor_cls",
+    "is_dummy_extractor_cls",
 )

@@ -8,6 +8,7 @@ from typing import List, Optional, Union
 # Local Folder
 from .abc import AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExprError
+from .utils import create_dummy_extractor_cls
 
 
 try:
@@ -65,7 +66,7 @@ try:
 
 except ImportError:
     Element = None
-    XPathExtractor = None
+    XPathExtractor = create_dummy_extractor_cls("XPathExtractor", "lxml")
 
 try:
     from cssselect import GenericTranslator
@@ -180,9 +181,13 @@ try:
 
 
 except ImportError:
-    CSSExtractor = None
-    AttrCSSExtractor = None
-    TextCSSExtractor = None
+    CSSExtractor = create_dummy_extractor_cls("CSSExtractor", "cssselect")
+    AttrCSSExtractor = create_dummy_extractor_cls(
+        "AttrCSSExtractor", "cssselect"
+    )
+    TextCSSExtractor = create_dummy_extractor_cls(
+        "TextCSSExtractor", "cssselect"
+    )
 
 
 __all__ = (

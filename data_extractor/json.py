@@ -9,6 +9,7 @@ from typing import Any, Dict, Optional, Tuple, Type
 # Local Folder
 from .abc import AbstractSimpleExtractor
 from .exceptions import ExprError
+from .utils import create_dummy_extractor_cls, is_dummy_extractor_cls
 
 
 class JSONExtractor(AbstractSimpleExtractor):
@@ -47,6 +48,8 @@ class JSONExtractor(AbstractSimpleExtractor):
         obj.__init__(*args, **kwargs)
         return obj
 
+
+JSONPathRWExtractor = None
 
 try:
     # Third Party Library
@@ -118,7 +121,14 @@ try:
 
 
 except ImportError:
-    pass
+    if JSONPathRWExtractor is None:
+        JSONPathRWExtractor = create_dummy_extractor_cls(
+            "JSONPathRWExtractor", "jsonpath-rw"
+        )
+
+    JSONPathRWExtExtractor = create_dummy_extractor_cls(
+        "JSONPathRWExtExtractor", "jsonpath-rw-ext"
+    )
 
 try:
     # Third Party Library
@@ -166,25 +176,18 @@ try:
 
 
 except ImportError:
-    pass
+    JSONPathExtractor = create_dummy_extractor_cls(
+        "JSONPathExtractor", "jsonpath-extractor"
+    )
 
 
 json_extractor_backend: Optional[Type[JSONExtractor]] = None
-if "JSONPathExtractor" in locals():
+if not is_dummy_extractor_cls(JSONPathExtractor):
     json_extractor_backend = JSONPathExtractor
-elif "JSONPathRWExtExtractor" in locals():
+elif not is_dummy_extractor_cls(JSONPathRWExtExtractor):
     json_extractor_backend = JSONPathRWExtExtractor
-elif "JSONPathRWExtractor" in locals():
+elif not is_dummy_extractor_cls(JSONPathRWExtractor):
     json_extractor_backend = JSONPathRWExtractor
-
-
-def __getattr__(name: str) -> Any:
-    if name in __all__:
-        # Make different implementations of JSONExtractor optional.
-        # Return None when required dependencies missing.
-        return globals().get(name)
-
-    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
 __all__ = (
