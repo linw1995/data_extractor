@@ -1,10 +1,8 @@
-six==1.14.0
+six==1.15.0
 decorator==4.4.2
 pbr==5.4.5
 ply==3.11
 jsonpath-rw==1.4.0
 typing-extensions==3.7.4.2
-cssselect==1.1.0
 jsonpath-extractor==0.5.1
 jsonpath-rw-ext==1.2.2
-lxml==4.5.0

@@ -7,7 +7,7 @@
 import inspect
 
 from types import FrameType
-from typing import TYPE_CHECKING, Any, Callable, Optional
+from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
 
 
 class __Sentinel:
@@ -98,7 +98,9 @@ class Property:
 
 
 if TYPE_CHECKING:
-    from .abc import AbstractExtractors
+    from .abc import AbstractExtractors, AbstractSimpleExtractor
+
+    T = TypeVar("T", bound=AbstractSimpleExtractor)
 
 
 class BuildProperty(Property):
@@ -113,6 +115,15 @@ class BuildProperty(Property):
     def __set__(self, obj: "AbstractExtractors", value: Any) -> None:
         obj.built = False
         return super().__set__(obj, value)
+
+
+def _missing_dependency(dependency: str) -> None:
+    """
+    Raise :class:RuntimeError for the extractor class that missing optional dependency.
+    """
+    raise RuntimeError(
+        f"{dependency!r} package is needed, run pip to install it. "
+    )
 
 
 __all__ = (

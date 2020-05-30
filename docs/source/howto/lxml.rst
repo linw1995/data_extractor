@@ -3,7 +3,14 @@ Extract HTML or XML Data
 ========================
 
 The function to extract data from the html or xml file
-powered by lxml_ to support XPath_, by cssselect_ to support `CSS Selectors`_.
+powered by lxml_ to support XPath_, by cssselect_ to support CSS-Selectors_.
+
+Run below command to install optional dependency.
+
+.. code-block:: shell
+
+    pip install "data_extractor[lxml]"  # For using XPath
+    pip install "data_extractor[cssselect]"  # For using CSS-Selectors
 
 Download RSS Sample file for demonstrate.
 
@@ -56,4 +63,4 @@ Using :class:`data_extractor.lxml.AttrCSSExtractor` to extract rss version.
 .. _lxml: https://lxml.de
 .. _XPath: https://www.w3.org/TR/xpath-10/
 .. _cssselect: https://cssselect.readthedocs.io/en/latest/
-.. _`CSS Selectors`: https://www.w3.org/TR/selectors-3/
+.. _CSS-Selectors: https://www.w3.org/TR/selectors-3/

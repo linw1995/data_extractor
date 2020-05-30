@@ -5,15 +5,87 @@
 # Standard Library
 from typing import List, Optional, Union
 
-# Third Party Library
-from cssselect import GenericTranslator
-from cssselect.parser import SelectorError
-from lxml.etree import XPath, XPathEvalError, XPathSyntaxError
-from lxml.etree import _Element as Element
-
 # Local Folder
 from .abc import AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExprError
+from .utils import _missing_dependency
+
+
+try:
+    from lxml.etree import _Element as Element
+
+    _missing_lxml = False
+except ImportError:
+    _missing_lxml = True
+    Element = None
+
+
+class XPathExtractor(AbstractSimpleExtractor):
+    """
+    Use XPath for XML or HTML data extracting.
+
+    Before extracting, should parse the XML or HTML text \
+        into :class:`data_extractor.lxml.Element` object.
+
+    :param expr: XPath Expression.
+    :type exprt: str
+    """
+
+    def __init__(self, expr: str):
+        super().__init__(expr)
+
+        if _missing_lxml:
+            _missing_dependency("lxml")
+
+        from lxml.etree import XPath
+
+        self._find: Optional[XPath] = None
+
+    def build(self) -> None:
+        from lxml.etree import XPath, XPathSyntaxError
+
+        try:
+            self._find = XPath(self.expr)
+            self.built = True
+        except XPathSyntaxError as exc:
+            raise ExprError(extractor=self, exc=exc) from exc
+
+    def extract(self, element: Element) -> Union[List[Element], List[str]]:
+        """
+        Extract subelements or data from XML or HTML data.
+
+        :param element: Target.
+        :type element: :class:`data_extractor.lxml.Element`
+
+        :returns: List of :class:`data_extractor.lxml.Element` objects, \
+            List of str, or str.
+        :rtype: list
+
+        :raises data_extractor.exceptions.ExprError: XPath Expression Error.
+        """
+        from lxml.etree import XPathEvalError
+
+        if not self.built:
+            self.build()
+
+        try:
+            assert self._find is not None
+            rv = self._find(element)
+            if not isinstance(rv, list):
+                return [rv]
+            else:
+                return rv
+        except XPathEvalError as exc:
+            raise ExprError(extractor=self, exc=exc) from exc
+
+
+try:
+    import cssselect
+
+    del cssselect
+    _missing_cssselect = False
+except ImportError:
+    _missing_cssselect = True
 
 
 class CSSExtractor(AbstractSimpleExtractor):
@@ -31,7 +103,13 @@ class CSSExtractor(AbstractSimpleExtractor):
         super().__init__(expr)
         self._extractor: Optional[XPathExtractor] = None
 
+        if _missing_cssselect:
+            _missing_dependency("cssselect")
+
     def build(self) -> None:
+        from cssselect import GenericTranslator
+        from cssselect.parser import SelectorError
+
         try:
             xpath_expr = GenericTranslator().css_to_xpath(self.expr)
         except SelectorError as exc:
@@ -126,55 +204,6 @@ class AttrCSSExtractor(CSSExtractor):
             for ele in super().extract(element)
             if self.attr in ele.keys()
         ]
-
-
-class XPathExtractor(AbstractSimpleExtractor):
-    """
-    Use XPath for XML or HTML data extracting.
-
-    Before extracting, should parse the XML or HTML text \
-        into :class:`data_extractor.lxml.Element` object.
-
-    :param expr: XPath Expression.
-    :type exprt: str
-    """
-
-    def __init__(self, expr: str):
-        super().__init__(expr)
-        self._find: Optional[XPath] = None
-
-    def build(self) -> None:
-        try:
-            self._find = XPath(self.expr)
-            self.built = True
-        except XPathSyntaxError as exc:
-            raise ExprError(extractor=self, exc=exc) from exc
-
-    def extract(self, element: Element) -> Union[List[Element], List[str]]:
-        """
-        Extract subelements or data from XML or HTML data.
-
-        :param element: Target.
-        :type element: :class:`data_extractor.lxml.Element`
-
-        :returns: List of :class:`data_extractor.lxml.Element` objects, \
-            List of str, or str.
-        :rtype: list
-
-        :raises data_extractor.exceptions.ExprError: XPath Expression Error.
-        """
-        if not self.built:
-            self.build()
-
-        try:
-            assert self._find is not None
-            rv = self._find(element)
-            if not isinstance(rv, list):
-                return [rv]
-            else:
-                return rv
-        except XPathEvalError as exc:
-            raise ExprError(extractor=self, exc=exc) from exc
 
 
 __all__ = (

@@ -9,6 +9,7 @@ from typing import Any, Dict, Optional, Tuple, Type
 # Local Folder
 from .abc import AbstractSimpleExtractor
 from .exceptions import ExprError
+from .utils import _missing_dependency
 
 
 class JSONExtractor(AbstractSimpleExtractor):
@@ -57,139 +58,155 @@ try:
     # Third Party Library
     import jsonpath_rw
 
-    from jsonpath_rw import JSONPath
-    from jsonpath_rw.lexer import JsonPathLexerError
+    _missing_jsonpath_rw = False
+except ImportError:
+    _missing_jsonpath_rw = True
 
-    class JSONPathRWExtractor(JSONExtractor):
+
+class JSONPathRWExtractor(JSONExtractor):
+    """
+    Use JSONPath expression implementated by **jsonpath-rw** package
+    for JSON data extracting.
+
+    Before extracting, should parse the JSON text into Python object.
+
+    :param expr: JSONPath Expression.
+    :type expr: str
+    """
+
+    def __init__(self, expr: str) -> None:
+        super().__init__(expr)
+        if _missing_jsonpath_rw:
+            _missing_dependency("jsonpath-rw")
+
+        from jsonpath_rw import JSONPath
+
+        self._jsonpath: Optional[JSONPath] = None
+
+    def build(self) -> None:
+        from jsonpath_rw.lexer import JsonPathLexerError
+
+        try:
+            self._jsonpath = jsonpath_rw.parse(self.expr)
+            self.built = True
+        except (JsonPathLexerError, Exception) as exc:
+            # jsonpath_rw.parser.JsonPathParser.p_error raises exc of Exception type
+            raise ExprError(extractor=self, exc=exc) from exc
+
+    def extract(self, element: Any) -> Any:
         """
-        Use JSONPath expression implementated by **jsonpath-rw** package
-        for JSON data extracting.
+        Extract data from JSON data.
 
-        Before extracting, should parse the JSON text into Python object.
+        :param element: Python object parsed from JSON text.
+        :type element: Any
 
-        :param expr: JSONPath Expression.
-        :type expr: str
+        :returns: Data.
+        :rtype: Any
         """
+        if not self.built:
+            self.build()
 
-        def __init__(self, expr: str) -> None:
-            super().__init__(expr)
-            self._jsonpath: Optional[JSONPath] = None
+        assert self._jsonpath is not None
+        return [m.value for m in self._jsonpath.find(element)]
 
-        def build(self) -> None:
-            try:
-                self._jsonpath = jsonpath_rw.parse(self.expr)
-                self.built = True
-            except (JsonPathLexerError, Exception) as exc:
-                # jsonpath_rw.parser.JsonPathParser.p_error raises exc of Exception type
-                raise ExprError(extractor=self, exc=exc) from exc
 
-        def extract(self, element: Any) -> Any:
-            """
-            Extract data from JSON data.
-
-            :param element: Python object parsed from JSON text.
-            :type element: Any
-
-            :returns: Data.
-            :rtype: Any
-            """
-            if not self.built:
-                self.build()
-
-            assert self._jsonpath is not None
-            return [m.value for m in self._jsonpath.find(element)]
-
+try:
     # Third Party Library
     import jsonpath_rw_ext
 
-    class JSONPathRWExtExtractor(JSONPathRWExtractor):
-        """
-        Use JSONPath expression implementated by **jsonpath-rw-ext** package
-        for JSON data extracting.
-
-        Before extracting, should parse the JSON text into Python object.
-
-        :param expr: JSONPath Expression.
-        :type expr: str
-        """
-
-        def build(self) -> None:
-            try:
-                self._jsonpath = jsonpath_rw_ext.parse(self.expr)
-                self.built = True
-            except (JsonPathLexerError, Exception) as exc:
-                # jsonpath_rw.parser.JsonPathParser.p_error raises exc of Exception type
-                raise ExprError(extractor=self, exc=exc) from exc
-
-
+    _missing_jsonpath_rw_ext = False
 except ImportError:
-    pass
+    _missing_jsonpath_rw_ext = True
+
+
+class JSONPathRWExtExtractor(JSONPathRWExtractor):
+    """
+    Use JSONPath expression implementated by **jsonpath-rw-ext** package
+    for JSON data extracting.
+
+    Before extracting, should parse the JSON text into Python object.
+
+    :param expr: JSONPath Expression.
+    :type expr: str
+    """
+
+    def __init__(self, expr: str) -> None:
+        super().__init__(expr)
+        if _missing_jsonpath_rw_ext:
+            _missing_dependency("jsonpath-rw-ext")
+
+    def build(self) -> None:
+        from jsonpath_rw.lexer import JsonPathLexerError
+
+        try:
+            self._jsonpath = jsonpath_rw_ext.parse(self.expr)
+            self.built = True
+        except (JsonPathLexerError, Exception) as exc:
+            # jsonpath_rw.parser.JsonPathParser.p_error raises exc of Exception type
+            raise ExprError(extractor=self, exc=exc) from exc
+
 
 try:
     # Third Party Library
     import jsonpath
 
-    from jsonpath import Expr
-
-    class JSONPathExtractor(JSONExtractor):
-        """
-        Use JSONPath expression implementated by **jsonpath-extractor** package
-        for JSON data extracting.
-
-        Before extracting, should parse the JSON text into Python object.
-
-        :param expr: JSONPath Expression.
-        :type expr: str
-        """
-
-        def __init__(self, expr: str) -> None:
-            super().__init__(expr)
-            self._jsonpath: Optional[Expr] = None
-
-        def build(self) -> None:
-            try:
-                self._jsonpath = jsonpath.parse(self.expr)
-                self.built = True
-            except SyntaxError as exc:
-                raise ExprError(extractor=self, exc=exc) from exc
-
-        def extract(self, element: Any) -> Any:
-            """
-            Extract data from JSON data.
-
-            :param element: Python object parsed from JSON text.
-            :type element: Any
-
-            :returns: Data.
-            :rtype: Any
-            """
-            if not self.built:
-                self.build()
-
-            assert self._jsonpath is not None
-            return self._jsonpath.find(element)
-
-
+    _missing_jsonpath = False
 except ImportError:
-    pass
+    _missing_jsonpath = True
+
+
+class JSONPathExtractor(JSONExtractor):
+    """
+    Use JSONPath expression implementated by **jsonpath-extractor** package
+    for JSON data extracting.
+
+    Before extracting, should parse the JSON text into Python object.
+
+    :param expr: JSONPath Expression.
+    :type expr: str
+    """
+
+    def __init__(self, expr: str) -> None:
+        super().__init__(expr)
+
+        if _missing_jsonpath:
+            _missing_dependency("jsonpath-extractor")
+
+        from jsonpath import Expr
+
+        self._jsonpath: Optional[Expr] = None
+
+    def build(self) -> None:
+        try:
+            self._jsonpath = jsonpath.parse(self.expr)
+            self.built = True
+        except SyntaxError as exc:
+            raise ExprError(extractor=self, exc=exc) from exc
+
+    def extract(self, element: Any) -> Any:
+        """
+        Extract data from JSON data.
+
+        :param element: Python object parsed from JSON text.
+        :type element: Any
+
+        :returns: Data.
+        :rtype: Any
+        """
+        if not self.built:
+            self.build()
+
+        assert self._jsonpath is not None
+        return self._jsonpath.find(element)
 
 
 json_extractor_backend: Optional[Type[JSONExtractor]] = None
-if "JSONPathExtractor" in locals():
+if not _missing_jsonpath:
     json_extractor_backend = JSONPathExtractor
-elif "JSONPathRWExtExtractor" in locals():
+elif not _missing_jsonpath_rw_ext:
     json_extractor_backend = JSONPathRWExtExtractor
-elif "JSONPathRWExtractor" in locals():
+elif not _missing_jsonpath_rw:
     json_extractor_backend = JSONPathRWExtractor
-
-
-def __getattr__(name: str) -> Any:
-    if name in __all__:
-        # Make different implementations of JSONExtractor optional.
-        # Return None when required dependencies missing.
-        return globals().get(name)
-
-    raise AttributeError(f"module {__name__} has no attribute {name}")
 
 
 __all__ = (
