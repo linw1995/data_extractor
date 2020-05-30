@@ -2,6 +2,11 @@
 History
 =======
 
+v0.6.1
+~~~~~~
+
+- d28fff4 Fix:Item created error by ``type`` function. (Issue #56)
+
 v0.6.0
 ~~~~~~
 

@@ -101,10 +101,11 @@ Usage
 Changelog
 <<<<<<<<<
 
-v0.6.1
+v0.7.0
 ~~~~~~
 
-- d28fff4 Fix:Item created error by ``type`` function. (Issue #56)
+- 65d1fce Fix:Create JSONExtractor with wrong subtype
+- 407cd78 New:Make lxml and cssselect optional (#61)
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
