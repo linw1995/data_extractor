@@ -84,17 +84,6 @@ colorama = ["colorama (>=0.4.3)"]
 d = ["aiohttp (>=3.3.2)", "aiohttp-cors"]
 
 [[package]]
-name = "blacken-docs"
-version = "1.9.1"
-description = "Run `black` on python code blocks in documentation files"
-category = "main"
-optional = true
-python-versions = ">=3.6.1"
-
-[package.dependencies]
-black = ">=19.3b0"
-
-[[package]]
 name = "certifi"
 version = "2020.12.5"
 description = "Python package for providing Mozilla's CA Bundle."
@@ -848,14 +837,14 @@ docs = ["cssselect", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "lx
 jsonpath-extractor = ["jsonpath-extractor"]
 jsonpath-rw = ["jsonpath-rw"]
 jsonpath-rw-ext = ["jsonpath-rw", "jsonpath-rw-ext"]
-lint = ["black", "blacken-docs", "cssselect", "doc8", "flake8", "flake8-bugbear", "isort", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "lxml", "mypy", "pygments", "pytest"]
+lint = ["black", "cssselect", "doc8", "flake8", "flake8-bugbear", "isort", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "lxml", "mypy", "pygments", "pytest"]
 lxml = ["lxml"]
 test = ["pytest", "pytest-cov"]
 
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "4cf335e961e655f7242bd2c74252ead7102289c2c43d92084424b0098e95c008"
+content-hash = "324849b4e55134d97ac9437e64ab776fa580c8498b494edc6f0f155e1172d904"
 
 [metadata.files]
 alabaster = [
@@ -884,10 +873,6 @@ babel = [
 ]
 black = [
     {file = "black-20.8b1.tar.gz", hash = "sha256:1c02557aa099101b9d21496f8a914e9ed2222ef70336404eeeac8edba836fbea"},
-]
-blacken-docs = [
-    {file = "blacken_docs-1.9.1-py2.py3-none-any.whl", hash = "sha256:a1ea11e8e25f1c14e28de8cc95e82d8ea8a48de9a4acb469a89e1fe9a4090dfb"},
-    {file = "blacken_docs-1.9.1.tar.gz", hash = "sha256:a22236e3ecedbf03eb714f9425de5415bda623ec2e9266fd3cbbd21208505b47"},
 ]
 certifi = [
     {file = "certifi-2020.12.5-py2.py3-none-any.whl", hash = "sha256:719a74fb9e33b9bd44cc7f3a8d94bc35e4049deebe19ba7d8e108280cfd59830"},
