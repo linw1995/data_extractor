@@ -1,8 +1,8 @@
-six==1.15.0
+typing-extensions==3.7.4.3
 decorator==4.4.2
-pbr==5.4.5
+pbr==5.5.1
 ply==3.11
+six==1.15.0
 jsonpath-rw==1.4.0
-typing-extensions==3.7.4.2
 jsonpath-extractor==0.5.1
 jsonpath-rw-ext==1.2.2

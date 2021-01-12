@@ -15,7 +15,6 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 # Local Folder
 from .utils import BuildProperty, Property, getframe, sentinel
 
-
 _LineInfo = namedtuple("LineInfo", ["file", "lineno", "offset", "line"])
 
 
@@ -35,9 +34,7 @@ def _find_line_info_of_attr_in_source(
         return _LineInfo(None, None, None, f"{key}={attr!r}")
 
     start_index = inspect.indentsize(lines[firstline_idx])
-    for lineno, line in enumerate(
-        lines[firstline_idx + 1 :], start=firstlineno + 1
-    ):
+    for lineno, line in enumerate(lines[firstline_idx + 1 :], start=firstlineno + 1):
         # iterate line in the code block body
         cur_index = inspect.indentsize(line)
         if cur_index <= start_index:
@@ -122,10 +119,7 @@ def _check_field_overwrites_method(cls: object) -> None:
     source = "".join(lines)
     mod = ast.parse(source)
     for node in ast.walk(mod):
-        if (
-            isinstance(node, (ast.ClassDef, ast.Call))
-            and node.lineno == firstlineno
-        ):
+        if isinstance(node, (ast.ClassDef, ast.Call)) and node.lineno == firstlineno:
             item_node = node
             break
     else:  # pragma: no cover
@@ -214,12 +208,8 @@ class ComplexExtractorMeta(SimpleExtractorMeta):
                 # can't using data_extractor.utils.is_complex_extractor here,
                 # because AbstractComplexExtractor which being used in it
                 # bases on ComplexExtractorMeta.
-                _check_field_overwrites_bases_method(
-                    cls, name, bases, key, attr
-                )
-                _check_field_overwrites_bases_property(
-                    cls, name, bases, key, attr
-                )
+                _check_field_overwrites_bases_method(cls, name, bases, key, attr)
+                _check_field_overwrites_bases_property(cls, name, bases, key, attr)
 
                 field_names.append(key)
 
@@ -295,6 +285,7 @@ class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
         rv = self.extract(element)
         if not rv:
             if default is sentinel:
+                # Local Folder
                 from .exceptions import ExtractError
 
                 raise ExtractError(self, element)

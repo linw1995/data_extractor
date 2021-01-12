@@ -31,12 +31,7 @@ Usage
         {
             "data": {
                 "users": [
-                    {
-                        "name": "john",
-                        "age": 19,
-                        "countFollowings": 14,
-                        "countFans": 212,
-                    },
+                    {"name": "john", "age": 19, "countFollowings": 14, "countFans": 212,},
                     {
                         "name": "jack",
                         "description": "",

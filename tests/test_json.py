@@ -114,6 +114,7 @@ def test_invalid_jsonpath_expr(element, expr, by):
         # only raise SyntaxError in build method
         assert isinstance(exc.exc, SyntaxError)
     else:
+        # Third Party Library
         from jsonpath_rw.lexer import JsonPathLexerError
 
         assert isinstance(exc.exc, (JsonPathLexerError, Exception))

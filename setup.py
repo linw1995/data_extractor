@@ -2,5 +2,4 @@
 # Third Party Library
 from setuptools import setup
 
-
 setup(name="data_extractor")

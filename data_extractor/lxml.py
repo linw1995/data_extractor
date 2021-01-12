@@ -10,8 +10,8 @@ from .abc import AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExprError
 from .utils import _missing_dependency
 
-
 try:
+    # Third Party Library
     from lxml.etree import _Element as Element
 
     _missing_lxml = False
@@ -37,11 +37,13 @@ class XPathExtractor(AbstractSimpleExtractor):
         if _missing_lxml:
             _missing_dependency("lxml")
 
+        # Third Party Library
         from lxml.etree import XPath
 
         self._find: Optional[XPath] = None
 
     def build(self) -> None:
+        # Third Party Library
         from lxml.etree import XPath, XPathSyntaxError
 
         try:
@@ -63,6 +65,7 @@ class XPathExtractor(AbstractSimpleExtractor):
 
         :raises data_extractor.exceptions.ExprError: XPath Expression Error.
         """
+        # Third Party Library
         from lxml.etree import XPathEvalError
 
         if not self.built:
@@ -80,6 +83,7 @@ class XPathExtractor(AbstractSimpleExtractor):
 
 
 try:
+    # Third Party Library
     import cssselect
 
     del cssselect
@@ -107,6 +111,7 @@ class CSSExtractor(AbstractSimpleExtractor):
             _missing_dependency("cssselect")
 
     def build(self) -> None:
+        # Third Party Library
         from cssselect import GenericTranslator
         from cssselect.parser import SelectorError
 
@@ -183,9 +188,7 @@ class AttrCSSExtractor(CSSExtractor):
         self.attr = attr
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}(expr={self.expr!r}, attr={self.attr!r})"
-        )
+        return f"{self.__class__.__name__}(expr={self.expr!r}, attr={self.attr!r})"
 
     def extract(self, element: Element) -> List[str]:
         """

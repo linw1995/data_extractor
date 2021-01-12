@@ -132,6 +132,8 @@ dmypy.json
 # Custom
 ## IDEA
 .vscode
+## Emacs
+.persp-confs
 ## Makefile
 .black
 .check_black

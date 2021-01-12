@@ -14,9 +14,9 @@ from data_extractor.lxml import (
     XPathExtractor,
 )
 
-
 need_cssselect = pytest.mark.skipif(
-    importlib.util.find_spec("cssselect") is None, reason="Missing 'cssselect'",
+    importlib.util.find_spec("cssselect") is None,
+    reason="Missing 'cssselect'",
 )
 need_lxml = pytest.mark.skipif(
     importlib.util.find_spec("lxml") is None, reason="Missing 'lxml'"
@@ -51,6 +51,7 @@ def text():
 @pytest.fixture(scope="module")
 def element(text):
     try:
+        # Third Party Library
         from lxml.html import fromstring
     except ImportError:
         pytest.skip("Missing 'lxml'")
@@ -61,15 +62,9 @@ def element(text):
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
-        pytest.param(
-            TextCSSExtractor, "span.class_a", ["a"], marks=need_cssselect
-        ),
-        pytest.param(
-            TextCSSExtractor, "span.class_b", ["b"], marks=need_cssselect
-        ),
-        pytest.param(
-            TextCSSExtractor, "span", ["a", "b", "c"], marks=need_cssselect
-        ),
+        pytest.param(TextCSSExtractor, "span.class_a", ["a"], marks=need_cssselect),
+        pytest.param(TextCSSExtractor, "span.class_b", ["b"], marks=need_cssselect),
+        pytest.param(TextCSSExtractor, "span", ["a", "b", "c"], marks=need_cssselect),
         pytest.param(TextCSSExtractor, "notexits", [], marks=need_cssselect),
         (XPathExtractor, "//span[@class='class_a']/text()", ["a"]),
         (XPathExtractor, "//span[@class='class_b']/text()", ["b"]),
@@ -93,16 +88,10 @@ def test_extract(element, Extractor, expr, expect, build_first):
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
-        pytest.param(
-            TextCSSExtractor, "span.class_a", "a", marks=need_cssselect
-        ),
-        pytest.param(
-            TextCSSExtractor, "span.class_b", "b", marks=need_cssselect
-        ),
+        pytest.param(TextCSSExtractor, "span.class_a", "a", marks=need_cssselect),
+        pytest.param(TextCSSExtractor, "span.class_b", "b", marks=need_cssselect),
         pytest.param(TextCSSExtractor, "span", "a", marks=need_cssselect),
-        pytest.param(
-            TextCSSExtractor, "notexits", "default", marks=need_cssselect
-        ),
+        pytest.param(TextCSSExtractor, "notexits", "default", marks=need_cssselect),
         (XPathExtractor, "//span[@class='class_a']/text()", "a"),
         (XPathExtractor, "//span[@class='class_b']/text()", "b"),
         (XPathExtractor, "//span[@class]/text()", "a"),
@@ -197,9 +186,7 @@ def test_attr_css_extract_first(element, expr, attr, expect, build_first):
 @pytest.mark.parametrize(
     "expr,attr", [("span", "notexists"), ("notexists", "class")], ids=repr
 )
-def test_attr_css_extract_first_without_default(
-    element, expr, attr, build_first
-):
+def test_attr_css_extract_first_without_default(element, expr, attr, build_first):
     extractor = AttrCSSExtractor(expr=expr, attr=attr)
     assert not extractor.built
     if build_first:
@@ -227,6 +214,7 @@ def test_invalid_xpath_expr_by_build(expr):
     assert not extractor.built
     exc = catch.value
     assert exc.extractor is extractor
+    # Third Party Library
     from lxml.etree import XPathError
 
     assert isinstance(exc.exc, XPathError)
@@ -243,6 +231,7 @@ def test_invalid_xpath_expr_by_extract(element, expr):
     assert not extractor.built
     exc = catch.value
     assert exc.extractor is extractor
+    # Third Party Library
     from lxml.etree import XPathError
 
     assert isinstance(exc.exc, XPathError)
@@ -262,6 +251,7 @@ def test_invalid_xpath_expr_by_XPathEvalError_from_extract(element, expr):
 
     exc = catch.value
     assert exc.extractor is extractor
+    # Third Party Library
     from lxml.etree import XPathEvalError
 
     assert isinstance(exc.exc, XPathEvalError)
@@ -283,6 +273,7 @@ def test_invalid_css_selector_expr(element, expr, by):
     assert not extractor.built
     exc = catch.value
     assert exc.extractor is extractor
+    # Third Party Library
     from cssselect.parser import SelectorError
 
     assert isinstance(exc.exc, SelectorError)

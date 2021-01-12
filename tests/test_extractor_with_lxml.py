@@ -12,13 +12,13 @@ from data_extractor.lxml import (
     XPathExtractor,
 )
 
-
 html = pytest.importorskip("lxml.html")
 fromstring = html.fromstring
 
 
 need_cssselect = pytest.mark.skipif(
-    importlib.util.find_spec("cssselect") is None, reason="Missing 'cssselect'",
+    importlib.util.find_spec("cssselect") is None,
+    reason="Missing 'cssselect'",
 )
 
 html_element = fromstring(

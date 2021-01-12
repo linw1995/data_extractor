@@ -34,10 +34,7 @@ Using :class:`data_extractor.lxml.XPathExtractor` to extract rss channel title.
 
     from data_extractor import XPathExtractor
 
-    assert (
-        XPathExtractor("//channel/title/text()").extract_first(root)
-        == "Liftoff News"
-    )
+    assert XPathExtractor("//channel/title/text()").extract_first(root) == "Liftoff News"
 
 Using :class:`data_extractor.lxml.TextCSSExtractor`
 to extract all rss item links.

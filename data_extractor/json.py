@@ -4,10 +4,10 @@
 ===================================================
 """
 # Standard Library
-from typing import Any, Dict, Optional, Tuple, Type
+from typing import Any, Optional, Type
 
 # Local Folder
-from .abc import AbstractSimpleExtractor
+from .abc import AbstractSimpleExtractor, SimpleExtractorMeta
 from .exceptions import ExprError
 from .utils import _missing_dependency
 
@@ -28,9 +28,7 @@ class JSONExtractor(AbstractSimpleExtractor):
     :type expr: str
     """
 
-    def __new__(
-        cls: Type["JSONExtractor"], *args: Tuple[Any], **kwargs: Dict[str, Any]
-    ) -> "JSONExtractor":
+    def __new__(cls: SimpleExtractorMeta, *args: Any, **kwargs: Any) -> "JSONExtractor":
         if json_extractor_backend is None:
             raise RuntimeError(
                 "'jsonpath-extractor', 'jsonpath-rw' or 'jsonpath-rw-ext' "
@@ -52,6 +50,12 @@ class JSONExtractor(AbstractSimpleExtractor):
 
         obj.__init__(*args, **kwargs)
         return obj
+
+    def build(self):
+        raise NotImplementedError
+
+    def extract(self, element):
+        raise NotImplementedError
 
 
 try:
@@ -79,11 +83,13 @@ class JSONPathRWExtractor(JSONExtractor):
         if _missing_jsonpath_rw:
             _missing_dependency("jsonpath-rw")
 
+        # Third Party Library
         from jsonpath_rw import JSONPath
 
         self._jsonpath: Optional[JSONPath] = None
 
     def build(self) -> None:
+        # Third Party Library
         from jsonpath_rw.lexer import JsonPathLexerError
 
         try:
@@ -136,6 +142,7 @@ class JSONPathRWExtExtractor(JSONPathRWExtractor):
             _missing_dependency("jsonpath-rw-ext")
 
     def build(self) -> None:
+        # Third Party Library
         from jsonpath_rw.lexer import JsonPathLexerError
 
         try:
@@ -172,6 +179,7 @@ class JSONPathExtractor(JSONExtractor):
         if _missing_jsonpath:
             _missing_dependency("jsonpath-extractor")
 
+        # Third Party Library
         from jsonpath import Expr
 
         self._jsonpath: Optional[Expr] = None

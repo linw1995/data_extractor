@@ -51,17 +51,11 @@ init_by_poetry:
 isort:
 	@.venv/bin/pre-commit run isort
 
-check-isort:
-	@.venv/bin/pre-commit run check-isort
-
 flake8:
 	@.venv/bin/pre-commit run flake8
 
 black:
 	@.venv/bin/pre-commit run black
-
-check-black:
-	@.venv/bin/pre-commit run check-black
 
 mypy:
 	@.venv/bin/pre-commit run mypy --hook-stage push
@@ -150,6 +144,6 @@ clean:
 	@rm -rf build
 	@rm -rf dist
 
-.PHONY: all check check_isort check_black fc flake8 black blaken-docs isort init mypy nox \
+.PHONY: all check fc flake8 black blaken-docs isort init mypy nox \
 		test vtest _cov cov clean doc8 export_requirements_txt export pre-commit_init \
 		activate deactivate link_venv

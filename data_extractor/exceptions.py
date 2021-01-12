@@ -31,9 +31,7 @@ class ExprError(Exception):
         return f"ExprError with {self.exc!r} raised by {self.extractor!r} extracting"
 
     def __repr__(self) -> str:
-        return (
-            f"{self.__class__.__name__}({self.extractor!r}, exc={self.exc!r})"
-        )
+        return f"{self.__class__.__name__}({self.extractor!r}, exc={self.exc!r})"
 
 
 class ExtractError(Exception):
@@ -65,9 +63,7 @@ class ExtractError(Exception):
     def _trace_repr(self) -> str:
         return f"{self.__repr__()}\n" + "\n".join(
             "  " * idx + "|-" + repr(extractor)
-            for idx, extractor in enumerate(
-                [*self.extractors[::-1], self.element]
-            )
+            for idx, extractor in enumerate([*self.extractors[::-1], self.element])
         )
 
 

@@ -33,7 +33,6 @@ from .utils import (
     sentinel,
 )
 
-
 __all__ = (
     "AbstractComplexExtractor",
     "AbstractExtractors",

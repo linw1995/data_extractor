@@ -38,7 +38,8 @@ def is_extractor(obj: Any) -> bool:
     """
     Determine the object if it is an extractor, return :obj:`True` if it is.
     """
-    from .abc import AbstractSimpleExtractor, AbstractComplexExtractor
+    # Local Folder
+    from .abc import AbstractComplexExtractor, AbstractSimpleExtractor
 
     return isinstance(obj, (AbstractComplexExtractor, AbstractSimpleExtractor))
 
@@ -47,6 +48,7 @@ def is_simple_extractor(obj: Any) -> bool:
     """
     Determine the object if it is a simple extractor, return :obj:`True` if it is.
     """
+    # Local Folder
     from .abc import AbstractSimpleExtractor
 
     return isinstance(obj, AbstractSimpleExtractor)
@@ -56,6 +58,7 @@ def is_complex_extractor(obj: Any) -> bool:
     """
     Determine the object if it is a complex extractor, return :obj:`True` if it is.
     """
+    # Local Folder
     from .abc import AbstractComplexExtractor
 
     return isinstance(obj, AbstractComplexExtractor)
@@ -98,6 +101,7 @@ class Property:
 
 
 if TYPE_CHECKING:
+    # Local Folder
     from .abc import AbstractExtractors, AbstractSimpleExtractor
 
     T = TypeVar("T", bound=AbstractSimpleExtractor)
@@ -121,9 +125,7 @@ def _missing_dependency(dependency: str) -> None:
     """
     Raise :class:RuntimeError for the extractor class that missing optional dependency.
     """
-    raise RuntimeError(
-        f"{dependency!r} package is needed, run pip to install it. "
-    )
+    raise RuntimeError(f"{dependency!r} package is needed, run pip to install it. ")
 
 
 __all__ = (

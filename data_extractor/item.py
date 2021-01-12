@@ -9,11 +9,7 @@ import copy
 from typing import Any, Dict, Iterator
 
 # Local Folder
-from .abc import (
-    AbstractComplexExtractor,
-    AbstractSimpleExtractor,
-    BuildProperty,
-)
+from .abc import AbstractComplexExtractor, AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExtractError
 from .utils import Property, is_simple_extractor, sentinel
 
@@ -54,9 +50,7 @@ class Field(AbstractComplexExtractor):
             raise ValueError(f"Invalid SimpleExtractor: {extractor!r}")
 
         if default is not sentinel and is_many:
-            raise ValueError(
-                f"Can't both set default={default} and is_many=True"
-            )
+            raise ValueError(f"Can't both set default={default} and is_many=True")
 
         self.extractor = extractor
         self.name = name
@@ -203,11 +197,7 @@ class Item(Field):
                 "__getattribute__": getter,
                 "__setattr__": setter,
             },
-        )(
-            expr=duplicated.extractor.expr
-            if duplicated.extractor is not None
-            else None
-        )
+        )(expr=duplicated.extractor.expr if duplicated.extractor is not None else None)
 
 
 __all__ = ("Field", "Item")

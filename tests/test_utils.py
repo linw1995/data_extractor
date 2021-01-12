@@ -2,6 +2,7 @@
 # Standard Library
 import importlib.util
 
+# Third Party Library
 import pytest
 
 # First Party Library
@@ -59,17 +60,13 @@ def complex_extractor(request):
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
         JSONPathExtractor(expr="boo")
         if not _missing_jsonpath
-        else pytest.param(
-            "Missing 'jsonpath-extractor'", marks=pytest.mark.skip()
-        ),
+        else pytest.param("Missing 'jsonpath-extractor'", marks=pytest.mark.skip()),
         JSONPathRWExtractor(expr="boo")
         if not _missing_jsonpath_rw
         else pytest.param("Missing 'jsonpath-rw'", marks=pytest.mark.skip()),
         JSONPathRWExtExtractor(expr="boo")
         if not _missing_jsonpath_rw_ext
-        else pytest.param(
-            "Missing 'jsonpath-rw-ext'", marks=pytest.mark.skip()
-        ),
+        else pytest.param("Missing 'jsonpath-rw-ext'", marks=pytest.mark.skip()),
         TextCSSExtractor(expr="div.class")
         if not _missing_cssselect
         else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
