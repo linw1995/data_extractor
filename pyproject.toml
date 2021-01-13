@@ -85,6 +85,12 @@ jsonpath-extractor = ["jsonpath-extractor"]
 jsonpath-rw = ["jsonpath-rw"]
 jsonpath-rw-ext = ["jsonpath-rw", "jsonpath-rw-ext"]
 
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.7.0"
+version_files = ["pyproject.toml:version"]
+tag_format = "v$version"
+
 [build-system]
 requires = ["poetry"]
 build-backend = "poetry.masonry.api"
