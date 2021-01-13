@@ -62,7 +62,7 @@ cssselect==1.1.0
 doc8==0.8.1
 flake8-bugbear==20.11.1
 isort==5.7.0
-jsonpath-extractor==0.5.1
+jsonpath-extractor==0.7.3
 jsonpath-rw-ext==1.2.2
 lxml==4.6.2
 mypy==0.790

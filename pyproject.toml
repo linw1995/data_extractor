@@ -33,7 +33,7 @@ cssselect = {version = "^1.0.3", optional = true}
 # JSON extractor backend
 jsonpath-rw = {version = "^1.4.0", optional = true}
 jsonpath-rw-ext = {version = "^1.2", optional = true}
-jsonpath-extractor = {version = "^0.5.0", optional = true}
+jsonpath-extractor = {version = ">=0.5.0, <0.8", optional = true}
 
 # Optional Development
 black = {version = "^20.8b1", optional = true}
