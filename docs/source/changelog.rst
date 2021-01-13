@@ -2,11 +2,11 @@
 Changelog
 =========
 
-v0.7.0
+v0.8.0
 ~~~~~~
 
-- 65d1fce Fix:Create JSONExtractor with wrong subtype
-- 407cd78 New:Make lxml and cssselect optional (#61)
+- 11bfd2c supports latest jsonpath-extractor package
+
 
 .. include:: history.rst
     :start-line: 4

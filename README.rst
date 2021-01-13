@@ -101,11 +101,11 @@ Usage
 Changelog
 <<<<<<<<<
 
-v0.7.0
+v0.8.0
 ~~~~~~
 
-- 65d1fce Fix:Create JSONExtractor with wrong subtype
-- 407cd78 New:Make lxml and cssselect optional (#61)
+- 11bfd2c supports latest jsonpath-extractor package
+
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
