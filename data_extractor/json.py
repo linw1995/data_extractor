@@ -129,7 +129,7 @@ except ImportError:
 
 if TYPE_CHECKING:
     # Third Party Library
-    from jsonpath_rw_ext import JSONPath
+    from jsonpath_rw_ext import JSONPath as JSONPathExt
 
 
 class JSONPathRWExtExtractor(JSONPathRWExtractor):
@@ -143,7 +143,7 @@ class JSONPathRWExtExtractor(JSONPathRWExtractor):
     :type expr: str
     """
 
-    _jsonpath = Property[Optional["JSONPath"]]()  # TODO: CacheProperty
+    _jsonpath = Property[Optional["JSONPathExt"]]()  # TODO: CacheProperty
 
     def __init__(self, expr: str) -> None:
         super().__init__(expr)
