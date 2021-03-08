@@ -15,6 +15,7 @@ from typing import Any, Iterable, Optional, Tuple
 import pytest
 
 # First Party Library
+from data_extractor.abc import AbstractSimpleExtractor
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
@@ -66,6 +67,10 @@ def item_property(request):
     return request.param
 
 
+def is_built(extractor: AbstractSimpleExtractor = None) -> bool:
+    return extractor is not None and extractor.built
+
+
 @pytest.mark.parametrize(
     "Extractor,expr,expect",
     [
@@ -79,15 +84,15 @@ def item_property(request):
 def test_field_extract(element0, Extractor, expr, expect, build_first):
     field = Field(Extractor(expr))
     assert not field.built
-    assert not field.extractor.built
+    assert not is_built(field.extractor)
     if build_first:
         field.build()
         assert field.built
-        assert field.extractor.built
+        assert is_built(field.extractor)
 
     assert expect == field.extract(element0)
     assert field.built
-    assert field.extractor.built
+    assert is_built(field.extractor)
 
 
 @pytest.mark.parametrize(
@@ -114,15 +119,15 @@ def test_field_extract(element0, Extractor, expr, expect, build_first):
 def test_field_extract_with_is_many(element0, Extractor, expr, expect, build_first):
     field = Field(Extractor(expr), is_many=True)
     assert not field.built
-    assert not field.extractor.built
+    assert not is_built(field.extractor)
     if build_first:
         field.build()
         assert field.built
-        assert field.extractor.built
+        assert is_built(field.extractor)
 
     assert expect == field.extract(element0)
     assert field.built
-    assert field.extractor.built
+    assert is_built(field.extractor)
 
 
 @pytest.mark.parametrize(
@@ -136,15 +141,15 @@ def test_field_extract_with_is_many(element0, Extractor, expr, expect, build_fir
 def test_field_extract_with_default(element0, Extractor, expr, expect, build_first):
     field = Field(Extractor(expr), default=expect)
     assert not field.built
-    assert not field.extractor.built
+    assert not is_built(field.extractor)
     if build_first:
         field.build()
         assert field.built
-        assert field.extractor.built
+        assert is_built(field.extractor)
 
     assert expect == field.extract(element0)
     assert field.built
-    assert field.extractor.built
+    assert is_built(field.extractor)
 
 
 @pytest.mark.parametrize(
@@ -158,17 +163,17 @@ def test_field_extract_with_default(element0, Extractor, expr, expect, build_fir
 def test_field_extract_without_default(element0, Extractor, expr, build_first):
     extractor = Field(Extractor(expr))
     assert not extractor.built
-    assert not extractor.extractor.built
+    assert not is_built(extractor.extractor)
     if build_first:
         extractor.build()
         assert extractor.built
-        assert extractor.extractor.built
+        assert is_built(extractor.extractor)
 
     with pytest.raises(ExtractError) as catch:
         extractor.extract(element0)
 
     assert extractor.built
-    assert extractor.extractor.built
+    assert is_built(extractor.extractor)
 
     exc = catch.value
     assert len(exc.extractors) == 1
@@ -185,15 +190,15 @@ def test_field_parameters_conflict():
 def test_field_xpath_extract_result_not_list(element0, build_first):
     field = Field(XPathExtractor("normalize-space(//div[@class='title'])"))
     assert not field.built
-    assert not field.extractor.built
+    assert not is_built(field.extractor)
     if build_first:
         field.build()
         assert field.built
-        assert field.extractor.built
+        assert is_built(field.extractor)
 
     assert field.extract(element0) == "Title 1"
     assert field.built
-    assert field.extractor.built
+    assert is_built(field.extractor)
 
 
 @need_lxml
@@ -234,13 +239,13 @@ def Article0():
 def test_item_extract(element1, Article0, build_first):
     item = Article0(CSSExtractor("li.article"), is_many=True)
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.title.built
     assert not item.content.built
     if build_first:
         item.build()
         assert item.built
-        assert item.extractor.built
+        assert is_built(item.extractor)
         assert item.title.built
         assert item.content.built
 
@@ -249,7 +254,7 @@ def test_item_extract(element1, Article0, build_first):
         {"title": "Title 2", "content": "Content 2"},
     ]
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.title.built
     assert item.content.built
 
@@ -258,13 +263,13 @@ def test_item_extract(element1, Article0, build_first):
 def test_item_extract_without_is_many(element1, Article0, build_first):
     item = Article0(CSSExtractor("li.article"))
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.title.built
     assert not item.content.built
     if build_first:
         item.build()
         assert item.built
-        assert item.extractor.built
+        assert is_built(item.extractor)
         assert item.title.built
         assert item.content.built
 
@@ -273,7 +278,7 @@ def test_item_extract_without_is_many(element1, Article0, build_first):
         "content": "Content 1",
     }
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.title.built
     assert item.content.built
 
@@ -304,13 +309,13 @@ def element2():
 def test_item_extract_failure_when_last_field_missing(element2, Article0, build_first):
     item = Article0(CSSExtractor("li.article"), is_many=True)
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.title.built
     assert not item.content.built
     if build_first:
         item.build()
         assert item.built
-        assert item.extractor.built
+        assert is_built(item.extractor)
         assert item.title.built
         assert item.content.built
 
@@ -318,7 +323,7 @@ def test_item_extract_failure_when_last_field_missing(element2, Article0, build_
         item.extract(element2)
 
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.title.built
     assert item.content.built
 
@@ -335,13 +340,13 @@ def test_item_extract_success_without_is_many_when_last_field_missing(
 ):
     item = Article0(CSSExtractor("li.article"))
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.title.built
     assert not item.content.built
     if build_first:
         item.build()
         assert item.built
-        assert item.extractor.built
+        assert is_built(item.extractor)
         assert item.title.built
         assert item.content.built
 
@@ -350,7 +355,7 @@ def test_item_extract_success_without_is_many_when_last_field_missing(
         "content": "Content 1",
     }
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.title.built
     assert item.content.built
 
@@ -920,6 +925,7 @@ def test_modify_simplified_item(json0, build_first, simplify_first):
     extractor = complex_extractor.simplify()
     if simplify_first and build_first:
         extractor.build()
+    assert complex_extractor.extractor is not None
     assert complex_extractor.extractor.expr == extractor.expr
     extractor.expr = "data.users[0]"
     assert complex_extractor.extractor.expr != extractor.expr
@@ -1347,13 +1353,13 @@ def test_item_build_implicitly(json0):
 
     item = User(JSONExtractor("data.users[0]"))
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.uid.built
 
     assert item.extract(data) == {"uid": 0}
 
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.uid.built
 
 
@@ -1366,22 +1372,22 @@ def test_item_rebuild(json0):
 
     item = User(JSONExtractor("data.users[0]"))
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.uid.built
 
     assert item.extract(data) == {"uid": 0}
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.uid.built
 
     item.extractor = JSONExtractor("data.users[1]")
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert item.uid.built
 
     assert item.extract(data) == {"uid": 1}
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.uid.built
 
 
@@ -1394,12 +1400,12 @@ def test_item_build_explicitly(json0):
 
     item = User(JSONExtractor("data.users[0]"))
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.uid.built
 
     item.build()
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.uid.built
     assert item.extract(data) == {"uid": 0}
 
@@ -1413,12 +1419,12 @@ def test_modify_built_item(json0):
 
     item = User(JSONExtractor("user"))
     assert not item.built
-    assert not item.extractor.built
+    assert not is_built(item.extractor)
     assert not item.uid.built
 
     item.build()
     assert item.built
-    assert item.extractor.built
+    assert is_built(item.extractor)
     assert item.uid.built
 
     item.extractor = None
