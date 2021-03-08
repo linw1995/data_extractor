@@ -7,7 +7,7 @@
 import inspect
 
 from types import FrameType
-from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
+from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar
 
 
 class __Sentinel:
@@ -77,7 +77,10 @@ def getframe(depth: int = 0) -> Optional[FrameType]:
     return frame
 
 
-class Property:
+T = TypeVar("T")
+
+
+class Property(Generic[T]):
     """
     Extractor property.
 
@@ -85,29 +88,35 @@ class Property:
     :type name: Optional[str]
     """
 
-    def __init__(self, name: Optional[str] = None) -> None:
-        self.name = name
+    def __set_name__(self, owner: Any, name: str):
+        """
+        Customized names -- Descriptor HowTo Guide
+        https://docs.python.org/3/howto/descriptor.html#customized-names
+        """
+        self.public_name = name
+        self.pravite_name = f"__property_{name}"
 
-    def __get__(self, obj: Any, cls: Any) -> Any:
+    def __get__(self, obj: Any, cls: Any) -> T:
         if obj is None:
             return self
 
-        assert self.name is not None
-        return getattr(obj, self.name)
+        try:
+            return getattr(obj, self.pravite_name)
+        except AttributeError as exc:
+            # raise right AttributeError
+            msg: str = exc.args[0]
+            raise AttributeError(msg.replace(self.pravite_name, self.public_name))
 
-    def __set__(self, obj: Any, value: Any) -> None:
-        assert self.name is not None
-        setattr(obj, self.name, value)
+    def __set__(self, obj: Any, value: T) -> T:
+        return setattr(obj, self.pravite_name, value)
 
 
 if TYPE_CHECKING:
     # Local Folder
-    from .abc import AbstractExtractors, AbstractSimpleExtractor
-
-    T = TypeVar("T", bound=AbstractSimpleExtractor)
+    from .abc import AbstractExtractors
 
 
-class BuildProperty(Property):
+class BuildProperty(Property[T]):
     """
     Extractor property is part of the function of extracting.
     When it gets modified, it will unbuild its extractor.
@@ -116,7 +125,7 @@ class BuildProperty(Property):
     :type name: Optional[str]
     """
 
-    def __set__(self, obj: "AbstractExtractors", value: Any) -> None:
+    def __set__(self, obj: "AbstractExtractors", value: T) -> T:
         obj.built = False
         return super().__set__(obj, value)
 

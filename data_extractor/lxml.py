@@ -3,21 +3,24 @@
 ==========================================================
 """
 # Standard Library
-from typing import List, Optional, Union
+from typing import TYPE_CHECKING, List, Optional, Union
 
 # Local Folder
 from .abc import AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExprError
-from .utils import _missing_dependency
+from .utils import Property, _missing_dependency
 
 try:
     # Third Party Library
     from lxml.etree import _Element as Element
 
+    if TYPE_CHECKING:
+        # Third Party Library
+        from lxml.etree import XPath
+
     _missing_lxml = False
 except ImportError:
     _missing_lxml = True
-    Element = None
 
 
 class XPathExtractor(AbstractSimpleExtractor):
@@ -31,16 +34,15 @@ class XPathExtractor(AbstractSimpleExtractor):
     :type exprt: str
     """
 
+    _find = Property[Optional["XPath"]]()
+
     def __init__(self, expr: str):
         super().__init__(expr)
 
         if _missing_lxml:
             _missing_dependency("lxml")
 
-        # Third Party Library
-        from lxml.etree import XPath
-
-        self._find: Optional[XPath] = None
+        self._find = None
 
     def build(self) -> None:
         # Third Party Library
@@ -103,9 +105,11 @@ class CSSExtractor(AbstractSimpleExtractor):
     :type expr: str
     """
 
+    _extractor = Property[Optional[XPathExtractor]]()
+
     def __init__(self, expr: str):
         super().__init__(expr)
-        self._extractor: Optional[XPathExtractor] = None
+        self._extractor = None
 
         if _missing_cssselect:
             _missing_dependency("cssselect")
@@ -181,7 +185,7 @@ class AttrCSSExtractor(CSSExtractor):
     :type attr: str
     """
 
-    attr = BuildProperty()
+    attr = BuildProperty[str]()
 
     def __init__(self, expr: str, attr: str):
         super().__init__(expr)

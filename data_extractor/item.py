@@ -32,10 +32,10 @@ class Field(AbstractComplexExtractor):
     :raises ValueError: Can't both set default and is_manay=True.
     """
 
-    extractor = BuildProperty()
-    name = Property()
-    default = Property()
-    is_many = Property()
+    extractor = BuildProperty[AbstractSimpleExtractor]()
+    name = Property[str]()
+    default = Property[Any]()
+    is_many = Property[bool]()
 
     def __init__(
         self,
