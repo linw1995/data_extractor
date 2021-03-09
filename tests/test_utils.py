@@ -1,6 +1,7 @@
 # Third Party Library
 # Standard Library
 import importlib.util
+import sys
 
 # Third Party Library
 import pytest
@@ -25,6 +26,7 @@ from data_extractor.lxml import (
 )
 from data_extractor.utils import (
     LazyStr,
+    getframe,
     is_complex_extractor,
     is_extractor,
     is_simple_extractor,
@@ -174,3 +176,8 @@ def test_missing_jsonpath_rw_ext():
         JSONPathRWExtExtractor("boo")
 
     assert "jsonpath-rw-ext" in str(catch.value)
+
+
+def test_getframe_value_error():
+    with pytest.raises(ValueError):
+        getframe(sys.getrecursionlimit() + 1)
