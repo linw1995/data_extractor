@@ -72,7 +72,7 @@ def getframe(depth: int = 0) -> Optional[FrameType]:
 
     while depth > -1:
         if cur is None:
-            raise ValueError(f"Invalid {depth = !r} for {frame = !r}")
+            raise ValueError(f"Invalid depth = {depth!r} for frame = {frame!r}")
 
         cur = cur.f_back
         depth -= 1
