@@ -7,7 +7,7 @@
 from typing import Any, Optional, Type
 
 # Local Folder
-from .abc import AbstractSimpleExtractor, SimpleExtractorMeta
+from .abc import AbstractSimpleExtractor
 from .exceptions import ExprError
 from .utils import _missing_dependency
 
@@ -28,7 +28,9 @@ class JSONExtractor(AbstractSimpleExtractor):
     :type expr: str
     """
 
-    def __new__(cls: SimpleExtractorMeta, *args: Any, **kwargs: Any) -> "JSONExtractor":
+    def __new__(
+        cls: Type["JSONExtractor"], *args: Any, **kwargs: Any
+    ) -> "JSONExtractor":
         if json_extractor_backend is None:
             raise RuntimeError(
                 "'jsonpath-extractor', 'jsonpath-rw' or 'jsonpath-rw-ext' "
@@ -51,10 +53,10 @@ class JSONExtractor(AbstractSimpleExtractor):
         obj.__init__(*args, **kwargs)
         return obj
 
-    def build(self):
+    def build(self) -> None:
         raise NotImplementedError
 
-    def extract(self, element):
+    def extract(self, element: Any) -> Any:
         raise NotImplementedError
 
 

@@ -58,7 +58,7 @@ black:
 	@.venv/bin/pre-commit run black
 
 mypy:
-	@.venv/bin/pre-commit run mypy --hook-stage push
+	@.venv/bin/pre-commit run mypy
 
 doc8:
 	@.venv/bin/pre-commit run doc8

@@ -65,16 +65,19 @@ def is_complex_extractor(obj: Any) -> bool:
 
 
 def getframe(depth: int = 0) -> Optional[FrameType]:
-    frame = inspect.currentframe()
+    cur = frame = inspect.currentframe()
     if frame is None:
         # If running in an implementation without Python stack frame support,
         return None
 
     while depth > -1:
-        frame = frame.f_back
+        if cur is None:
+            raise ValueError(f"Invalid depth = {depth!r} for frame = {frame!r}")
+
+        cur = cur.f_back
         depth -= 1
 
-    return frame
+    return cur
 
 
 class Property:
