@@ -6,9 +6,9 @@
 from typing import TYPE_CHECKING, List, Optional, Union
 
 # Local Folder
-from .abc import AbstractSimpleExtractor, BuildProperty
+from .core import AbstractSimpleExtractor
 from .exceptions import ExprError
-from .utils import Property, _missing_dependency
+from .utils import BuildProperty, Property, _missing_dependency
 
 try:
     # Third Party Library

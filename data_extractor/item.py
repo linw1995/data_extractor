@@ -9,7 +9,7 @@ import copy
 from typing import Any, Dict, Iterator, Optional
 
 # Local Folder
-from .abc import AbstractComplexExtractor, AbstractSimpleExtractor, BuildProperty
+from .core import AbstractComplexExtractor, AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExtractError
 from .utils import Property, is_simple_extractor, sentinel
 
@@ -19,7 +19,7 @@ class Field(AbstractComplexExtractor):
     Extract data by cooperating with extractor.
 
     :param extractor: The object for data extracting
-    :type extractor: :class:`data_extractor.abc.AbstractSimpleExtractor`
+    :type extractor: :class:`data_extractor.core.AbstractSimpleExtractor`
     :param name: Optional parameter for special field name.
     :type name: str, optional
     :param default: Default value when not found. \
@@ -158,7 +158,7 @@ class Item(Field):
         Create an extractor that has compatible API like SimpleExtractor's.
 
         :returns: A simple extractor.
-        :rtype: :class:`data_extractor.abc.AbstractSimpleExtractor`
+        :rtype: :class:`data_extractor.core.AbstractSimpleExtractor`
         """
         duplicated = copy.deepcopy(self)
 

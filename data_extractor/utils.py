@@ -49,7 +49,7 @@ def is_extractor(obj: Any) -> bool:
     Determine the object if it is an extractor, return :obj:`True` if it is.
     """
     # Local Folder
-    from .abc import AbstractComplexExtractor, AbstractSimpleExtractor
+    from .core import AbstractComplexExtractor, AbstractSimpleExtractor
 
     return isinstance(obj, (AbstractComplexExtractor, AbstractSimpleExtractor))
 
@@ -59,7 +59,7 @@ def is_simple_extractor(obj: Any) -> bool:
     Determine the object if it is a simple extractor, return :obj:`True` if it is.
     """
     # Local Folder
-    from .abc import AbstractSimpleExtractor
+    from .core import AbstractSimpleExtractor
 
     return isinstance(obj, AbstractSimpleExtractor)
 
@@ -69,7 +69,7 @@ def is_complex_extractor(obj: Any) -> bool:
     Determine the object if it is a complex extractor, return :obj:`True` if it is.
     """
     # Local Folder
-    from .abc import AbstractComplexExtractor
+    from .core import AbstractComplexExtractor
 
     return isinstance(obj, AbstractComplexExtractor)
 
@@ -94,7 +94,7 @@ T = TypeVar("T")
 
 if TYPE_CHECKING:
     # Local Folder
-    from .abc import AbstractExtractors
+    from .core import AbstractExtractors
 
 
 class Property(Generic[T]):
