@@ -12,6 +12,7 @@ Unreleased
 **Refactor**
 
 - .utils.Property with "Customized names" support #64
+- rename .abc to .core and mark elder duplciated #65
 
 **Feat**
 
