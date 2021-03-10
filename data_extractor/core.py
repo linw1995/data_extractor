@@ -1,6 +1,6 @@
 """
 ====================================
-:mod:`abc` -- Abstract Base Classes.
+:mod:`core` -- Abstract Base Classes.
 ====================================
 """
 # Standard Library

@@ -7,7 +7,7 @@ import sys
 import pytest
 
 # First Party Library
-from data_extractor.abc import AbstractSimpleExtractor
+from data_extractor.core import AbstractSimpleExtractor
 from data_extractor.item import Field, Item
 from data_extractor.json import (
     JSONPathExtractor,
