@@ -181,13 +181,6 @@ class SimpleExtractorMeta(type):
     Simple Extractor Meta Class.
     """
 
-    def __init__(cls, name: str, bases: Tuple[type], attr_dict: Dict[str, Any]):
-        super().__init__(name, bases, attr_dict)
-
-        for key, attr in attr_dict.items():
-            if isinstance(attr, Property) and attr.name is None:
-                attr.name = "__" + key
-
 
 class ComplexExtractorMeta(SimpleExtractorMeta):
     """
@@ -233,7 +226,7 @@ class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
     :type expr: str
     """
 
-    expr = BuildProperty()
+    expr = BuildProperty[str]()
 
     def __init__(self, expr: str):
         self.expr = expr
@@ -302,7 +295,7 @@ class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
     Its metaclass is :class:`data_extractor.abc.ComplexExtractorMeta`
     """
 
-    built = Property()
+    built = Property[bool]()
 
     def __init__(self) -> None:
         self.built = False

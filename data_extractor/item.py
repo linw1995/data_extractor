@@ -6,7 +6,7 @@
 # Standard Library
 import copy
 
-from typing import Any, Dict, Iterator
+from typing import Any, Dict, Iterator, Optional
 
 # Local Folder
 from .abc import AbstractComplexExtractor, AbstractSimpleExtractor, BuildProperty
@@ -32,10 +32,10 @@ class Field(AbstractComplexExtractor):
     :raises ValueError: Can't both set default and is_manay=True.
     """
 
-    extractor = BuildProperty()
-    name = Property()
-    default = Property()
-    is_many = Property()
+    extractor = BuildProperty[Optional[AbstractSimpleExtractor]]()
+    name = Property[Optional[str]]()
+    default = Property[Any]()
+    is_many = Property[bool]()
 
     def __init__(
         self,

@@ -4,12 +4,12 @@
 ===================================================
 """
 # Standard Library
-from typing import Any, Optional, Type
+from typing import TYPE_CHECKING, Any, Optional, Type
 
 # Local Folder
 from .abc import AbstractSimpleExtractor
 from .exceptions import ExprError
-from .utils import _missing_dependency
+from .utils import Property, _missing_dependency
 
 
 class JSONExtractor(AbstractSimpleExtractor):
@@ -68,6 +68,10 @@ try:
 except ImportError:
     _missing_jsonpath_rw = True
 
+if TYPE_CHECKING:
+    # Third Party Library
+    from jsonpath_rw import JSONPath
+
 
 class JSONPathRWExtractor(JSONExtractor):
     """
@@ -80,15 +84,14 @@ class JSONPathRWExtractor(JSONExtractor):
     :type expr: str
     """
 
+    _jsonpath = Property[Optional["JSONPath"]]()  # TODO: CacheProperty
+
     def __init__(self, expr: str) -> None:
         super().__init__(expr)
         if _missing_jsonpath_rw:
             _missing_dependency("jsonpath-rw")
 
-        # Third Party Library
-        from jsonpath_rw import JSONPath
-
-        self._jsonpath: Optional[JSONPath] = None
+        self._jsonpath = None
 
     def build(self) -> None:
         # Third Party Library
@@ -126,6 +129,10 @@ try:
 except ImportError:
     _missing_jsonpath_rw_ext = True
 
+if TYPE_CHECKING:
+    # Third Party Library
+    from jsonpath_rw_ext import JSONPath as JSONPathExt
+
 
 class JSONPathRWExtExtractor(JSONPathRWExtractor):
     """
@@ -137,6 +144,8 @@ class JSONPathRWExtExtractor(JSONPathRWExtractor):
     :param expr: JSONPath Expression.
     :type expr: str
     """
+
+    _jsonpath = Property[Optional["JSONPathExt"]]()  # TODO: CacheProperty
 
     def __init__(self, expr: str) -> None:
         super().__init__(expr)
@@ -164,6 +173,11 @@ except ImportError:
     _missing_jsonpath = True
 
 
+if TYPE_CHECKING:
+    # Third Party Library
+    from jsonpath import Expr
+
+
 class JSONPathExtractor(JSONExtractor):
     """
     Use JSONPath expression implementated by **jsonpath-extractor** package
@@ -175,16 +189,15 @@ class JSONPathExtractor(JSONExtractor):
     :type expr: str
     """
 
+    _jsonpath = Property[Optional["Expr"]]()  # TODO: CacheProperty
+
     def __init__(self, expr: str) -> None:
         super().__init__(expr)
 
         if _missing_jsonpath:
             _missing_dependency("jsonpath-extractor")
 
-        # Third Party Library
-        from jsonpath import Expr
-
-        self._jsonpath: Optional[Expr] = None
+        self._jsonpath = None
 
     def build(self) -> None:
         try:

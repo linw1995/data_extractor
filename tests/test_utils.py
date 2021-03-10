@@ -7,6 +7,7 @@ import sys
 import pytest
 
 # First Party Library
+from data_extractor.abc import AbstractSimpleExtractor
 from data_extractor.item import Field, Item
 from data_extractor.json import (
     JSONPathExtractor,
@@ -26,6 +27,7 @@ from data_extractor.lxml import (
 )
 from data_extractor.utils import (
     LazyStr,
+    Property,
     getframe,
     is_complex_extractor,
     is_extractor,
@@ -181,3 +183,20 @@ def test_missing_jsonpath_rw_ext():
 def test_getframe_value_error():
     with pytest.raises(ValueError):
         getframe(sys.getrecursionlimit() + 1)
+
+
+def test_property_accessing_error():
+    class Bar(AbstractSimpleExtractor):
+        unset_attribute = Property[None]()
+
+        def build(self):
+            return super().build()
+
+        def extract(self, element):
+            return super().extract(element)
+
+    assert isinstance(Bar.unset_attribute, Property)
+
+    with pytest.raises(AttributeError):
+        bar = Bar("dummy expr")
+        bar.unset_attribute

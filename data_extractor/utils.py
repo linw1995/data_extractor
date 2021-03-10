@@ -7,7 +7,17 @@
 import inspect
 
 from types import FrameType
-from typing import TYPE_CHECKING, Any, Callable, Optional, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
 
 
 class __Sentinel:
@@ -80,7 +90,14 @@ def getframe(depth: int = 0) -> Optional[FrameType]:
     return cur
 
 
-class Property:
+T = TypeVar("T")
+
+if TYPE_CHECKING:
+    # Local Folder
+    from .abc import AbstractExtractors
+
+
+class Property(Generic[T]):
     """
     Extractor property.
 
@@ -88,29 +105,41 @@ class Property:
     :type name: Optional[str]
     """
 
-    def __init__(self, name: Optional[str] = None) -> None:
-        self.name = name
+    def __set_name__(self, owner: Any, name: str) -> None:
+        """
+        Customized names -- Descriptor HowTo Guide
+        https://docs.python.org/3/howto/descriptor.html#customized-names
+        """
+        self.public_name = name
+        self.pravite_name = f"__property_{name}"
 
-    def __get__(self, obj: Any, cls: Any) -> Any:
+    @overload
+    def __get__(self, obj: None, cls: Type["AbstractExtractors"]) -> "Property[T]":
+        pass
+
+    @overload
+    def __get__(self, obj: Any, cls: Type["AbstractExtractors"]) -> T:
+        pass
+
+    def __get__(
+        self, obj: Any, cls: Type["AbstractExtractors"]
+    ) -> Union["Property[T]", T]:
         if obj is None:
             return self
 
-        assert self.name is not None
-        return getattr(obj, self.name)
+        try:
+            return getattr(obj, self.pravite_name)
+        except AttributeError as exc:
+            # raise right AttributeError
+            msg: str = exc.args[0]
+            raise AttributeError(msg.replace(self.pravite_name, self.public_name))
 
-    def __set__(self, obj: Any, value: Any) -> None:
-        assert self.name is not None
-        setattr(obj, self.name, value)
-
-
-if TYPE_CHECKING:
-    # Local Folder
-    from .abc import AbstractExtractors, AbstractSimpleExtractor
-
-    T = TypeVar("T", bound=AbstractSimpleExtractor)
+    def __set__(self, obj: Any, value: T) -> T:
+        setattr(obj, self.pravite_name, value)
+        return value
 
 
-class BuildProperty(Property):
+class BuildProperty(Property[T]):
     """
     Extractor property is part of the function of extracting.
     When it gets modified, it will unbuild its extractor.
@@ -119,7 +148,7 @@ class BuildProperty(Property):
     :type name: Optional[str]
     """
 
-    def __set__(self, obj: "AbstractExtractors", value: Any) -> None:
+    def __set__(self, obj: "AbstractExtractors", value: T) -> T:
         obj.built = False
         return super().__set__(obj, value)
 
