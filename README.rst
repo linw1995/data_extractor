@@ -101,11 +101,20 @@ Usage
 Changelog
 <<<<<<<<<
 
-v0.8.0
-~~~~~~
+Unreleased
+~~~~~~~~~~
+
+**Fix**
+
+- type annotations #63 #64
+
+**Refactor**
+
+- .utils.Property with "Customized names" support #64
+
+**Feat**
 
 - 11bfd2c supports latest jsonpath-extractor package
-
 
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg

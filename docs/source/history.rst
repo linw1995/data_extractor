@@ -2,6 +2,11 @@
 History
 =======
 
+v0.8.0
+~~~~~~
+
+- 11bfd2c supports latest jsonpath-extractor package
+
 v0.7.0
 ~~~~~~
 
