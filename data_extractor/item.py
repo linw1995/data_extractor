@@ -33,7 +33,7 @@ class Field(AbstractComplexExtractor):
     """
 
     extractor = BuildProperty[Optional[AbstractSimpleExtractor]]()
-    name = Property[str]()
+    name = Property[Optional[str]]()
     default = Property[Any]()
     is_many = Property[bool]()
 

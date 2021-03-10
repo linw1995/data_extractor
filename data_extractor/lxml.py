@@ -14,13 +14,15 @@ try:
     # Third Party Library
     from lxml.etree import _Element as Element
 
-    if TYPE_CHECKING:
-        # Third Party Library
-        from lxml.etree import XPath
-
     _missing_lxml = False
 except ImportError:
     _missing_lxml = True
+
+    Element = None  # TODO: Find a way to get rid of this. See PEP 562
+
+if TYPE_CHECKING:
+    # Third Party Library
+    from lxml.etree import XPath
 
 
 class XPathExtractor(AbstractSimpleExtractor):

@@ -7,7 +7,17 @@
 import inspect
 
 from types import FrameType
-from typing import TYPE_CHECKING, Any, Callable, Generic, Optional, TypeVar
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Callable,
+    Generic,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+    overload,
+)
 
 
 class __Sentinel:
@@ -82,6 +92,10 @@ def getframe(depth: int = 0) -> Optional[FrameType]:
 
 T = TypeVar("T")
 
+if TYPE_CHECKING:
+    # Local Folder
+    from .abc import AbstractExtractors
+
 
 class Property(Generic[T]):
     """
@@ -91,7 +105,7 @@ class Property(Generic[T]):
     :type name: Optional[str]
     """
 
-    def __set_name__(self, owner: Any, name: str):
+    def __set_name__(self, owner: Any, name: str) -> None:
         """
         Customized names -- Descriptor HowTo Guide
         https://docs.python.org/3/howto/descriptor.html#customized-names
@@ -99,7 +113,17 @@ class Property(Generic[T]):
         self.public_name = name
         self.pravite_name = f"__property_{name}"
 
-    def __get__(self, obj: Any, cls: Any) -> T:
+    @overload
+    def __get__(self, obj: None, cls: Type["AbstractExtractors"]) -> "Property[T]":
+        pass
+
+    @overload
+    def __get__(self, obj: Any, cls: Type["AbstractExtractors"]) -> T:
+        pass
+
+    def __get__(
+        self, obj: Any, cls: Type["AbstractExtractors"]
+    ) -> Union["Property[T]", T]:
         if obj is None:
             return self
 
@@ -111,12 +135,8 @@ class Property(Generic[T]):
             raise AttributeError(msg.replace(self.pravite_name, self.public_name))
 
     def __set__(self, obj: Any, value: T) -> T:
-        return setattr(obj, self.pravite_name, value)
-
-
-if TYPE_CHECKING:
-    # Local Folder
-    from .abc import AbstractExtractors
+        setattr(obj, self.pravite_name, value)
+        return value
 
 
 class BuildProperty(Property[T]):

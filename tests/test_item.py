@@ -15,7 +15,6 @@ from typing import Any, Iterable, Optional, Tuple
 import pytest
 
 # First Party Library
-from data_extractor.abc import AbstractExtractors
 from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
@@ -26,6 +25,9 @@ from data_extractor.utils import (
     is_simple_extractor,
     sentinel,
 )
+
+# Local Folder
+from .utils import is_built
 
 need_cssselect = pytest.mark.skipif(
     importlib.util.find_spec("cssselect") is None,
@@ -65,10 +67,6 @@ def element0():
 )
 def item_property(request):
     return request.param
-
-
-def is_built(obj: AbstractExtractors = None) -> bool:
-    return obj is not None and obj.built
 
 
 @pytest.mark.parametrize(
