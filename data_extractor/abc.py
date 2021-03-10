@@ -15,7 +15,7 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 # Local Folder
 from .utils import BuildProperty, Property, getframe, sentinel
 
-_LineInfo = namedtuple("LineInfo", ["file", "lineno", "offset", "line"])
+_LineInfo = namedtuple("_LineInfo", ["file", "lineno", "offset", "line"])
 
 
 def _find_line_info_of_attr_in_source(
