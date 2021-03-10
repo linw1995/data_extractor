@@ -47,6 +47,7 @@ init_by_poetry:
 	@poetry install -v $(POETRY_EXTRAS_ARGS)
 	@echo ">> all dependencies installation completed!"
 	@make QUIET=true activate
+	@make pre-commit_init
 
 isort:
 	@.venv/bin/pre-commit run isort
@@ -133,6 +134,7 @@ export_requirements_txt: deactivate
 export: export_requirements_txt
 
 pre-commit_init:
+	@.venv/bin/pre-commit install-hooks
 	@.venv/bin/pre-commit install
 
 clean:
