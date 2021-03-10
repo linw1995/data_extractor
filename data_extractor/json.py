@@ -7,7 +7,7 @@
 from typing import TYPE_CHECKING, Any, Optional, Type
 
 # Local Folder
-from .abc import AbstractSimpleExtractor
+from .core import AbstractSimpleExtractor
 from .exceptions import ExprError
 from .utils import Property, _missing_dependency
 

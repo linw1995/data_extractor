@@ -8,7 +8,7 @@ API Reference
    :name: API Reference
    :maxdepth: 2
 
-   api_abc
+   api_core
    api_exceptions
    api_utils
    api_lxml

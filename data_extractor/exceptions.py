@@ -9,7 +9,7 @@ import reprlib
 from typing import Any
 
 # Local Folder
-from .abc import AbstractExtractors, AbstractSimpleExtractor
+from .core import AbstractExtractors, AbstractSimpleExtractor
 from .utils import LazyStr
 
 
@@ -18,7 +18,7 @@ class ExprError(Exception):
     Invalid Expr.
 
     :param extractor: The object for data extracting.
-    :type extractor: :class:`data_extractor.abc.AbstractSimpleExtractor`
+    :type extractor: :class:`data_extractor.core.AbstractSimpleExtractor`
     :param exc: The actual exception is thrown when extracting.
     :type exc: Exception
     """
@@ -39,8 +39,8 @@ class ExtractError(Exception):
     Thrown by extractor extracting wrong data.
 
     :param extractor: The object for data extracting.
-    :type extractor: :class:`data_extractor.abc.AbstractSimpleExtractor`, \
-        :class:`data_extractor.abc.AbstractComplexExtractor`
+    :type extractor: :class:`data_extractor.core.AbstractSimpleExtractor`, \
+        :class:`data_extractor.core.AbstractComplexExtractor`
     :param element: The target data node element.
     :type element: Any
     """

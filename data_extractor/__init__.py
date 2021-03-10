@@ -4,7 +4,7 @@
 Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 """
 # Local Folder
-from .abc import (
+from .core import (
     AbstractComplexExtractor,
     AbstractExtractors,
     AbstractSimpleExtractor,
