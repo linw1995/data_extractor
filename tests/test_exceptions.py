@@ -5,11 +5,13 @@ import pytest
 import data_extractor.json
 
 from data_extractor.exceptions import ExtractError
-from data_extractor.item import Field, Item
+from data_extractor.item import AutoItem, Field
 from data_extractor.json import JSONExtractor
 
 # Local Folder
 from .utils import is_built
+
+StrField = Field[str]
 
 
 def test_no_needed_packages():
@@ -22,15 +24,15 @@ def test_no_needed_packages():
 def test_exception_trace(json0, build_first):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="name")
-        gender = Field(JSONExtractor("gender"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="name")
+        gender = StrField(JSONExtractor("gender"))
 
-    class UserResponse(Item):
-        start = Field(JSONExtractor("start"), default=0)
-        size = Field(JSONExtractor("size"))
-        total = Field(JSONExtractor("total"))
+    class UserResponse(AutoItem):
+        start = StrField(JSONExtractor("start"), default=0)
+        size = StrField(JSONExtractor("size"))
+        total = StrField(JSONExtractor("total"))
         data = User(JSONExtractor("users[*]"), is_many=True)
 
     extractor = UserResponse(JSONExtractor("data"))

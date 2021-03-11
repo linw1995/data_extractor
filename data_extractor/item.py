@@ -6,15 +6,20 @@
 # Standard Library
 import copy
 
-from typing import Any, Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, List, Optional, Type, TypeVar, Union, cast
+
+# Third Party Library
+from typing_extensions import get_args, get_origin
 
 # Local Folder
 from .core import AbstractComplexExtractor, AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExtractError
 from .utils import Property, is_simple_extractor, sentinel
 
+T = TypeVar("T")
 
-class Field(AbstractComplexExtractor):
+
+class Field(AbstractComplexExtractor[T]):
     """
     Extract data by cooperating with extractor.
 
@@ -70,14 +75,30 @@ class Field(AbstractComplexExtractor):
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 
-    def build(self) -> None:
+    def build(self) -> Type[T]:
         if self.extractor is not None:
             self.extractor.build()
 
         if self.__class__ is Field:
             self.built = True
 
-    def extract(self, element: Any) -> Any:
+        return self.type
+
+    @property
+    def type(self) -> Type[T]:
+        # FIXME: low risk of undocumented attribute __orig_class__
+        # We should save it in our way.
+        try:
+            orig_cls = self.__orig_class__
+        except AttributeError:
+            orig_cls = next(
+                cls for cls in self.__orig_bases__ if get_args(cls)
+            )  # pragma: no cover
+
+        t = get_origin(get_args(orig_cls)[0])
+        return cast(Type[T], t)
+
+    def extract(self, element: Any) -> Union[T, List[T]]:
         if not self.built:
             self.build()
 
@@ -100,10 +121,10 @@ class Field(AbstractComplexExtractor):
 
         return self._extract(rv[0])
 
-    def _extract(self, element: Any) -> Any:
+    def _extract(self, element: Any) -> T:
         return element
 
-    def __deepcopy__(self, memo: Dict[int, Any]) -> AbstractComplexExtractor:
+    def __deepcopy__(self, memo: Dict[int, Any]) -> AbstractComplexExtractor[T]:
         deepcopy_method = self.__deepcopy__
         self.__deepcopy__ = None  # type: ignore
         cp = copy.deepcopy(self, memo)
@@ -116,12 +137,12 @@ class Field(AbstractComplexExtractor):
         return cp
 
 
-class Item(Field):
+class Item(Field[T]):
     """
     Extract data by cooperating with extractors, fields and items.
     """
 
-    def _extract(self, element: Any) -> Any:
+    def _extract(self, element: Any) -> T:
         rv = {}
         for field in self.field_names():
             try:
@@ -143,15 +164,17 @@ class Item(Field):
         """
         yield from cls._field_names
 
-    def build(self) -> None:
+    def build(self) -> Type[T]:
         super().build()
 
         for extractor_name in self.field_names():
-            extractor: Field = getattr(self, extractor_name)
+            extractor: Field[Any] = getattr(self, extractor_name)
             if not extractor.built:
                 extractor.build()
 
         self.built = True
+
+        return self.type
 
     def simplify(self) -> AbstractSimpleExtractor:
         """
@@ -162,12 +185,12 @@ class Item(Field):
         """
         duplicated = copy.deepcopy(self)
 
-        def build(self: AbstractSimpleExtractor) -> None:
-            duplicated.build()
+        def build(self: AbstractSimpleExtractor) -> Type[T]:
+            return duplicated.build()
 
-        def extract(self: AbstractSimpleExtractor, element: Any) -> Any:
+        def extract(self: AbstractSimpleExtractor, element: Any) -> List[T]:
             duplicated.is_many = True
-            return duplicated.extract(element)
+            return cast(List[T], duplicated.extract(element))
 
         def getter(self: AbstractSimpleExtractor, name: str) -> Any:
             if (
@@ -200,4 +223,7 @@ class Item(Field):
         )(expr=duplicated.extractor.expr if duplicated.extractor is not None else None)
 
 
-__all__ = ("Field", "Item")
+Auto = Any  # FIXME: needs actual implementation
+AutoItem = Item[Auto]
+
+__all__ = ("Field", "Item", "AutoItem")

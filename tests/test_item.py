@@ -16,7 +16,7 @@ import pytest
 
 # First Party Library
 from data_extractor.exceptions import ExtractError
-from data_extractor.item import Field, Item
+from data_extractor.item import AutoItem, Field, Item
 from data_extractor.json import JSONExtractor
 from data_extractor.lxml import CSSExtractor, TextCSSExtractor, XPathExtractor
 from data_extractor.utils import (
@@ -36,6 +36,8 @@ need_cssselect = pytest.mark.skipif(
 need_lxml = pytest.mark.skipif(
     importlib.util.find_spec("lxml") is None, reason="Missing 'lxml'"
 )
+
+StrField = Field[str]
 
 
 @pytest.fixture
@@ -80,7 +82,7 @@ def item_property(request):
     ids=repr,
 )
 def test_field_extract(element0, Extractor, expr, expect, build_first):
-    field = Field(Extractor(expr))
+    field = StrField(Extractor(expr))
     assert not is_built(field)
     assert not is_built(field.extractor)
     if build_first:
@@ -115,7 +117,7 @@ def test_field_extract(element0, Extractor, expr, expect, build_first):
     ids=repr,
 )
 def test_field_extract_with_is_many(element0, Extractor, expr, expect, build_first):
-    field = Field(Extractor(expr), is_many=True)
+    field = StrField(Extractor(expr), is_many=True)
     assert not is_built(field)
     assert not is_built(field.extractor)
     if build_first:
@@ -137,7 +139,7 @@ def test_field_extract_with_is_many(element0, Extractor, expr, expect, build_fir
     ids=repr,
 )
 def test_field_extract_with_default(element0, Extractor, expr, expect, build_first):
-    field = Field(Extractor(expr), default=expect)
+    field = StrField(Extractor(expr), default=expect)
     assert not is_built(field)
     assert not is_built(field.extractor)
     if build_first:
@@ -159,7 +161,7 @@ def test_field_extract_with_default(element0, Extractor, expr, expect, build_fir
     ids=repr,
 )
 def test_field_extract_without_default(element0, Extractor, expr, build_first):
-    extractor = Field(Extractor(expr))
+    extractor = StrField(Extractor(expr))
     assert not is_built(extractor)
     assert not is_built(extractor.extractor)
     if build_first:
@@ -186,7 +188,7 @@ def test_field_parameters_conflict():
 
 
 def test_field_xpath_extract_result_not_list(element0, build_first):
-    field = Field(XPathExtractor("normalize-space(//div[@class='title'])"))
+    field = StrField(XPathExtractor("normalize-space(//div[@class='title'])"))
     assert not is_built(field)
     assert not is_built(field.extractor)
     if build_first:
@@ -226,9 +228,9 @@ def element1():
 @need_lxml
 @pytest.fixture
 def Article0():
-    class Article(Item):
-        title = Field(XPathExtractor("./div[@class='title']/text()"))
-        content = Field(XPathExtractor("./div[@class='content']/text()"))
+    class Article(AutoItem):
+        title = StrField(XPathExtractor("./div[@class='title']/text()"))
+        content = StrField(XPathExtractor("./div[@class='content']/text()"))
 
     return Article
 
@@ -368,24 +370,24 @@ def test_complex_item_extract_xml_data(build_first):
     text = sample_rss_path.read_text()
     element = fromstring(text)
 
-    class ChannelItem(Item):
-        title = Field(XPathExtractor("./title/text()"), default="")
-        link = Field(XPathExtractor("./link/text()"), default="")
-        description = Field(XPathExtractor("./description/text()"))
-        publish_date = Field(XPathExtractor("./pubDate/text()"))
-        guid = Field(XPathExtractor("./guid/text()"))
+    class ChannelItem(AutoItem):
+        title = StrField(XPathExtractor("./title/text()"), default="")
+        link = StrField(XPathExtractor("./link/text()"), default="")
+        description = StrField(XPathExtractor("./description/text()"))
+        publish_date = StrField(XPathExtractor("./pubDate/text()"))
+        guid = StrField(XPathExtractor("./guid/text()"))
 
-    class Channel(Item):
-        title = Field(XPathExtractor("./title/text()"))
-        link = Field(XPathExtractor("./link/text()"))
-        description = Field(XPathExtractor("./description/text()"))
-        language = Field(XPathExtractor("./language/text()"))
-        publish_date = Field(XPathExtractor("./pubDate/text()"))
-        last_build_date = Field(XPathExtractor("./lastBuildDate/text()"))
-        docs = Field(XPathExtractor("./docs/text()"))
-        generator = Field(XPathExtractor("./generator/text()"))
-        managing_editor = Field(XPathExtractor("./managingEditor/text()"))
-        web_master = Field(XPathExtractor("./webMaster/text()"))
+    class Channel(AutoItem):
+        title = StrField(XPathExtractor("./title/text()"))
+        link = StrField(XPathExtractor("./link/text()"))
+        description = StrField(XPathExtractor("./description/text()"))
+        language = StrField(XPathExtractor("./language/text()"))
+        publish_date = StrField(XPathExtractor("./pubDate/text()"))
+        last_build_date = StrField(XPathExtractor("./lastBuildDate/text()"))
+        docs = StrField(XPathExtractor("./docs/text()"))
+        generator = StrField(XPathExtractor("./generator/text()"))
+        managing_editor = StrField(XPathExtractor("./managingEditor/text()"))
+        web_master = StrField(XPathExtractor("./webMaster/text()"))
 
         items = ChannelItem(XPathExtractor("./item"), is_many=True)
 
@@ -441,7 +443,7 @@ def test_complex_item_extract_xml_data(build_first):
             "guid": "http://liftoff.msfc.nasa.gov/2003/05/20.html#item570",
         },
     ]
-    item: Item
+    item: AutoItem
     item = ChannelItem(CSSExtractor("channel>item"))
     if build_first:
         item.build()
@@ -474,15 +476,15 @@ def test_complex_item_extract_xml_data(build_first):
 def test_complex_item_extract_json_data(json0, build_first):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="name")
-        gender = Field(JSONExtractor("gender"), default=None)
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="name")
+        gender = StrField(JSONExtractor("gender"), default=None)
 
-    class UserResponse(Item):
-        start = Field(JSONExtractor("start"), default=0)
-        size = Field(JSONExtractor("size"))
-        total = Field(JSONExtractor("total"))
+    class UserResponse(AutoItem):
+        start = StrField(JSONExtractor("start"), default=0)
+        size = StrField(JSONExtractor("size"))
+        total = StrField(JSONExtractor("total"))
         data = User(JSONExtractor("users[*]"), is_many=True)
 
     users_result = [
@@ -493,7 +495,7 @@ def test_complex_item_extract_json_data(json0, build_first):
         {"uid": 4, "name": "Clarke Patrick", "gender": "male"},
         {"uid": 5, "name": "Whitney Mcfadden", "gender": None},
     ]
-    item: Item
+    item: AutoItem
     item = User(JSONExtractor("data.users[*]"))
     if build_first:
         item.build()
@@ -517,20 +519,20 @@ def test_complex_item_extract_json_data(json0, build_first):
 
 @pytest.mark.usefixtures("json_extractor_backend")
 def test_misplacing():
-    class ComplexExtractor(Item):
+    class ComplexExtractor(AutoItem):
         pass
 
     with pytest.raises(ValueError):
-        Field(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))  # type: ignore # noqa: E501
+        StrField(extractor=ComplexExtractor(extractor=JSONExtractor("users[*]")))  # type: ignore # noqa: E501
 
 
 @pytest.mark.usefixtures("json_extractor_backend")
 def test_field_overwrites_item_property_common(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
-        class User(Item):
-            uid = Field(JSONExtractor("id"))
-            name = Field(JSONExtractor("name"))  # type: ignore
+        class User(AutoItem):
+            uid = StrField(JSONExtractor("id"))
+            name = StrField(JSONExtractor("name"))  # type: ignore
 
     exc = catch.value
     if stack_frame_support:
@@ -539,7 +541,7 @@ def test_field_overwrites_item_property_common(stack_frame_support):
         assert exc.filename == __file__
         assert exc.lineno == frame.f_lineno - 7
         assert exc.offset == 12
-        assert exc.text == 'name = Field(JSONExtractor("name"))  # type: ignore'
+        assert exc.text == 'name = StrField(JSONExtractor("name"))  # type: ignore'
     else:
         assert exc.filename is None
         assert exc.lineno is None
@@ -551,7 +553,7 @@ def test_field_overwrites_item_property_common(stack_frame_support):
 def test_field_overwrites_item_property_oneline(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
-        class Parameter(Item): name = Field(XPathExtractor("./span[@class='name']"))  # type: ignore # noqa: E501, E701
+        class Parameter(AutoItem): name = StrField(XPathExtractor("./span[@class='name']"))  # type: ignore # noqa: E501, E701
         # fmt: on
 
     exc = catch.value
@@ -563,7 +565,7 @@ def test_field_overwrites_item_property_oneline(stack_frame_support):
         assert exc.offset == 8
         assert (
             exc.text
-            == "class Parameter(Item): name = Field(XPathExtractor(\"./span[@class='name']\"))  # type: ignore # noqa: E501, E701"
+            == "class Parameter(AutoItem): name = StrField(XPathExtractor(\"./span[@class='name']\"))  # type: ignore # noqa: E501, E701"
         )
     else:
         assert exc.filename is None
@@ -574,7 +576,7 @@ def test_field_overwrites_item_property_oneline(stack_frame_support):
 
 @pytest.mark.usefixtures("json_extractor_backend")
 def test_type_creation():
-    type("Foo", (Item,), {"bar": Field(JSONExtractor("bar"))})
+    type("Foo", (Item,), {"bar": StrField(JSONExtractor("bar"))})
 
 
 @need_lxml
@@ -583,7 +585,7 @@ def test_field_overwrites_item_parameter_type_creation(
 ):
     with pytest.raises(SyntaxError) as catch:
         # fmt: off
-        type("Parameter", (Item,), {item_property: Field(XPathExtractor("./span[@class='name']"))})  # noqa: E501
+        type("Parameter", (Item,), {item_property: StrField(XPathExtractor("./span[@class='name']"))})  # noqa: E501
         # fmt: on
 
     exc = catch.value
@@ -596,7 +598,7 @@ def test_field_overwrites_item_parameter_type_creation(
         assert (
             exc.text
             == """
-        type("Parameter", (Item,), {item_property: Field(XPathExtractor("./span[@class='name']"))})  # noqa: E501
+        type("Parameter", (Item,), {item_property: StrField(XPathExtractor("./span[@class='name']"))})  # noqa: E501
         """.strip()
         )
     else:
@@ -616,13 +618,13 @@ def test_field_overwrites_item_parameter_type_creation(
         (
             textwrap.dedent(
                 """
-        type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})
+        type("Parameter",(Item,),{%r: StrField(XPathExtractor("./span[@class='name']"))})  # noqa: E501
         """.strip()
             ),
             """%s=Field(XPathExtractor("./span[@class='name']"))""",
         ),
         (
-            "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))  # noqa: E501, E701",
+            "class Parameter(AutoItem): %s = StrField(XPathExtractor(\"./span[@class='name']\"))  # noqa: E501, E701",
             """%s=Field(XPathExtractor(\"./span[@class='name']\"))""",
         ),
     ],
@@ -648,8 +650,8 @@ def test_field_overwrites_item_property_in_repl_by_xpath(
         (
             textwrap.dedent(
                 """
-                class User(Item):
-                    uid = Field(JSONExtractor("id")); %s = Field(JSONExtractor("name"))
+                class User(AutoItem):
+                    uid = StrField(JSONExtractor("id")); %s = StrField(JSONExtractor("name"))  # noqa: E501
                 """.strip()
             ),
             "%s=Field(JSONExtractor('name'))",
@@ -657,9 +659,9 @@ def test_field_overwrites_item_property_in_repl_by_xpath(
         (
             textwrap.dedent(
                 """
-                class User(Item):
-                    uid = Field(JSONExtractor("id"))
-                    %s = Field(JSONExtractor("name"))
+                class User(AutoItem):
+                    uid = StrField(JSONExtractor("id"))
+                    %s = StrField(JSONExtractor("name"))
                 """.strip()
             ),
             "%s=Field(JSONExtractor('name'))",
@@ -684,8 +686,8 @@ def test_field_overwrites_item_property_in_repl_by_jpath(
 @pytest.mark.parametrize(
     "template",
     [
-        """type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})""",  # noqa: E501
-        "class Parameter(Item): %s = Field(XPathExtractor(\"./span[@class='name']\"))",  # noqa: E501
+        """type("Parameter",(Item,),{%r: StrField(XPathExtractor("./span[@class='name']"))})""",  # noqa: E501
+        "class Parameter(AutoItem): %s = StrField(XPathExtractor(\"./span[@class='name']\"))",  # noqa: E501
     ],
     ids=reprlib.repr,
 )
@@ -722,9 +724,9 @@ def test_field_overwrites_item_property_common_in_script(
     tmp_path, stack_frame_support, item_property
 ):
     source_code = f"""
-class User(Item):
-    uid = Field(JSONExtractor("id"))
-    {item_property} = Field(JSONExtractor({item_property!r}))
+class User(AutoItem):
+    uid = StrField(JSONExtractor("id"))
+    {item_property} = StrField(JSONExtractor({item_property!r}))
     """.strip()
 
     tmp_file = tmp_path / "foo.py"
@@ -740,7 +742,9 @@ class User(Item):
         assert exc.filename == tmp_file
         assert exc.lineno == 3
         assert exc.offset == 4
-        assert exc.text == f"{item_property} = Field(JSONExtractor({item_property!r}))"
+        assert (
+            exc.text == f"{item_property} = StrField(JSONExtractor({item_property!r}))"
+        )
     else:
         assert exc.filename is None
         assert exc.lineno is None
@@ -756,13 +760,13 @@ def test_avoid_field_overwriting_item_parameter(
 
     with pytest.raises(SyntaxError):
 
-        class User(Item):
-            uid = Field(JSONExtractor("id"))
-            name = Field(JSONExtractor("name"))  # type: ignore
+        class User(AutoItem):
+            uid = StrField(JSONExtractor("id"))
+            name = StrField(JSONExtractor("name"))  # type: ignore
 
-    class User(Item):  # type: ignore # noqa: F811
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="name")
+    class User(AutoItem):  # type: ignore # noqa: F811
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="name")
 
     item = User(JSONExtractor("data.users[*]"))
     if build_first:
@@ -774,9 +778,9 @@ def test_avoid_field_overwriting_item_parameter(
 def test_special_field_name(json0, build_first):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="user.name")
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="user.name")
 
     item = User(JSONExtractor("data.users[*]"))
     if build_first:
@@ -788,15 +792,15 @@ def test_special_field_name(json0, build_first):
 def test_special_field_in_the_nested_class_definition(json0, build_first):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="name")
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="name")
 
-    class UserResponse(Item):
+    class UserResponse(AutoItem):
         _ = User(JSONExtractor("users[*]"), name="data")
 
     first_row = {"uid": 0, "name": "Vang Stout"}
-    item: Item
+    item: AutoItem
     item = User(JSONExtractor("data.users[*]"))
     if build_first:
         item.build()
@@ -823,9 +827,9 @@ def json1():
 def test_item_extractor_is_none(json1, build_first):
     data = json1
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("username"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("username"))
 
     item = User()
     if build_first:
@@ -841,14 +845,14 @@ def test_item_extractor_is_none(json1, build_first):
 def test_nested_item_extractor_is_none(json1, build_first):
     data = json1
 
-    class Count(Item):
-        follower = Field(JSONExtractor("count_follower"))
-        following = Field(JSONExtractor("count_following"))
-        like = Field(JSONExtractor("count_like"))
+    class Count(AutoItem):
+        follower = StrField(JSONExtractor("count_follower"))
+        following = StrField(JSONExtractor("count_following"))
+        like = StrField(JSONExtractor("count_like"))
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("username"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("username"))
         count = Count()
 
     item = User()
@@ -880,10 +884,10 @@ def simplify_first(request):
 def test_simplify(json0, build_first, simplify_first):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="name")
-        gender = Field(JSONExtractor("gender"), default=None)
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="name")
+        gender = StrField(JSONExtractor("gender"), default=None)
 
     item = User(JSONExtractor("data.users[*]"))
     if not simplify_first and build_first:
@@ -912,10 +916,10 @@ def test_simplify(json0, build_first, simplify_first):
 def test_modify_simplified_item(json0, build_first, simplify_first):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="name")
-        gender = Field(JSONExtractor("gender"), default=None)
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="name")
+        gender = StrField(JSONExtractor("gender"), default=None)
 
     complex_extractor = User(JSONExtractor("data.users[*]"))
     if not simplify_first and build_first:
@@ -947,10 +951,10 @@ def test_modify_simplified_item(json0, build_first, simplify_first):
 def test_simplified_item_extractor_is_none(json0, build_first, simplify_first):
     data = json0["data"]["users"][0]
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
-        username = Field(JSONExtractor("name"), name="name")
-        gender = Field(JSONExtractor("gender"), default=None)
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
+        username = StrField(JSONExtractor("name"), name="name")
+        gender = StrField(JSONExtractor("gender"), default=None)
 
     complex_extractor = User()
     if not simplify_first and build_first:
@@ -977,11 +981,11 @@ def test_simplified_item_extractor_is_none(json0, build_first, simplify_first):
 def test_inheritance(json0):
     data = json0["data"]["users"][0]
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
 
     class UserWithGender(User):
-        gender = Field(JSONExtractor("gender"))
+        gender = StrField(JSONExtractor("gender"))
 
     assert User().extract(data) == {"uid": 0}
     assert UserWithGender().extract(data) == {"uid": 0, "gender": "female"}
@@ -991,8 +995,8 @@ def test_inheritance(json0):
 def test_field_overwrites_bases_method_in_item(stack_frame_support):
     with pytest.raises(SyntaxError) as catch:
 
-        class User(Item):
-            field_names = Field(JSONExtractor("field_names"))  # type: ignore
+        class User(AutoItem):
+            field_names = StrField(JSONExtractor("field_names"))  # type: ignore
 
     exc = catch.value
     if stack_frame_support:
@@ -1003,7 +1007,7 @@ def test_field_overwrites_bases_method_in_item(stack_frame_support):
         assert exc.offset == 12
         assert (
             exc.text
-            == 'field_names = Field(JSONExtractor("field_names"))  # type: ignore'
+            == 'field_names = StrField(JSONExtractor("field_names"))  # type: ignore'
         )
     else:
         assert exc.filename is None
@@ -1017,8 +1021,8 @@ def test_field_overwrites_method_in_item(stack_frame_support):
     exc = None
     try:
 
-        class User(Item):
-            baz = Field(JSONExtractor("baz"))
+        class User(AutoItem):
+            baz = StrField(JSONExtractor("baz"))
 
             def baz(self):  # type: ignore
                 pass
@@ -1043,11 +1047,11 @@ def test_method_overwrites_field_in_item(stack_frame_support):
     exc = None
     try:
 
-        class User(Item):
+        class User(AutoItem):
             def baz(self):
                 pass
 
-            baz = Field(JSONExtractor("baz"))  # type: ignore # noqa: F811
+            baz = StrField(JSONExtractor("baz"))  # type: ignore # noqa: F811
 
     except Exception as exc_:
         exc = exc_
@@ -1060,7 +1064,8 @@ def test_method_overwrites_field_in_item(stack_frame_support):
         assert exc.lineno == frame.f_lineno - 10
         assert exc.offset == 12
         assert (
-            exc.text == 'baz = Field(JSONExtractor("baz"))  # type: ignore # noqa: F811'
+            exc.text
+            == 'baz = StrField(JSONExtractor("baz"))  # type: ignore # noqa: F811'
         )
     else:
         assert exc is None
@@ -1072,18 +1077,18 @@ def test_method_overwrites_field_in_item(stack_frame_support):
     "source_code",
     [
         """
-class User(Item):
-    baz = Field(JSONExtractor("baz"))
+class User(AutoItem):
+    baz = StrField(JSONExtractor("baz"))
 
     def baz(self):
         pass
     """,
         """
-class User(Item):
+class User(AutoItem):
     def baz(self):
         pass
 
-    baz = Field(JSONExtractor("baz"))
+    baz = StrField(JSONExtractor("baz"))
     """,
     ],
     ids=reprlib.repr,
@@ -1099,22 +1104,22 @@ def test_field_overwrites_method_in_item_in_repl(source_code, stack_frame_suppor
     [
         (
             """
-class User(Item):
-    field_names = Field(JSONExtractor("field_names"))
+class User(AutoItem):
+    field_names = StrField(JSONExtractor("field_names"))
     """,
             "field_names=Field(JSONExtractor('field_names'))",
         ),
         (
             """
-class User(Item):
-    extract = Field(JSONExtractor("extract"))
+class User(AutoItem):
+    extract = StrField(JSONExtractor("extract"))
     """,
             "extract=Field(JSONExtractor('extract'))",
         ),
         (
             """
-class User(Item):
-    simplify = Field(JSONExtractor("simplify"))
+class User(AutoItem):
+    simplify = StrField(JSONExtractor("simplify"))
     """,
             "simplify=Field(JSONExtractor('simplify'))",
         ),
@@ -1135,40 +1140,43 @@ def test_field_overwrites_bases_method_in_item_in_repl(
 
 @pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize(
-    "source_code, lineno, offset, text",
+    "source_code, lineno, offset, line, actual_line",
     [
         (
             """
-class User(Item):
-    field_names = Field(JSONExtractor("field_names"))
+class User(AutoItem):
+    field_names = StrField(JSONExtractor("field_names"))
     """,
             3,
             4,
             'field_names = Field(JSONExtractor("field_names"))',
+            'field_names = StrField(JSONExtractor("field_names"))',
         ),
         (
             """
-class User(Item):
-    extract = Field(JSONExtractor("extract"))
+class User(AutoItem):
+    extract = StrField(JSONExtractor("extract"))
     """,
             3,
             4,
             'extract = Field(JSONExtractor("extract"))',
+            'extract = StrField(JSONExtractor("extract"))',
         ),
         (
             """
-class User(Item):
-    simplify = Field(JSONExtractor("simplify"))
+class User(AutoItem):
+    simplify = StrField(JSONExtractor("simplify"))
     """,
             3,
             4,
             'simplify = Field(JSONExtractor("simplify"))',
+            'simplify = StrField(JSONExtractor("simplify"))',
         ),
     ],
     ids=reprlib.repr,
 )
 def test_field_overwrites_bases_method_in_item_in_script(
-    tmp_path, source_code, lineno, offset, text, stack_frame_support
+    tmp_path, source_code, lineno, offset, line, actual_line, stack_frame_support
 ):
     tmp_file = tmp_path / "foo.py"
     tmp_file.write_text(source_code)
@@ -1186,12 +1194,12 @@ def test_field_overwrites_bases_method_in_item_in_script(
         assert exc.filename == tmp_file
         assert exc.lineno == lineno
         assert exc.offset == offset
-        assert exc.text == text
+        assert exc.text == actual_line
     else:
         assert exc.filename is None
         assert exc.lineno is None
         assert exc.offset is None
-        assert exc.text == text.replace(" ", "").replace('"', "'")
+        assert exc.text == line.replace(" ", "").replace('"', "'")
 
 
 @pytest.mark.usefixtures("json_extractor_backend")
@@ -1200,8 +1208,8 @@ def test_field_overwrites_bases_method_in_item_in_script(
     [
         (
             """
-class User(Item):
-    baz = Field(JSONExtractor("baz"))
+class User(AutoItem):
+    baz = StrField(JSONExtractor("baz"))
 
     def baz(self):
         pass
@@ -1212,28 +1220,28 @@ class User(Item):
         ),
         (
             """
-class User(Item):
+class User(AutoItem):
     def baz(self):
         pass
 
-    baz = Field(JSONExtractor("baz"))
+    baz = StrField(JSONExtractor("baz"))
             """,
             6,
             4,
-            'baz = Field(JSONExtractor("baz"))',
+            'baz = StrField(JSONExtractor("baz"))',
         ),
         (
             """
-class User(Item):
+class User(AutoItem):
     def baz(self):
         pass
 
     boo = [None]
-    baz = boo[0] = Field(JSONExtractor("baz"))
+    baz = boo[0] = StrField(JSONExtractor("baz"))
     """,
             7,
             4,
-            'baz = boo[0] = Field(JSONExtractor("baz"))',
+            'baz = boo[0] = StrField(JSONExtractor("baz"))',
         ),
     ],
     ids=reprlib.repr,
@@ -1269,8 +1277,8 @@ def test_avoid_method_overwriting_field(stack_frame_support):
     exc = None
     try:
 
-        class User(Item):
-            baz = Field(JSONExtractor("baz"))
+        class User(AutoItem):
+            baz = StrField(JSONExtractor("baz"))
 
             def baz(self):  # type: ignore
                 pass
@@ -1285,8 +1293,8 @@ def test_avoid_method_overwriting_field(stack_frame_support):
         assert User().extract(data) == {}
         assert isinstance(User.baz, FunctionType)
 
-    class User(Item):  # type: ignore # noqa: F811
-        baz_ = Field(JSONExtractor("baz"), name="baz")
+    class User(AutoItem):  # type: ignore # noqa: F811
+        baz_ = StrField(JSONExtractor("baz"), name="baz")
 
         def baz(self):
             pass
@@ -1302,11 +1310,11 @@ def test_avoid_field_overwriting_method(stack_frame_support):
     exc = None
     try:
 
-        class User(Item):
+        class User(AutoItem):
             def baz(self):
                 pass
 
-            baz = Field(JSONExtractor("baz"))  # type: ignore # noqa: F811
+            baz = StrField(JSONExtractor("baz"))  # type: ignore # noqa: F811
 
     except Exception as exc_:
         exc = exc_
@@ -1318,8 +1326,8 @@ def test_avoid_field_overwriting_method(stack_frame_support):
         assert User().extract(data) == {"baz": "baz"}
         assert isinstance(User.baz, Field)
 
-    class User(Item):  # type: ignore # noqa: F811
-        baz_ = Field(JSONExtractor("baz"), name="baz")
+    class User(AutoItem):  # type: ignore # noqa: F811
+        baz_ = StrField(JSONExtractor("baz"), name="baz")
 
         def baz(self):
             pass
@@ -1333,11 +1341,11 @@ def test_avoid_field_overwriting_bases_method(stack_frame_support):
 
     with pytest.raises(SyntaxError):
 
-        class User(Item):
-            field_names = Field(JSONExtractor("field_names"))  # type: ignore
+        class User(AutoItem):
+            field_names = StrField(JSONExtractor("field_names"))  # type: ignore
 
-    class User(Item):  # type: ignore # noqa: F811
-        field_names_ = Field(JSONExtractor("field_names"), name="field_names")
+    class User(AutoItem):  # type: ignore # noqa: F811
+        field_names_ = StrField(JSONExtractor("field_names"), name="field_names")
 
     assert User().extract(data) == {"field_names": ["field_names"]}
 
@@ -1346,8 +1354,8 @@ def test_avoid_field_overwriting_bases_method(stack_frame_support):
 def test_item_build_implicitly(json0):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
 
     item = User(JSONExtractor("data.users[0]"))
     assert not is_built(item)
@@ -1365,8 +1373,8 @@ def test_item_build_implicitly(json0):
 def test_item_rebuild(json0):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
 
     item = User(JSONExtractor("data.users[0]"))
     assert not is_built(item)
@@ -1393,8 +1401,8 @@ def test_item_rebuild(json0):
 def test_item_build_explicitly(json0):
     data = json0
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
 
     item = User(JSONExtractor("data.users[0]"))
     assert not is_built(item)
@@ -1412,8 +1420,8 @@ def test_item_build_explicitly(json0):
 def test_modify_built_item(json0):
     data = json0["data"]["users"][0]
 
-    class User(Item):
-        uid = Field(JSONExtractor("id"))
+    class User(AutoItem):
+        uid = StrField(JSONExtractor("id"))
 
     item = User(JSONExtractor("user"))
     assert not is_built(item)
@@ -1448,9 +1456,9 @@ def test_modify_built_item(json0):
     ids=reprlib.repr,
 )
 def test_simplified_item_extract_error(data, len_extractors_stack, target):
-    class User(Item):
-        id = Field(JSONExtractor("id"))
-        name_ = Field(JSONExtractor("name"), name="name")
+    class User(AutoItem):
+        id = StrField(JSONExtractor("id"))
+        name_ = StrField(JSONExtractor("name"), name="name")
 
     extractor = User(JSONExtractor("result")).simplify()
     with pytest.raises(ExtractError) as catch:
@@ -1476,9 +1484,9 @@ def test_simplified_item_extract_error(data, len_extractors_stack, target):
     ids=reprlib.repr,
 )
 def test_simplified_item_with_default_extract_error(data, len_extractors_stack, target):
-    class User(Item):
-        id = Field(JSONExtractor("id"))
-        name_ = Field(JSONExtractor("name"), name="name")
+    class User(AutoItem):
+        id = StrField(JSONExtractor("id"))
+        name_ = StrField(JSONExtractor("name"), name="name")
 
     extractor = User(JSONExtractor("result"), default=None).simplify()
     with pytest.raises(ExtractError) as catch:
@@ -1513,9 +1521,9 @@ pairs: Iterable[Pair] = product(
 def test_simplified_item_extract_first_error(
     data, len_extractors_stack, target, default
 ):
-    class User(Item):
-        id = Field(JSONExtractor("id"))
-        name_ = Field(JSONExtractor("name"), name="name")
+    class User(AutoItem):
+        id = StrField(JSONExtractor("id"))
+        name_ = StrField(JSONExtractor("name"), name="name")
 
     extractor = User(JSONExtractor("result")).simplify()
     with pytest.raises(ExtractError) as catch:
@@ -1532,9 +1540,9 @@ def test_simplified_item_extract_first_error(
     [({}, None), ({"result": {"id": 0, "name": "Jack"}}, {"id": 0, "name": "Jack"})],
 )
 def test_simplified_item_extract_first_with_default(data, expect):
-    class User(Item):
-        id = Field(JSONExtractor("id"))
-        name_ = Field(JSONExtractor("name"), name="name")
+    class User(AutoItem):
+        id = StrField(JSONExtractor("id"))
+        name_ = StrField(JSONExtractor("name"), name="name")
 
     extractor = User(JSONExtractor("result")).simplify()
     assert extractor.extract_first(data, None) == expect
@@ -1542,13 +1550,13 @@ def test_simplified_item_extract_first_with_default(data, expect):
 
 @pytest.mark.usefixtures("json_extractor_backend")
 def test_simplified_nested_item_extract():
-    class User(Item):
-        id = Field(JSONExtractor("id"))
-        name_ = Field(JSONExtractor("name"), name="name")
+    class User(AutoItem):
+        id = StrField(JSONExtractor("id"))
+        name_ = StrField(JSONExtractor("name"), name="name")
 
-    class Users(Item):
+    class Users(AutoItem):
         users = User(JSONExtractor("users"), is_many=True)
-        count = Field(JSONExtractor("count"), default=0)
+        count = StrField(JSONExtractor("count"), default=0)
 
     extractor = Users().simplify()
     assert extractor.extract_first({}) == {"users": [], "count": 0}

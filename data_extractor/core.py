@@ -10,7 +10,7 @@ import inspect
 from abc import abstractmethod
 from collections import namedtuple
 from types import FrameType, FunctionType, MethodType
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Generic, List, Optional, Tuple, Type, TypeVar, Union
 
 # Local Folder
 from .utils import BuildProperty, Property, getframe, sentinel
@@ -19,7 +19,7 @@ _LineInfo = namedtuple("_LineInfo", ["file", "lineno", "offset", "line"])
 
 
 def _find_line_info_of_attr_in_source(
-    frame: Optional[FrameType], key: str, attr: "AbstractComplexExtractor"
+    frame: Optional[FrameType], key: str, attr: "AbstractComplexExtractor[Any]"
 ) -> _LineInfo:
     if frame is None:
         return _LineInfo(None, None, None, f"{key}={attr!r}")
@@ -64,7 +64,7 @@ def _check_field_overwrites_bases_property(
     name: str,
     bases: Tuple[object],
     key: str,
-    attr: "AbstractComplexExtractor",
+    attr: "AbstractComplexExtractor[Any]",
 ) -> None:
     attr_from_bases = getattr(bases[-1], key, None)
     if isinstance(attr_from_bases, Property) or key == "_field_names":
@@ -86,7 +86,7 @@ def _check_field_overwrites_bases_method(
     name: str,
     bases: Tuple[object],
     key: str,
-    attr: "AbstractComplexExtractor",
+    attr: "AbstractComplexExtractor[Any]",
 ) -> None:
     attr_from_bases = getattr(bases[-1], key, None)
     if isinstance(attr_from_bases, (FunctionType, MethodType)):
@@ -209,11 +209,10 @@ class ComplexExtractorMeta(SimpleExtractorMeta):
         # check field overwrites method
         _check_field_overwrites_method(cls)
 
-        if not bases:
-            cls._field_names: List[str] = field_names
-        else:
+        if hasattr(cls, "_field_names"):
             field_names.extend(cls._field_names)
-            cls._field_names = field_names
+
+        cls._field_names: List[str] = field_names
 
 
 class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
@@ -288,7 +287,10 @@ class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
         return rv[0]
 
 
-class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
+T = TypeVar("T")
+
+
+class AbstractComplexExtractor(Generic[T], metaclass=ComplexExtractorMeta):
     """
     Abstract Complex Extractor Clase.
 
@@ -301,7 +303,7 @@ class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
         self.built = False
 
     @abstractmethod
-    def build(self) -> None:
+    def build(self) -> Type[T]:
         """
         Build the function of extracting explicitly.
 
@@ -310,7 +312,7 @@ class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
         raise NotImplementedError
 
     @abstractmethod
-    def extract(self, element: Any) -> Any:
+    def extract(self, element: Any) -> Union[T, List[T]]:
         """
         Extract the wanted data.
 
