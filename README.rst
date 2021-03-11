@@ -101,8 +101,8 @@ Usage
 Changelog
 <<<<<<<<<
 
-Unreleased
-~~~~~~~~~~
+v0.9.0
+~~~~~~
 
 **Fix**
 
