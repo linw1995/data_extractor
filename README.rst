@@ -101,6 +101,13 @@ Usage
 Changelog
 <<<<<<<<<
 
+Unreleased
+~~~~~~~~~~
+
+**Refactor**
+
+- remove duplciated module "data_extractor.abc"
+
 v0.9.0
 ~~~~~~
 
