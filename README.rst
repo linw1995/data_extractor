@@ -113,10 +113,6 @@ Unreleased
 - .utils.Property with "Customized names" support #64
 - rename .abc to .core and mark elder duplciated #65
 
-**Feat**
-
-- 11bfd2c supports latest jsonpath-extractor package
-
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
     :target: https://github.com/linw1995/data_extractor/blob/master/LICENSE
