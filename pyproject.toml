@@ -20,7 +20,7 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
 ]
-include = ["LICENSE"]
+include = ["LICENSE", "data_extracotr/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
@@ -92,5 +92,5 @@ version_files = ["pyproject.toml:version"]
 tag_format = "v$version"
 
 [build-system]
-requires = ["poetry"]
-build-backend = "poetry.masonry.api"
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
