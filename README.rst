@@ -104,6 +104,14 @@ Changelog
 Unreleased
 ~~~~~~~~~~
 
+**Feature**
+
+- supports PEP 561 -- Distributing and Packaging Type Information
+
+**Fix**
+
+- remove LICENSE file from dist files
+
 **Refactor**
 
 - remove duplciated module "data_extractor.abc"
