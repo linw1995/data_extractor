@@ -20,7 +20,7 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
 ]
-include = ["LICENSE", "data_extracotr/py.typed"]
+include = ["data_extracotr/py.typed"]
 
 [tool.poetry.dependencies]
 python = "^3.7"
