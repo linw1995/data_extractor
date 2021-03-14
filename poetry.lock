@@ -858,7 +858,7 @@ test = ["pytest", "pytest-cov", "pytest-mypy-plugins", "mypy"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "fda24dc9fbdc5ee57889e9dfe97e9341ab2787d0c38295ab263430d155c8f564"
+content-hash = "b80b023c7997265c870829f386c29e00483e81aa19af5efe3d26bc23f5f2b1aa"
 
 [metadata.files]
 alabaster = [
