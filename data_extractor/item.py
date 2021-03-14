@@ -6,15 +6,31 @@
 # Standard Library
 import copy
 
-from typing import Any, Dict, Iterator, Optional
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
+
+# Third Party Library
+from typing_extensions import get_args
 
 # Local Folder
 from .core import AbstractComplexExtractor, AbstractSimpleExtractor, BuildProperty
 from .exceptions import ExtractError
 from .utils import Property, is_simple_extractor, sentinel
 
+RV = TypeVar("RV")
 
-class Field(AbstractComplexExtractor):
+
+class Field(Generic[RV], AbstractComplexExtractor):
     """
     Extract data by cooperating with extractor.
 
@@ -36,6 +52,8 @@ class Field(AbstractComplexExtractor):
     name = Property[Optional[str]]()
     default = Property[Any]()
     is_many = Property[bool]()
+    rv_type = Property[Optional[Type[RV]]]()
+    convertor = Property[Optional[Callable[[Any], RV]]]()
 
     def __init__(
         self,
@@ -43,6 +61,8 @@ class Field(AbstractComplexExtractor):
         name: str = None,
         default: Any = sentinel,
         is_many: bool = False,
+        type: Type[RV] = None,
+        convertor: Callable[[Any], RV] = None,
     ):
         super().__init__()
 
@@ -56,6 +76,17 @@ class Field(AbstractComplexExtractor):
         self.name = name
         self.default = default
         self.is_many = is_many
+        self.rv_type = type
+        self.convertor = convertor
+
+    @property
+    def type(self) -> Optional[Type[RV]]:
+        if not self.rv_type:
+            orig_class = getattr(self, "__orig_class__", sentinel)
+            if orig_class is not sentinel:
+                self.rv_type = get_args(orig_class)[0]
+
+        return self.rv_type
 
     def __repr__(self) -> str:
         args = [f"{self.extractor!r}"]
@@ -77,7 +108,7 @@ class Field(AbstractComplexExtractor):
         if self.__class__ is Field:
             self.built = True
 
-    def extract(self, element: Any) -> Any:
+    def extract(self, element: Any) -> Union[RV, List[RV]]:
         if not self.built:
             self.build()
 
@@ -100,8 +131,15 @@ class Field(AbstractComplexExtractor):
 
         return self._extract(rv[0])
 
-    def _extract(self, element: Any) -> Any:
-        return element
+    def _extract(self, element: Any) -> RV:
+        if self.convertor is not None:
+            return self.convertor(element)
+        else:
+            type_ = self.type
+            if type_ is not None and callable(type_):
+                return type_(element)  # type: ignore
+            else:
+                return element
 
     def __deepcopy__(self, memo: Dict[int, Any]) -> AbstractComplexExtractor:
         deepcopy_method = self.__deepcopy__
