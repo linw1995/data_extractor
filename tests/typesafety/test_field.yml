@@ -1,0 +1,50 @@
+- case: field_extract_without_typing
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field(D())
+    rv = f.extract(1)
+    reveal_type(rv)
+  out: |
+    main:6: note: Revealed type is 'Any'
+- case: field_extract_with_typing
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f_str = Field[str](D())
+    rv_str = f_str.extract(1)
+    reveal_type(rv_str)
+
+    f_int = Field(D(), type=int)
+    rv_int = f_int.extract("1")
+    reveal_type(rv_int)
+  out: |
+    main:6: note: Revealed type is 'builtins.str*'
+    main:10: note: Revealed type is 'builtins.int*'
+- case: field_extract_with_flag_is_many
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field[str](D(), is_many=True)
+    rvs = f.extract([1])
+    reveal_type(rvs)
+  out: |
+    main:6: note: Revealed type is 'builtins.list[builtins.str*]'
+- case: field_extract_while_changing_the_flag_of_is_many
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field[str](D(), is_many=True)
+    rvs = f.extract([1])
+    reveal_type(rvs)
+
+    f.is_many = False
+    rv = f.extract(1)
+    reveal_type(rv)
+  out: |
+    main:6: note: Revealed type is 'builtins.list[builtins.str*]'
+    main:10: note: Revealed type is 'builtins.str*'
