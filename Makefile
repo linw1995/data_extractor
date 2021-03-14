@@ -96,19 +96,19 @@ _finally=|| code=$$?; \
 		&& exit $$code
 
 _test:
-	@.venv/bin/pytest -q -x --ff --nf
+	@PATH=$(PWD)/.venv/bin:$$PATH .venv/bin/pytest -q -x --ff --nf
 
 test: _stash
 	@make _test $(_finally)
 
 _vtest:
-	@.venv/bin/pytest -vv -x --ff --nf
+	@PATH=$(PWD)/.venv/bin:$$PATH .venv/bin/pytest -vv -x --ff --nf
 
 vtest: _stash
 	@make _vtest $(_finally)
 
 _cov:
-	@.venv/bin/pytest -vv --cov=data_extractor
+	@PATH=$(PWD)/.venv/bin:$$PATH .venv/bin/pytest -vv --cov=data_extractor
 	@.venv/bin/coverage xml
 	@.venv/bin/coverage html
 	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
@@ -119,7 +119,7 @@ cov: _stash
 _nox:
 	@make QUIET=true deactivate
 	@rm -f .coverage
-	@.venv/bin/nox -k test
+	@PATH=$(PWD)/.venv/bin:$$PATH .venv/bin/nox -k test
 	@.venv/bin/coverage xml
 	@.venv/bin/coverage html
 	@echo ">> open file://`pwd`/htmlcov/index.html to see coverage"
