@@ -24,7 +24,10 @@ class DataExtractorPlugin(Plugin):
         # if type_arg:
         #    args = [type_arg[0].node]
         # else:
-        return self.apply_any_generic(type=rv_type)
+        if not self.options.disallow_any_generics:
+            return self.apply_any_generic(type=rv_type)
+        else:
+            return rv_type
 
     def apply_any_generic(self, type: Instance) -> Instance:
         any_type = AnyType(TypeOfAny.special_form)
@@ -67,9 +70,8 @@ class DataExtractorPlugin(Plugin):
     def get_function_hook(
         self, fullname: str
     ) -> Optional[Callable[[FunctionContext], MypyType]]:
-        if not self.options.disallow_any_generics:
-            if fullname == "data_extractor.item.Field":
-                return self.make_field_type_annotations
+        if fullname == "data_extractor.item.Field":
+            return self.make_field_type_annotations
 
         return super().get_function_hook(fullname)
 
