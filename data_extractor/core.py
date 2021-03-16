@@ -10,7 +10,7 @@ import inspect
 from abc import abstractmethod
 from collections import namedtuple
 from types import FrameType, FunctionType, MethodType
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 # Local Folder
 from .utils import BuildProperty, Property, getframe, sentinel
@@ -209,11 +209,9 @@ class ComplexExtractorMeta(SimpleExtractorMeta):
         # check field overwrites method
         _check_field_overwrites_method(cls)
 
-        if not bases:
-            cls._field_names: List[str] = field_names
-        else:
-            field_names.extend(cls._field_names)
-            cls._field_names = field_names
+        cls._field_names: Tuple[str, ...] = tuple(
+            set(field_names) | set(getattr(cls, "_field_names", []))
+        )
 
 
 class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):

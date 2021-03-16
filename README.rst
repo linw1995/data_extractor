@@ -111,6 +111,7 @@ Unreleased
 **Fix**
 
 - remove LICENSE file from dist files
+- duplicated extracting if class attrs overlap happened #67
 
 **Refactor**
 
