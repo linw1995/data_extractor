@@ -23,6 +23,33 @@
   out: |
     main:6: note: Revealed type is 'builtins.str*'
     main:10: note: Revealed type is 'builtins.int*'
+- case: field_extract_with_typing_alias
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    StrField = Field[str]
+    f = StrField(D())
+    rv = f.extract(1)
+    reveal_type(rv)
+  out: |
+    main:7: note: Revealed type is 'builtins.str*'
+- case: field_extract_with_typing_while_changing_type
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field[str](D())
+    rv = f.extract(1)
+    reveal_type(rv)
+    f.type = int
+    rv = f.extract("1")
+    reveal_type(rv)
+  out: |
+    main:6: note: Revealed type is 'builtins.str*'
+    main:7: error: Incompatible types in assignment (expression has type "Type[int]", variable has type "Optional[Type[str]]")
+    main:7: error: Property "type" defined in "Field" is read-only
+    main:9: note: Revealed type is 'builtins.str*'
 - case: field_extract_with_flag_is_many
   main: |
     from tests.utils import D
