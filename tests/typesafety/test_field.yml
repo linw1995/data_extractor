@@ -24,10 +24,13 @@
     f_str_2: Field[str] = Field(D())
     rv_str_2 = f_str_2.extract("1")
     reveal_type(rv_str_2)
+
+    reveal_type(Field[str](D()).extract(1))
   out: |
     main:6: note: Revealed type is 'builtins.str*'
     main:10: note: Revealed type is 'builtins.int*'
     main:14: note: Revealed type is 'builtins.str*'
+    main:16: note: Revealed type is 'builtins.str*'
 - case: field_extract_with_typing_alias
   main: |
     from tests.utils import D
@@ -93,8 +96,11 @@
     f = Field[str](D(), is_many=True)
     rvs = f.extract([1])
     reveal_type(rvs)
+
+    reveal_type(Field[str](D(), is_many=True).extract([1]))
   out: |
     main:6: note: Revealed type is 'builtins.list[builtins.str*]'
+    main:8: note: Revealed type is 'builtins.list[builtins.str*]'
 - case: field_extract_while_changing_the_flag_of_is_many
   main: |
     from tests.utils import D
