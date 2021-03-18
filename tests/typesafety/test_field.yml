@@ -20,9 +20,14 @@
     f_int = Field(D(), type=int)
     rv_int = f_int.extract("1")
     reveal_type(rv_int)
+
+    f_str_2: Field[str] = Field(D())
+    rv_str_2 = f_str_2.extract("1")
+    reveal_type(rv_str_2)
   out: |
     main:6: note: Revealed type is 'builtins.str*'
     main:10: note: Revealed type is 'builtins.int*'
+    main:14: note: Revealed type is 'builtins.str*'
 - case: field_extract_with_typing_alias
   main: |
     from tests.utils import D
@@ -34,6 +39,36 @@
     reveal_type(rv)
   out: |
     main:7: note: Revealed type is 'builtins.str*'
+- case: field_type_hinting_conflict_with_type_param
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f_1 = Field[str](D(), type=int)
+    reveal_type(f_1)
+
+    f_2: Field[str] = Field(D(), type=int)
+    reveal_type(f_2)
+  out: |
+    main:4: error: Argument "type" to "Field" has incompatible type "Type[int]"; expected "Optional[Type[str]]"
+    main:5: note: Revealed type is 'data_extractor.item.Field[builtins.str*]'
+    main:7: error: Argument "type" to "Field" has incompatible type "Type[int]"; expected "Optional[Type[str]]"
+    main:8: note: Revealed type is 'data_extractor.item.Field[builtins.str]'
+- case: field_type_hinting_conflict_with_convertor_param
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f_1 = Field[str](D(), convertor=int)
+    reveal_type(f_1)
+
+    f_2: Field[str] = Field(D(), convertor=int)
+    reveal_type(f_2)
+  out: |
+    main:4: error: Argument "convertor" to "Field" has incompatible type "Type[int]"; expected "Optional[Callable[[Any], str]]"
+    main:5: note: Revealed type is 'data_extractor.item.Field[builtins.str*]'
+    main:7: error: Argument "convertor" to "Field" has incompatible type "Type[int]"; expected "Optional[Callable[[Any], str]]"
+    main:8: note: Revealed type is 'data_extractor.item.Field[builtins.str]'
 - case: field_extract_with_typing_while_changing_type
   main: |
     from tests.utils import D
