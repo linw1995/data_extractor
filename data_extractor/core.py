@@ -195,7 +195,7 @@ class ComplexExtractorMeta(SimpleExtractorMeta):
     ):
         super().__init__(name, bases, attr_dict)
 
-        field_names = []
+        field_names = set()
         for key, attr in attr_dict.items():
             if isinstance(type(attr), ComplexExtractorMeta):
                 # can't using data_extractor.utils.is_complex_extractor here,
@@ -204,14 +204,18 @@ class ComplexExtractorMeta(SimpleExtractorMeta):
                 _check_field_overwrites_bases_method(cls, name, bases, key, attr)
                 _check_field_overwrites_bases_property(cls, name, bases, key, attr)
 
-                field_names.append(key)
+                field_names.add(key)
 
         # check field overwrites method
         _check_field_overwrites_method(cls)
 
-        cls._field_names: Tuple[str, ...] = tuple(
-            set(field_names) | set(getattr(cls, "_field_names", []))
-        )
+        field_names |= set(getattr(cls, "_field_names", []))
+        for key in field_names.copy():
+            attr = getattr(cls, key, None)
+            if not attr or not isinstance(type(attr), ComplexExtractorMeta):
+                field_names.remove(key)
+
+        cls._field_names: Tuple[str, ...] = tuple(field_names)
 
 
 class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):

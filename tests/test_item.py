@@ -1552,3 +1552,16 @@ def test_simplified_nested_item_extract():
 
     extractor = Users().simplify()
     assert extractor.extract_first({}) == {"users": [], "count": 0}
+
+
+@pytest.mark.usefixtures("json_extractor_backend")
+def test_item_remove_super_extractor():
+    class User(Item):
+        id = Field(JSONExtractor("id"))
+
+    class NoIdUser(User):
+        # bad example to show how to remove super class sub-extractors
+        id = None  # type: ignore
+
+    extractor = NoIdUser()
+    assert extractor.extract({"id": 1}) == {}

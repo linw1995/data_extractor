@@ -13,6 +13,7 @@ Unreleased
 
 - remove LICENSE file from dist files
 - duplicated extracting if class attrs overlap happened #67
+- remove super class sub-extractors error #68
 
 **Refactor**
 
