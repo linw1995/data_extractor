@@ -25,6 +25,12 @@ def test_field_with_type():
     assert f.type is str
     assert f.extract(1) == "1"
 
+    f = Field[str](D())
+    assert f.type is str
+    assert f.extract(1) == "1"
+
+    assert Field[str](D()).extract(1) == "1"
+
 
 def test_field_with_convertor():
     f = Field(D(), convertor=lambda x: str(x).upper())

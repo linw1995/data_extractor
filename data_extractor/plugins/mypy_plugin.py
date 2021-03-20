@@ -1,16 +1,92 @@
 # Standard Library
-from typing import Callable, Optional, Type
+from typing import Callable, Dict, Optional, Type
 
 # Third Party Library
-from mypy.nodes import CallExpr, IndexExpr, NameExpr, TypeInfo
-from mypy.plugin import FunctionContext, MethodSigContext, Plugin
+from mypy.checker import TypeChecker
+from mypy.nodes import (
+    AssignmentStmt,
+    CallExpr,
+    IndexExpr,
+    MemberExpr,
+    MypyFile,
+    NameExpr,
+    TypeAlias,
+    TypeInfo,
+)
+from mypy.nodes import Var as VarExpr
+from mypy.plugin import (
+    AttributeContext,
+    FunctionContext,
+    MethodContext,
+    MethodSigContext,
+    Plugin,
+)
+from mypy.traverser import TraverserVisitor
 from mypy.types import AnyType, CallableType, Instance
 from mypy.types import Type as MypyType
 from mypy.types import TypeOfAny, UninhabitedType, UnionType
 
 
+class RelationshipVisitor(TraverserVisitor):
+    def __init__(self) -> None:
+        self.relationships: Dict[str, str] = {}
+
+    def is_field_assignment_stmt(self, stmt: AssignmentStmt) -> bool:
+        if not isinstance(stmt.rvalue, CallExpr):
+            return False
+
+        call_expr: CallExpr = stmt.rvalue
+        callee_expr = call_expr.callee
+        if isinstance(callee_expr, NameExpr):
+            callee_node = callee_expr.node
+            if (
+                isinstance(callee_node, TypeInfo)
+                and callee_node.fullname == "data_extractor.item.Field"
+            ):
+                return True
+            elif (
+                isinstance(callee_node, TypeAlias)
+                and callee_node.target.type.fullname == "data_extractor.item.Field"
+            ):
+                return True
+        elif (
+            isinstance(callee_expr, IndexExpr)
+            and callee_expr.base.node.fullname == "data_extractor.item.Field"
+        ):
+            return True
+
+        return False
+
+    def anal_assignment_stmt(self, stmt: AssignmentStmt) -> None:
+        if self.is_field_assignment_stmt(stmt):
+            rvalue_loc = str((stmt.rvalue.line, stmt.rvalue.column))
+            for lvalue in stmt.lvalues:
+                expr = lvalue.node
+                if isinstance(expr, VarExpr):
+                    lvalue_loc = str((expr.line, expr.column))
+                    self.relationships[rvalue_loc] = lvalue_loc
+
+    def visit_assignment_stmt(self, o: AssignmentStmt) -> None:
+        self.anal_assignment_stmt(o)
+        super().visit_assignment_stmt(o)
+
+
 class DataExtractorPlugin(Plugin):
+    cache: Dict[str, Dict[str, str]] = {}
+
+    def get_current_code(self, ctx: FunctionContext) -> MypyFile:
+        return ctx.api.modules[ctx.api.tscope.module]
+
+    def anal_code(self, code: MypyFile) -> Dict[str, str]:
+        if code.fullname not in self.cache:
+            visitor = RelationshipVisitor()
+            code.accept(visitor)
+            self.cache[code.fullname] = visitor.relationships
+
+        return self.cache[code.fullname]
+
     def check_field_generic_type(self, ctx: FunctionContext) -> MypyType:
+        self.anal_code(self.get_current_code(ctx))
         rv_type = ctx.default_return_type
         if not isinstance(rv_type, Instance):
             return rv_type
@@ -19,10 +95,10 @@ class DataExtractorPlugin(Plugin):
             return rv_type
 
         # # check parameter "type"
-        # type_idx = ctx.callee_arg_names.index("type")
-        # type_arg = ctx.args[type_idx]
-        # if type_arg:
-        #    args = [type_arg[0].node]
+        # idx = ctx.callee_arg_names.index("type")
+        # arg = ctx.args[type_idx]
+        # if arg:
+        #    args = [arg[0].node]
         # else:
         if not self.options.disallow_any_generics:
             return self.apply_any_generic(type=rv_type)
@@ -50,7 +126,12 @@ class DataExtractorPlugin(Plugin):
         expr = ctx.context
         assert isinstance(expr, CallExpr)
 
-        key = str((expr.line, expr.column))
+        relationship = self.anal_code(self.get_current_code(ctx))
+        lvalue_key = str((expr.line, expr.column))
+        if lvalue_key in relationship:
+            key = relationship[lvalue_key]
+        else:
+            key = lvalue_key
 
         callee = expr.callee
         if isinstance(callee, IndexExpr):
@@ -58,7 +139,10 @@ class DataExtractorPlugin(Plugin):
         assert isinstance(callee, NameExpr)
 
         sym_field_class = callee.node
+        if isinstance(sym_field_class, TypeAlias):
+            sym_field_class = sym_field_class.target.type
         assert isinstance(sym_field_class, TypeInfo)
+
         if self.check_is_many(ctx):
             sym_field_class.metadata[key] = {"is_many": True}
         else:
@@ -78,15 +162,37 @@ class DataExtractorPlugin(Plugin):
     def apply_is_many_on_field_extract_method(
         self, ctx: MethodSigContext
     ) -> CallableType:
-        key = str((ctx.type.line, ctx.type.column))
         origin: CallableType = ctx.default_signature
         origin_ret_type = origin.ret_type
         assert isinstance(origin_ret_type, UnionType)
 
         self_class = ctx.type
         assert isinstance(self_class, Instance)
-        ret_type = origin_ret_type.items[int(self_class.type.metadata[key]["is_many"])]
-        return origin.copy_modified(ret_type=ret_type)
+        metadata = self_class.type.metadata
+
+        # in case of stmt `Field().extract(...)`
+        key = str((ctx.type.line, ctx.type.column))
+        if key not in metadata:
+            expr = ctx.context
+            assert isinstance(expr, CallExpr)
+            callee = expr.callee
+            assert isinstance(callee, MemberExpr)
+            name_expr = callee.expr
+            assert isinstance(name_expr, NameExpr)
+            obj = name_expr.node
+            assert isinstance(obj, VarExpr)
+            key = str((obj.line, obj.column))
+            # metadata = obj.type.type.metadata
+
+        if key in metadata:
+            is_many = metadata[key]["is_many"]
+            ret_type = origin_ret_type.items[int(is_many)]
+            return origin.copy_modified(ret_type=ret_type)
+        else:
+            api = ctx.api
+            assert isinstance(api, TypeChecker)
+            api.fail("Cant determine extract method return type", context=ctx.context)
+            return origin
 
     def get_method_signature_hook(
         self, fullname: str
@@ -95,6 +201,34 @@ class DataExtractorPlugin(Plugin):
             return self.apply_is_many_on_field_extract_method
 
         return super().get_method_signature_hook(fullname)
+
+    def property_method_hook(self, ctx: MethodContext) -> MypyType:
+        try:
+            if str(ctx.type.args[0]) == "builtins.bool":
+                pass
+        except Exception:
+            pass
+
+        return ctx.default_return_type
+
+    def get_method_hook(
+        self, fullname: str
+    ) -> Optional[Callable[[MethodContext], MypyType]]:
+        if fullname.startswith("data_extractor.utils.Property.__set__"):
+            return self.property_method_hook
+
+        return None
+
+    def field_attribute_hook(self, ctx: AttributeContext) -> MypyType:
+        return ctx.default_attr_type
+
+    def get_attribute_hook(
+        self, fullname: str
+    ) -> Optional[Callable[[AttributeContext], MypyType]]:
+        if fullname == "data_extractor.item.Field.is_many":
+            return self.field_attribute_hook
+
+        return super().get_attribute_hook(fullname)
 
 
 def plugin(version: str) -> Type[Plugin]:
