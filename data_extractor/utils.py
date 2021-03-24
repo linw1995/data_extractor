@@ -100,9 +100,6 @@ if TYPE_CHECKING:
 class Property(Generic[T]):
     """
     Extractor property.
-
-    :param name: The actual name of the property where value is stored.
-    :type name: Optional[str]
     """
 
     def __set_name__(self, owner: Any, name: str) -> None:
@@ -143,9 +140,6 @@ class BuildProperty(Property[T]):
     """
     Extractor property is part of the function of extracting.
     When it gets modified, it will unbuild its extractor.
-
-    :param name: The actual name of the property where value is stored.
-    :type name: Optional[str]
     """
 
     def __set__(self, obj: "AbstractExtractors", value: T) -> T:
