@@ -40,7 +40,7 @@ black = {version = "^20.8b1", optional = true}
 flake8 = {version = "^3.8.4", optional = true}
 flake8-bugbear = {version = "^20.11.1", optional = true}
 isort = {version = "^5.6.4", optional = true}
-mypy = {version = "^0.812", optional = true}
+#mypy = {version = "^0.812", optional = true}
 
 pytest = {version = "^6", optional = true}
 pytest-cov = {version = "^2.7.1", optional = true}
@@ -49,6 +49,7 @@ sphinx = {version = "^2.2", optional = true}
 doc8 = {version = "^0.8.0", optional = true}
 pygments = {version = "^2.4", optional = true}
 typing-extensions = "^3.7.4"
+mypy = {url = "https://github.com/python/mypy/archive/effd970ad1e8bb09fd2a18634339e1d043a83400.zip", optional = true}
 
 [tool.poetry.dev-dependencies]
 pre-commit = "^2.8.2"

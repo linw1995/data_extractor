@@ -71,6 +71,15 @@ class RelationshipVisitor(TraverserVisitor):
         super().visit_assignment_stmt(o)
 
 
+class ModificationVisitor(TraverserVisitor):
+    def __init__(self, type_info: TypeInfo, attr_name: str):
+        self.type_info = type_info
+        self.attr_name = attr_name
+
+    def visit_assignment_stmt(self, o):
+        return super().visit_assignment_stmt(o)
+
+
 class DataExtractorPlugin(Plugin):
     cache: Dict[str, Dict[str, str]] = {}
 
@@ -84,6 +93,10 @@ class DataExtractorPlugin(Plugin):
             self.cache[code.fullname] = visitor.relationships
 
         return self.cache[code.fullname]
+
+    def anal_is_many_modification(self, code: MypyFile, ctx: MemberExpr) -> bool:
+        if code.fullname not in self.modifcation_anal_result:
+            pass
 
     def check_field_generic_type(self, ctx: FunctionContext) -> MypyType:
         self.anal_code(self.get_current_code(ctx))
@@ -202,31 +215,25 @@ class DataExtractorPlugin(Plugin):
 
         return super().get_method_signature_hook(fullname)
 
-    def property_method_hook(self, ctx: MethodContext) -> MypyType:
-        try:
-            if str(ctx.type.args[0]) == "builtins.bool":
-                pass
-        except Exception:
-            pass
-
-        return ctx.default_return_type
-
-    def get_method_hook(
-        self, fullname: str
-    ) -> Optional[Callable[[MethodContext], MypyType]]:
-        if fullname.startswith("data_extractor.utils.Property.__set__"):
-            return self.property_method_hook
-
-        return None
-
     def field_attribute_hook(self, ctx: AttributeContext) -> MypyType:
+        if (
+            isinstance(ctx.context, MemberExpr)
+            and ctx.type.type.fullname == "data_extractor.item.Field"
+            and ctx.context.name == "is_many"
+        ):
+            if self.anal_is_many_modification(self.get_current_code(ctx), ctx.context):
+                print("modified")
+
+            breakpoint()
+
         return ctx.default_attr_type
 
     def get_attribute_hook(
         self, fullname: str
     ) -> Optional[Callable[[AttributeContext], MypyType]]:
         if fullname == "data_extractor.item.Field.is_many":
-            return self.field_attribute_hook
+            if ctx.api.tscope.module == "test_modify_is_many":
+                return self.field_attribute_hook
 
         return super().get_attribute_hook(fullname)
 
