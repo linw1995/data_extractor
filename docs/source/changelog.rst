@@ -19,6 +19,10 @@ Unreleased
 
 - remove duplciated module "data_extractor.abc"
 
+**Document**
+
+- fix wrong docstring of "data_extractor.utils.Property"
+
 v0.9.0
 ~~~~~~
 
