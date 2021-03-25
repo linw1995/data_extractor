@@ -9,7 +9,7 @@ import copy
 from typing import Any, Dict, Iterator, Optional
 
 # Local Folder
-from .core import AbstractComplexExtractor, AbstractSimpleExtractor, BuildProperty
+from .core import AbstractComplexExtractor, AbstractSimpleExtractor
 from .exceptions import ExtractError
 from .utils import Property, is_simple_extractor, sentinel
 
@@ -32,7 +32,7 @@ class Field(AbstractComplexExtractor):
     :raises ValueError: Can't both set default and is_manay=True.
     """
 
-    extractor = BuildProperty[Optional[AbstractSimpleExtractor]]()
+    extractor = Property[Optional[AbstractSimpleExtractor]]()
     name = Property[Optional[str]]()
     default = Property[Any]()
     is_many = Property[bool]()
@@ -70,17 +70,7 @@ class Field(AbstractComplexExtractor):
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 
-    def build(self) -> None:
-        if self.extractor is not None:
-            self.extractor.build()
-
-        if self.__class__ is Field:
-            self.built = True
-
     def extract(self, element: Any) -> Any:
-        if not self.built:
-            self.build()
-
         if self.extractor is None:
             if isinstance(element, list):
                 rv = element
@@ -143,16 +133,6 @@ class Item(Field):
         """
         yield from cls._field_names
 
-    def build(self) -> None:
-        super().build()
-
-        for extractor_name in self.field_names():
-            extractor: Field = getattr(self, extractor_name)
-            if not extractor.built:
-                extractor.build()
-
-        self.built = True
-
     def simplify(self) -> AbstractSimpleExtractor:
         """
         Create an extractor that has compatible API like SimpleExtractor's.
@@ -161,9 +141,6 @@ class Item(Field):
         :rtype: :class:`data_extractor.core.AbstractSimpleExtractor`
         """
         duplicated = copy.deepcopy(self)
-
-        def build(self: AbstractSimpleExtractor) -> None:
-            duplicated.build()
 
         def extract(self: AbstractSimpleExtractor, element: Any) -> Any:
             duplicated.is_many = True
@@ -192,7 +169,6 @@ class Item(Field):
             classname,
             (base,),
             {
-                "build": build,
                 "extract": extract,
                 "__getattribute__": getter,
                 "__setattr__": setter,

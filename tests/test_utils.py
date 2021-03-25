@@ -189,9 +189,6 @@ def test_property_accessing_error():
     class Bar(AbstractSimpleExtractor):
         unset_attribute = Property[None]()
 
-        def build(self):
-            return super().build()
-
         def extract(self, element):
             return super().extract(element)
 

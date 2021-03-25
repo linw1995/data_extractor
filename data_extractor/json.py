@@ -53,9 +53,6 @@ class JSONExtractor(AbstractSimpleExtractor):
         obj.__init__(*args, **kwargs)
         return obj
 
-    def build(self) -> None:
-        raise NotImplementedError
-
     def extract(self, element: Any) -> Any:
         raise NotImplementedError
 
@@ -67,10 +64,6 @@ try:
     _missing_jsonpath_rw = False
 except ImportError:
     _missing_jsonpath_rw = True
-
-if TYPE_CHECKING:
-    # Third Party Library
-    from jsonpath_rw import JSONPath
 
 
 class JSONPathRWExtractor(JSONExtractor):
@@ -84,22 +77,21 @@ class JSONPathRWExtractor(JSONExtractor):
     :type expr: str
     """
 
-    _jsonpath = Property[Optional["JSONPath"]]()  # TODO: CacheProperty
+    if TYPE_CHECKING:
+        # Third Party Library
+        from jsonpath_rw import JSONPath
+    _jsonpath = Property["JSONPath"]()
 
     def __init__(self, expr: str) -> None:
         super().__init__(expr)
         if _missing_jsonpath_rw:
             _missing_dependency("jsonpath-rw")
 
-        self._jsonpath = None
-
-    def build(self) -> None:
         # Third Party Library
         from jsonpath_rw.lexer import JsonPathLexerError
 
         try:
             self._jsonpath = jsonpath_rw.parse(self.expr)
-            self.built = True
         except (JsonPathLexerError, Exception) as exc:
             # jsonpath_rw.parser.JsonPathParser.p_error raises exc of Exception type
             raise ExprError(extractor=self, exc=exc) from exc
@@ -114,10 +106,6 @@ class JSONPathRWExtractor(JSONExtractor):
         :returns: Data.
         :rtype: Any
         """
-        if not self.built:
-            self.build()
-
-        assert self._jsonpath is not None
         return [m.value for m in self._jsonpath.find(element)]
 
 
@@ -128,10 +116,6 @@ try:
     _missing_jsonpath_rw_ext = False
 except ImportError:
     _missing_jsonpath_rw_ext = True
-
-if TYPE_CHECKING:
-    # Third Party Library
-    from jsonpath_rw_ext import JSONPath as JSONPathExt
 
 
 class JSONPathRWExtExtractor(JSONPathRWExtractor):
@@ -145,20 +129,21 @@ class JSONPathRWExtExtractor(JSONPathRWExtractor):
     :type expr: str
     """
 
-    _jsonpath = Property[Optional["JSONPathExt"]]()  # TODO: CacheProperty
+    if TYPE_CHECKING:
+        # Third Party Library
+        from jsonpath_rw_ext import JSONPath as JSONPathExt
+    _jsonpath = Property["JSONPathExt"]()
 
     def __init__(self, expr: str) -> None:
-        super().__init__(expr)
+        super(JSONPathRWExtractor, self).__init__(expr)
         if _missing_jsonpath_rw_ext:
             _missing_dependency("jsonpath-rw-ext")
 
-    def build(self) -> None:
         # Third Party Library
         from jsonpath_rw.lexer import JsonPathLexerError
 
         try:
             self._jsonpath = jsonpath_rw_ext.parse(self.expr)
-            self.built = True
         except (JsonPathLexerError, Exception) as exc:
             # jsonpath_rw.parser.JsonPathParser.p_error raises exc of Exception type
             raise ExprError(extractor=self, exc=exc) from exc
@@ -173,11 +158,6 @@ except ImportError:
     _missing_jsonpath = True
 
 
-if TYPE_CHECKING:
-    # Third Party Library
-    from jsonpath import Expr
-
-
 class JSONPathExtractor(JSONExtractor):
     """
     Use JSONPath expression implementated by **jsonpath-extractor** package
@@ -189,7 +169,11 @@ class JSONPathExtractor(JSONExtractor):
     :type expr: str
     """
 
-    _jsonpath = Property[Optional["Expr"]]()  # TODO: CacheProperty
+    if TYPE_CHECKING:
+        # Third Party Library
+        from jsonpath import Expr
+
+    _jsonpath = Property["Expr"]()
 
     def __init__(self, expr: str) -> None:
         super().__init__(expr)
@@ -197,12 +181,8 @@ class JSONPathExtractor(JSONExtractor):
         if _missing_jsonpath:
             _missing_dependency("jsonpath-extractor")
 
-        self._jsonpath = None
-
-    def build(self) -> None:
         try:
             self._jsonpath = jsonpath.parse(self.expr)
-            self.built = True
         except SyntaxError as exc:
             raise ExprError(extractor=self, exc=exc) from exc
 
@@ -216,10 +196,6 @@ class JSONPathExtractor(JSONExtractor):
         :returns: Data.
         :rtype: Any
         """
-        if not self.built:
-            self.build()
-
-        assert self._jsonpath is not None
         return self._jsonpath.find(element)
 
 
