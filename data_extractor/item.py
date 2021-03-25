@@ -101,7 +101,7 @@ class Field(AbstractComplexExtractor):
 
         # avoid duplicating the sentinel object.
         if self.default is sentinel:
-            cp.default = self.default
+            Property.change_internal_value(cp, "default", sentinel)
 
         return cp
 
@@ -141,9 +141,9 @@ class Item(Field):
         :rtype: :class:`data_extractor.core.AbstractSimpleExtractor`
         """
         duplicated = copy.deepcopy(self)
+        Property.change_internal_value(duplicated, "is_many", True)
 
         def extract(self: AbstractSimpleExtractor, element: Any) -> Any:
-            duplicated.is_many = True
             return duplicated.extract(element)
 
         def getter(self: AbstractSimpleExtractor, name: str) -> Any:
@@ -165,15 +165,21 @@ class Item(Field):
         if duplicated.extractor is not None:
             base = type(duplicated.extractor)
 
-        return type(
+        new_cls = type(
             classname,
             (base,),
             {
+                "__init__": lambda self: None,
                 "extract": extract,
                 "__getattribute__": getter,
                 "__setattr__": setter,
             },
-        )(expr=duplicated.extractor.expr if duplicated.extractor is not None else None)
+        )
+        obj = base.__new__(new_cls)
+        if not hasattr(obj, "expr"):
+            obj.expr = None
+
+        return obj
 
 
 __all__ = ("Field", "Item")

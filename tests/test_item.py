@@ -685,23 +685,28 @@ def json1():
     }
 
 
+@pytest.fixture(params=[True, False])
+def is_many(request):
+    return request.param
+
+
 @pytest.mark.usefixtures("json_extractor_backend")
-def test_item_extractor_is_none(json1):
+def test_item_extractor_is_none(json1, is_many):
     data = json1
 
     class User(Item):
         uid = Field(JSONExtractor("id"))
         username = Field(JSONExtractor("username"))
 
-    item = User()
-    assert item.extract(data) == {"uid": 1, "username": "Jack"}
-
-    item.is_many = True
-    assert item.extract([data]) == [{"uid": 1, "username": "Jack"}]
+    item = User(is_many=is_many)
+    if is_many:
+        assert item.extract([data]) == [{"uid": 1, "username": "Jack"}]
+    else:
+        assert item.extract(data) == {"uid": 1, "username": "Jack"}
 
 
 @pytest.mark.usefixtures("json_extractor_backend")
-def test_nested_item_extractor_is_none(json1):
+def test_nested_item_extractor_is_none(json1, is_many):
     data = json1
 
     class Count(Item):
@@ -714,21 +719,21 @@ def test_nested_item_extractor_is_none(json1):
         username = Field(JSONExtractor("username"))
         count = Count()
 
-    item = User()
-    assert item.extract(data) == {
-        "uid": 1,
-        "username": "Jack",
-        "count": {"follower": 100, "following": 1, "like": 1_000_000},
-    }
-
-    item.is_many = True
-    assert item.extract([data]) == [
-        {
+    item = User(is_many=is_many)
+    if is_many:
+        assert item.extract([data]) == [
+            {
+                "uid": 1,
+                "username": "Jack",
+                "count": {"follower": 100, "following": 1, "like": 1_000_000},
+            }
+        ]
+    else:
+        assert item.extract(data) == {
             "uid": 1,
             "username": "Jack",
             "count": {"follower": 100, "following": 1, "like": 1_000_000},
         }
-    ]
 
 
 @pytest.fixture(params=[True, False], ids=lambda x: f"before_simplify={x!r}")

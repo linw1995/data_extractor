@@ -38,19 +38,17 @@ class JSONExtractor(AbstractSimpleExtractor):
             )
 
         if json_extractor_backend in cls.__mro__:
-            # __new__ called by deep copy
-            return super(JSONExtractor, cls).__new__(cls)
-
-        if cls is JSONExtractor:
-            obj = super(JSONExtractor, cls).__new__(
-                type(
-                    "JSONExtractor", (json_extractor_backend,), {}
-                )  # rename into JSONExtractor
-            )
-        else:
             obj = super(JSONExtractor, cls).__new__(cls)
+        else:
+            if cls is JSONExtractor:
+                obj = super(JSONExtractor, cls).__new__(
+                    type(
+                        "JSONExtractor", (json_extractor_backend,), {}
+                    )  # rename into JSONExtractor
+                )
+            else:
+                obj = super(JSONExtractor, cls).__new__(cls)
 
-        obj.__init__(*args, **kwargs)
         return obj
 
     def extract(self, element: Any) -> Any:
@@ -83,7 +81,7 @@ class JSONPathRWExtractor(JSONExtractor):
     _jsonpath = Property["JSONPath"]()
 
     def __init__(self, expr: str) -> None:
-        super().__init__(expr)
+        super(JSONExtractor, self).__init__(expr)
         if _missing_jsonpath_rw:
             _missing_dependency("jsonpath-rw")
 
@@ -135,7 +133,7 @@ class JSONPathRWExtExtractor(JSONPathRWExtractor):
     _jsonpath = Property["JSONPathExt"]()
 
     def __init__(self, expr: str) -> None:
-        super(JSONPathRWExtractor, self).__init__(expr)
+        super(JSONExtractor, self).__init__(expr)
         if _missing_jsonpath_rw_ext:
             _missing_dependency("jsonpath-rw-ext")
 
@@ -176,7 +174,7 @@ class JSONPathExtractor(JSONExtractor):
     _jsonpath = Property["Expr"]()
 
     def __init__(self, expr: str) -> None:
-        super().__init__(expr)
+        super(JSONExtractor, self).__init__(expr)
 
         if _missing_jsonpath:
             _missing_dependency("jsonpath-extractor")
