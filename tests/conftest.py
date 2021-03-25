@@ -65,8 +65,3 @@ def stack_frame_support(request):
         with mock.patch("inspect.currentframe") as mocked:
             mocked.return_value = None
             yield False
-
-
-@pytest.fixture(params=[True, False], ids=lambda x: f"build_first={x!r}")
-def build_first(request):
-    return request.param

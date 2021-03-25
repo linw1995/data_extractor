@@ -8,9 +8,6 @@ from data_extractor.exceptions import ExtractError
 from data_extractor.item import Field, Item
 from data_extractor.json import JSONExtractor
 
-# Local Folder
-from .utils import is_built
-
 
 def test_no_needed_packages():
     data_extractor.json.json_extractor_backend = None
@@ -19,7 +16,7 @@ def test_no_needed_packages():
 
 
 @pytest.mark.usefixtures("json_extractor_backend")
-def test_exception_trace(json0, build_first):
+def test_exception_trace(json0):
     data = json0
 
     class User(Item):
@@ -34,18 +31,9 @@ def test_exception_trace(json0, build_first):
         data = User(JSONExtractor("users[*]"), is_many=True)
 
     extractor = UserResponse(JSONExtractor("data"))
-    assert not is_built(extractor)
-    assert not is_built(extractor.extractor)
-    if build_first:
-        extractor.build()
-        assert is_built(extractor)
-        assert is_built(extractor.extractor)
 
     with pytest.raises(ExtractError) as catch:
         extractor.extract(data)
-
-    assert is_built(extractor)
-    assert is_built(extractor.extractor)
 
     exc = catch.value
     assert len(exc.extractors) == 3

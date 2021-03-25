@@ -3,15 +3,16 @@
 ==========================================================
 """
 # Standard Library
-from typing import TYPE_CHECKING, List, Optional, Union
+from typing import List, Union
 
 # Local Folder
 from .core import AbstractSimpleExtractor
 from .exceptions import ExprError
-from .utils import BuildProperty, Property, _missing_dependency
+from .utils import Property, _missing_dependency
 
 try:
     # Third Party Library
+    from lxml.etree import XPath, XPathSyntaxError
     from lxml.etree import _Element as Element
 
     _missing_lxml = False
@@ -19,10 +20,6 @@ except ImportError:
     _missing_lxml = True
 
     Element = None  # TODO: Find a way to get rid of this. See PEP 562
-
-if TYPE_CHECKING:
-    # Third Party Library
-    from lxml.etree import XPath
 
 
 class XPathExtractor(AbstractSimpleExtractor):
@@ -36,7 +33,7 @@ class XPathExtractor(AbstractSimpleExtractor):
     :type exprt: str
     """
 
-    _find = Property[Optional["XPath"]]()
+    _find = Property["XPath"]()
 
     def __init__(self, expr: str):
         super().__init__(expr)
@@ -44,15 +41,8 @@ class XPathExtractor(AbstractSimpleExtractor):
         if _missing_lxml:
             _missing_dependency("lxml")
 
-        self._find = None
-
-    def build(self) -> None:
-        # Third Party Library
-        from lxml.etree import XPath, XPathSyntaxError
-
         try:
             self._find = XPath(self.expr)
-            self.built = True
         except XPathSyntaxError as exc:
             raise ExprError(extractor=self, exc=exc) from exc
 
@@ -72,11 +62,7 @@ class XPathExtractor(AbstractSimpleExtractor):
         # Third Party Library
         from lxml.etree import XPathEvalError
 
-        if not self.built:
-            self.build()
-
         try:
-            assert self._find is not None
             rv = self._find(element)
             if not isinstance(rv, list):
                 return [rv]
@@ -107,16 +93,14 @@ class CSSExtractor(AbstractSimpleExtractor):
     :type expr: str
     """
 
-    _extractor = Property[Optional[XPathExtractor]]()
+    _extractor = Property[XPathExtractor]()
 
     def __init__(self, expr: str):
         super().__init__(expr)
-        self._extractor = None
 
         if _missing_cssselect:
             _missing_dependency("cssselect")
 
-    def build(self) -> None:
         # Third Party Library
         from cssselect import GenericTranslator
         from cssselect.parser import SelectorError
@@ -127,8 +111,6 @@ class CSSExtractor(AbstractSimpleExtractor):
             raise ExprError(extractor=self, exc=exc) from exc
 
         self._extractor = XPathExtractor(xpath_expr)
-        self._extractor.build()
-        self.built = True
 
     def extract(self, element: Element) -> List[Element]:
         """
@@ -141,10 +123,6 @@ class CSSExtractor(AbstractSimpleExtractor):
             extracted result.
         :rtype: list
         """
-        if not self.built:
-            self.build()
-
-        assert self._extractor is not None
         return self._extractor.extract(element)
 
 
@@ -187,7 +165,7 @@ class AttrCSSExtractor(CSSExtractor):
     :type attr: str
     """
 
-    attr = BuildProperty[str]()
+    attr = Property[str]()
 
     def __init__(self, expr: str, attr: str):
         super().__init__(expr)

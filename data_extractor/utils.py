@@ -136,17 +136,6 @@ class Property(Generic[T]):
         return value
 
 
-class BuildProperty(Property[T]):
-    """
-    Extractor property is part of the function of extracting.
-    When it gets modified, it will unbuild its extractor.
-    """
-
-    def __set__(self, obj: "AbstractExtractors", value: T) -> T:
-        obj.built = False
-        return super().__set__(obj, value)
-
-
 def _missing_dependency(dependency: str) -> None:
     """
     Raise :class:RuntimeError for the extractor class that missing optional dependency.
@@ -156,7 +145,6 @@ def _missing_dependency(dependency: str) -> None:
 
 __all__ = (
     "LazyStr",
-    "BuildProperty",
     "Property",
     "getframe",
     "is_complex_extractor",

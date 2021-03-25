@@ -45,15 +45,9 @@ def element(text):
     ],
     ids=repr,
 )
-def test_extract(element, expr, expect, build_first):
+def test_extract(element, expr, expect):
     extractor = JSONExtractor(expr)
-    assert not extractor.built
-    if build_first:
-        extractor.build()
-        assert extractor.built
-
     assert expect == extractor.extract(element)
-    assert extractor.built
 
 
 @pytest.mark.usefixtures("json_extractor_backend")
@@ -68,20 +62,15 @@ def test_extract(element, expr, expect, build_first):
     ],
     ids=repr,
 )
-def test_extract_first(element, expr, expect, build_first):
+def test_extract_first(element, expr, expect):
     extractor = JSONExtractor(expr)
-    if build_first:
-        extractor.build()
-
     assert expect == extractor.extract_first(element, default="default")
 
 
 @pytest.mark.usefixtures("json_extractor_backend")
 @pytest.mark.parametrize("expr", ["foo.baz", "foo[2].baz"], ids=repr)
-def test_extract_first_without_default(element, expr, build_first):
+def test_extract_first_without_default(element, expr):
     extractor = JSONExtractor(expr)
-    if build_first:
-        extractor.build()
 
     with pytest.raises(ExtractError) as catch:
         extractor.extract_first(element)
@@ -93,25 +82,19 @@ def test_extract_first_without_default(element, expr, build_first):
 
 
 @pytest.mark.usefixtures("json_extractor_backend")
-@pytest.mark.parametrize("by", ["build", "extract"], ids=lambda x: f"by_{x}")
 @pytest.mark.parametrize("expr", ["foo..", "a[]", ""], ids=repr)
-def test_invalid_jsonpath_expr(element, expr, by):
-    extractor = JSONExtractor(expr)
+def test_invalid_jsonpath_expr(element, expr):
     with pytest.raises(ExprError) as catch:
-        if by == "build":
-            extractor.build()
-        elif by == "extract":
-            extractor.extract(element)
+        JSONExtractor(expr)
 
     exc = catch.value
-    assert exc.extractor is extractor
 
     if (
         data_extractor.json.json_extractor_backend
         is data_extractor.json.JSONPathExtractor
     ):
         # JSONExtractor implementated by 'jsonpath-extractor'
-        # only raise SyntaxError in build method
+        # only raise SyntaxError
         assert isinstance(exc.exc, SyntaxError)
     else:
         # Third Party Library

@@ -13,7 +13,7 @@ from types import FrameType, FunctionType, MethodType
 from typing import Any, Dict, Optional, Tuple, Union
 
 # Local Folder
-from .utils import BuildProperty, Property, getframe, sentinel
+from .utils import Property, getframe, sentinel
 
 _LineInfo = namedtuple("_LineInfo", ["file", "lineno", "offset", "line"])
 
@@ -228,23 +228,13 @@ class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
     :type expr: str
     """
 
-    expr = BuildProperty[str]()
+    expr = Property[str]()
 
     def __init__(self, expr: str):
         self.expr = expr
-        self.built = False
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.expr!r})"
-
-    @abstractmethod
-    def build(self) -> None:
-        """
-        Build the function of extracting explicitly.
-
-        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
-        """
-        raise NotImplementedError
 
     @abstractmethod
     def extract(self, element: Any) -> Any:
@@ -296,20 +286,6 @@ class AbstractComplexExtractor(metaclass=ComplexExtractorMeta):
 
     Its metaclass is :class:`data_extractor.core.ComplexExtractorMeta`
     """
-
-    built = Property[bool]()
-
-    def __init__(self) -> None:
-        self.built = False
-
-    @abstractmethod
-    def build(self) -> None:
-        """
-        Build the function of extracting explicitly.
-
-        :raises ~data_extractor.exceptions.ExprError: Extractor Expression Error.
-        """
-        raise NotImplementedError
 
     @abstractmethod
     def extract(self, element: Any) -> Any:

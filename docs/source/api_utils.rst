@@ -11,5 +11,3 @@
 .. autofunction:: data_extractor.utils.is_complex_extractor
 
 .. autoclass:: data_extractor.utils.Property
-
-.. autoclass:: data_extractor.utils.BuildProperty
