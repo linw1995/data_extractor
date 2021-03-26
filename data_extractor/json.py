@@ -37,17 +37,17 @@ class JSONExtractor(AbstractSimpleExtractor):
                 "package is needed, run pip to install it. "
             )
 
-        if json_extractor_backend in cls.__mro__:
-            obj = super(JSONExtractor, cls).__new__(cls)
+        if cls is JSONExtractor:
+            # invoke the json extractor backend for object creation
+            # TODO: cache renamed type
+            obj = super(AbstractSimpleExtractor, cls).__new__(
+                type(
+                    "JSONExtractor", (json_extractor_backend,), {}
+                )  # rename into JSONExtractor
+            )
         else:
-            if cls is JSONExtractor:
-                obj = super(JSONExtractor, cls).__new__(
-                    type(
-                        "JSONExtractor", (json_extractor_backend,), {}
-                    )  # rename into JSONExtractor
-                )
-            else:
-                obj = super(JSONExtractor, cls).__new__(cls)
+            # invoke subclasses directly
+            obj = super(AbstractSimpleExtractor, cls).__new__(cls)
 
         return obj
 
