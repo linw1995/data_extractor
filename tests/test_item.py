@@ -783,7 +783,7 @@ def test_simplified_item_extractor_is_none(json0, simplify_first):
     assert not isinstance(extractor, JSONExtractor)
     assert is_simple_extractor(extractor)
     assert not is_complex_extractor(extractor)
-    assert repr(extractor) == "UserSimplified(None)"
+    assert repr(extractor) == "UserSimplified('')"
     assert extractor.extract_first([data]) == {
         "uid": 0,
         "name": "Vang Stout",

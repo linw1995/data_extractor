@@ -228,9 +228,9 @@ class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
     :type expr: str
     """
 
-    expr = Property[Optional[str]]()
+    expr = Property[str]()
 
-    def __init__(self, expr: str = None):
+    def __init__(self, expr: str):
         self.expr = expr
 
     def __repr__(self) -> str:
