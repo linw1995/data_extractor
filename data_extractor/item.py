@@ -172,6 +172,7 @@ class Item(Field):
             classname,
             (base,),
             {
+                # wrapper class no needs for initialization
                 "__init__": lambda self: None,
                 "extract": extract,
                 "__getattribute__": getter,
