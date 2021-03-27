@@ -158,11 +158,6 @@ class Item(Field):
                 return getattr(duplicated.extractor, name)
             return super(type(self), self).__getattribute__(name)
 
-        def setter(self: AbstractSimpleExtractor, name: str, value: Any) -> Any:
-            if hasattr(duplicated.extractor, name):
-                return setattr(duplicated.extractor, name, value)
-            return super(type(self), self).__setattr__(name, value)
-
         classname = f"{type(duplicated).__name__}Simplified"
         base = AbstractSimpleExtractor
         if duplicated.extractor is not None:
@@ -176,7 +171,6 @@ class Item(Field):
                 "__init__": lambda self: None,
                 "extract": extract,
                 "__getattribute__": getter,
-                "__setattr__": setter,
             },
         )
         obj = base.__new__(new_cls)
