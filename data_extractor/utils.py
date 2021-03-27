@@ -132,8 +132,21 @@ class Property(Generic[T]):
             raise AttributeError(msg.replace(self.pravite_name, self.public_name))
 
     def __set__(self, obj: Any, value: T) -> T:
-        setattr(obj, self.pravite_name, value)
-        return value
+        if hasattr(obj, self.pravite_name):
+            raise AttributeError("can't set attribute")
+        else:
+            setattr(obj, self.pravite_name, value)
+            return value
+
+    @staticmethod
+    def change_internal_value(
+        obj: "AbstractExtractors", property_name: str, value: T
+    ) -> None:
+        attr = getattr(type(obj), property_name)
+        if not isinstance(attr, Property):
+            raise AttributeError(f"Type of attribute {property_name!r} is not Property")
+
+        setattr(obj, attr.pravite_name, value)
 
 
 def _missing_dependency(dependency: str) -> None:

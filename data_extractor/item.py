@@ -6,7 +6,7 @@
 # Standard Library
 import copy
 
-from typing import Any, Dict, Iterator, Optional
+from typing import Any, Dict, Iterator, List, Optional
 
 # Local Folder
 from .core import AbstractComplexExtractor, AbstractSimpleExtractor
@@ -101,7 +101,7 @@ class Field(AbstractComplexExtractor):
 
         # avoid duplicating the sentinel object.
         if self.default is sentinel:
-            cp.default = self.default
+            Property.change_internal_value(cp, "default", sentinel)
 
         return cp
 
@@ -140,10 +140,13 @@ class Item(Field):
         :returns: A simple extractor.
         :rtype: :class:`data_extractor.core.AbstractSimpleExtractor`
         """
+        # duplication seems to be useless due to the properties of Item is unchageable
+        # but it maybe need to change is_many property of Item.
         duplicated = copy.deepcopy(self)
+        # set for fixing in SimpeExtractor.extract method signature
+        Property.change_internal_value(duplicated, "is_many", True)
 
-        def extract(self: AbstractSimpleExtractor, element: Any) -> Any:
-            duplicated.is_many = True
+        def extract(self: AbstractSimpleExtractor, element: Any) -> List[Any]:
             return duplicated.extract(element)
 
         def getter(self: AbstractSimpleExtractor, name: str) -> Any:
@@ -155,25 +158,28 @@ class Item(Field):
                 return getattr(duplicated.extractor, name)
             return super(type(self), self).__getattribute__(name)
 
-        def setter(self: AbstractSimpleExtractor, name: str, value: Any) -> Any:
-            if hasattr(duplicated.extractor, name):
-                return setattr(duplicated.extractor, name, value)
-            return super(type(self), self).__setattr__(name, value)
-
         classname = f"{type(duplicated).__name__}Simplified"
         base = AbstractSimpleExtractor
         if duplicated.extractor is not None:
             base = type(duplicated.extractor)
 
-        return type(
+        new_cls = type(
             classname,
             (base,),
             {
                 "extract": extract,
                 "__getattribute__": getter,
-                "__setattr__": setter,
             },
-        )(expr=duplicated.extractor.expr if duplicated.extractor is not None else None)
+        )
+        # wrapper class no needs for initialization
+        obj = base.__new__(new_cls)
+        if not hasattr(obj, "expr"):
+            # handle case of Item with extractor=None.
+            # and its expr property will raise AttributeError,
+            # so hasattr return False
+            obj.expr = ""  # set to avoid class.__repr__ raising AttributeError
+
+        return obj
 
 
 __all__ = ("Field", "Item")

@@ -197,3 +197,44 @@ def test_property_accessing_error():
     with pytest.raises(AttributeError):
         bar = Bar("dummy expr")
         bar.unset_attribute
+
+
+def test_property_re_set_error():
+    class Bar(AbstractSimpleExtractor):
+        boo = Property[int]()
+
+        def extract(self, element):
+            return super().extract(element)
+
+    bar = Bar("dummy expr")
+    bar.boo = 0
+    assert bar.boo == 0
+    with pytest.raises(AttributeError):
+        bar.boo = 1
+    assert bar.boo == 0
+
+
+def test_property_change_internal_value_success():
+    class Bar(AbstractSimpleExtractor):
+        boo = Property[int]()
+
+        def extract(self, element):
+            return super().extract(element)
+
+    bar = Bar("dummy expr")
+    bar.boo = 0
+    assert bar.boo == 0
+    Property.change_internal_value(bar, "boo", 1)
+    assert bar.boo == 1
+
+
+def test_property_change_internal_value_failure():
+    class Bar(AbstractSimpleExtractor):
+        boo = 1
+
+        def extract(self, element):
+            return super().extract(element)
+
+    bar = Bar("dummy expr")
+    with pytest.raises(AttributeError):
+        Property.change_internal_value(bar, "boo", 1)

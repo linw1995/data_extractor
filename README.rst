@@ -119,6 +119,7 @@ Unreleased
 - remove duplciated module "data_extractor.abc"
 - remove the lazy build mechanism of extractors
 - JSON backend invoking mechanism
+- make all properties of extractors immutable
 
 **Document**
 
