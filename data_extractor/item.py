@@ -167,12 +167,11 @@ class Item(Field):
             classname,
             (base,),
             {
-                # wrapper class no needs for initialization
-                "__init__": lambda self: None,  # pragma: no cover
                 "extract": extract,
                 "__getattribute__": getter,
             },
         )
+        # wrapper class no needs for initialization
         obj = base.__new__(new_cls)
         if not hasattr(obj, "expr"):
             # handle case of Item with extractor=None.
