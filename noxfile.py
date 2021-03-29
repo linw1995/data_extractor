@@ -1,5 +1,8 @@
 # Standard Library
+import os
 import platform
+
+from pathlib import Path
 
 # Third Party Library
 import nox
@@ -12,6 +15,9 @@ current_python_version = "%s.%s" % platform.python_version_tuple()[:2]
 pythons = ["3.7", "3.8", "3.9"]
 assert current_python_version in pythons
 pythons = [current_python_version]
+
+os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
+os.environ.pop("PYTHONPATH", None)
 
 
 @nox.session(python=pythons, reuse_venv=True)
@@ -26,22 +32,33 @@ pythons = [current_python_version]
         "cssselect",
     ],
 )
-def test(session, extractor_backend):
+def coverage_test(session, extractor_backend):
     session.run(
-        "poetry",
-        "install",
+        "pdm",
+        "sync",
         "-v",
-        "-E",
+        "-s",
         "test",
-        *(("-E", extractor_backend) if extractor_backend else tuple()),
-        "--no-dev",
+        *(("-s", extractor_backend) if extractor_backend else tuple()),
         external=True,
     )
     session.run("pytest", "-vv", "--cov=data_extractor", "--cov-append")
 
 
-@nox.session(python="3.7", reuse_venv=True)
-def export_requirements_txt(session):
-    session.install("poetry==1.0")
-    session.install("poetry")
-    session.run("python", "scripts/export_requirements_txt.py")
+@nox.session(python=pythons, reuse_venv=True)
+def coverage_report(session):
+    session.run("pdm", "sync", "-v", "-s", "test", external=True)
+    session.run("coverage", "report")
+    session.run("coverage", "xml")
+    session.run("coverage", "html")
+    session.log(
+        f">> open file:/{(Path() / 'htmlcov/index.html').absolute()} to see coverage"
+    )
+
+
+@nox.session(python=pythons, reuse_venv=True)
+def build_readme(session):
+    session.run("pdm", "sync", "-v", "-s", "build_readme", external=True)
+    session.run(
+        "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
+    )
