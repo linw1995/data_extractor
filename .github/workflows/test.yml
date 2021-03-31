@@ -23,6 +23,9 @@ jobs:
         path: .nox
         key: ${{ runner.os }}-nox-${{ hashFiles('**/pdm.lock') }}
         restore-keys: ${{ runner.os }}-nox
+    - name: Install dependencies
+      run: |
+        make EXTRAS= init
     - uses: pre-commit/action@v2.0.0
   test:
     needs: lint
