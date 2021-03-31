@@ -3,7 +3,7 @@ all: test
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-PYTHON =
+PYTHON = 3.9
 EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext test docs
 EXTRAS_ARGS = $(if $(EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(EXTRAS))
 
@@ -42,4 +42,4 @@ check-all:
 
 cov:
 	rm -rf .coverage
-	pdm run nox -s coverage_test coverage_report
+	nox -p $(PYTHON) -s coverage_test coverage_report
