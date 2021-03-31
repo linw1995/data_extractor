@@ -113,14 +113,12 @@ Clone the source codes from Github.
     cd data_extractor
 
 Setup the development environment.
-Please make sure you install the pdm_ CLI in your environment.
+Please make sure you install the pdm_, pre-commit_ and nox_ CLIs in your environment.
 
 .. code-block:: shell
 
     make init
     make PYTHON=3.7 init  # for specific python version
-
-.. _pdm: https://github.com/pdm-project/pdm
 
 Linting
 ~~~~~~~
@@ -131,13 +129,11 @@ Use pre-commit_ for installing linters to ensure a good code style.
 
     make pre-commit
 
-Run linters.
+Run linters. Some linters run via CLI nox_, so make sure you install it.
 
 .. code-block:: shell
 
     make check-all
-
-.. _pre-commit: https://pre-commit.com/
 
 Testing
 ~~~~~~~
@@ -154,11 +150,15 @@ Run quick tests with verbose.
 
     make vtest
 
-Run tests with coverage.
+Run tests with coverage. Testing in multiple Python environments is powered by CLI nox_.
 
 .. code-block:: shell
 
     make cov
+
+.. _pdm: https://github.com/pdm-project/pdm
+.. _pre-commit: https://pre-commit.com/
+.. _nox: https://nox.thea.codes/en/stable/
 
 Changelog
 <<<<<<<<<
