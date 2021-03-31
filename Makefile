@@ -29,7 +29,7 @@ lock-deps:
 # Environment setup end
 
 pre-commit:
-	pre-commit install --hook-type commit-msg  --overwrite
+	pre-commit install --hook-type commit-msg --hook-type pre-commit --overwrite
 
 test:
 	pdm run pytest -q -x --ff --nf
