@@ -113,7 +113,8 @@ Clone the source codes from Github.
     cd data_extractor
 
 Setup the development environment.
-Please make sure you install the pdm_, pre-commit_ and nox_ CLIs in your environment.
+Please make sure you install the pdm_,
+pre-commit_ and nox_ CLIs in your environment.
 
 .. code-block:: shell
 
@@ -150,7 +151,8 @@ Run quick tests with verbose.
 
     make vtest
 
-Run tests with coverage. Testing in multiple Python environments is powered by CLI nox_.
+Run tests with coverage.
+Testing in multiple Python environments is powered by CLI nox_.
 
 .. code-block:: shell
 
