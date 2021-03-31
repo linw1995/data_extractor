@@ -23,9 +23,9 @@ jobs:
         path: .nox
         key: ${{ runner.os }}-nox-${{ hashFiles('**/pdm.lock') }}
         restore-keys: ${{ runner.os }}-nox
-    - name: Install dependencies
+    - name: Install nox
       run: |
-        make EXTRAS= init
+        pip install nox
     - uses: pre-commit/action@v2.0.0
   test:
     needs: lint
@@ -39,15 +39,15 @@ jobs:
       uses: pdm-project/setup-pdm@v1.1
       with:
         python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        make EXTRAS=test init
     - name: Cache Nox Virtualenvs
       uses: actions/cache@v1
       with:
         path: .nox
         key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('**/pdm.lock') }}
         restore-keys: ${{ runner.os }}-${{ matrix.python-version }}-nox
+    - name: Install nox
+      run: |
+        pip install nox
     - name: Test with coverage
       run: |
         make cov

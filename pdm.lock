@@ -5,21 +5,6 @@ version = "0.7.12"
 summary = "A configurable sidebar-enabled Sphinx theme"
 
 [[package]]
-name = "appdirs"
-sections = ["dev"]
-version = "1.4.4"
-summary = "A small Python module for determining appropriate platform-specific dirs, e.g. a \"user data dir\"."
-
-[[package]]
-name = "argcomplete"
-sections = ["dev"]
-version = "1.12.2"
-summary = "Bash tab completion for argparse"
-dependencies = [
-    "importlib-metadata<4,>=0.23; python_version == \"3.7\"",
-]
-
-[[package]]
 name = "atomicwrites"
 sections = ["test"]
 version = "1.4.0"
@@ -61,19 +46,10 @@ summary = "Composable command line interface toolkit"
 
 [[package]]
 name = "colorama"
-sections = ["dev", "docs", "test"]
+sections = ["docs", "test"]
 version = "0.4.4"
 marker = "sys_platform == 'win32'"
 summary = "Cross-platform colored terminal text."
-
-[[package]]
-name = "colorlog"
-sections = ["dev"]
-version = "4.8.0"
-summary = "Log formatting with colors!"
-dependencies = [
-    "colorama; sys_platform == \"win32\"",
-]
 
 [[package]]
 name = "coverage"
@@ -94,22 +70,10 @@ version = "4.4.2"
 summary = "Decorators for Humans"
 
 [[package]]
-name = "distlib"
-sections = ["dev"]
-version = "0.3.1"
-summary = "Distribution utilities"
-
-[[package]]
 name = "docutils"
 sections = ["build_readme", "docs"]
 version = "0.16"
 summary = "Docutils -- Python Documentation Utilities"
-
-[[package]]
-name = "filelock"
-sections = ["dev"]
-version = "3.0.12"
-summary = "A platform independent file lock."
 
 [[package]]
 name = "idna"
@@ -125,7 +89,7 @@ summary = "Getting image size from png/jpeg/jpeg2000/gif file"
 
 [[package]]
 name = "importlib-metadata"
-sections = ["dev", "test"]
+sections = ["test"]
 version = "3.10.0"
 marker = "python_version < '3.8'"
 summary = "Read metadata from Python packages"
@@ -192,19 +156,6 @@ version = "8.7.0"
 summary = "More routines for operating on iterables, beyond itertools"
 
 [[package]]
-name = "nox"
-sections = ["dev"]
-version = "2020.12.31"
-summary = "Flexible test automation."
-dependencies = [
-    "argcomplete<2.0,>=1.9.4",
-    "colorlog<5.0.0,>=2.6.1",
-    "py<2.0.0,>=1.4.0",
-    "virtualenv>=14.0.0",
-    "importlib-metadata; python_version < \"3.8\"",
-]
-
-[[package]]
 name = "packaging"
 sections = ["docs", "test"]
 version = "20.9"
@@ -236,7 +187,7 @@ summary = "Python Lex & Yacc"
 
 [[package]]
 name = "py"
-sections = ["dev", "test"]
+sections = ["test"]
 version = "1.10.0"
 summary = "library with cross-python path, ini-parsing, io, code, log facilities"
 
@@ -305,7 +256,7 @@ summary = "Easily download, build, install, upgrade, and uninstall Python packag
 
 [[package]]
 name = "six"
-sections = ["dev", "docs", "jsonpath-rw", "jsonpath-rw-ext"]
+sections = ["docs", "jsonpath-rw", "jsonpath-rw-ext"]
 version = "1.15.0"
 summary = "Python 2 and 3 compatibility utilities"
 
@@ -378,7 +329,7 @@ summary = "sphinxcontrib-serializinghtml is a sphinx extension which outputs \"s
 
 [[package]]
 name = "typing-extensions"
-sections = ["default", "dev", "docs", "jsonpath-extractor", "test"]
+sections = ["default", "docs", "jsonpath-extractor", "test"]
 version = "3.7.4.3"
 summary = "Backported and Experimental Type Hints for Python 3.5+"
 
@@ -389,19 +340,6 @@ version = "1.26.4"
 summary = "HTTP library with thread-safe connection pooling, file post, and more."
 
 [[package]]
-name = "virtualenv"
-sections = ["dev"]
-version = "20.4.3"
-summary = "Virtual Python Environment builder"
-dependencies = [
-    "appdirs<2,>=1.4.3",
-    "distlib<1,>=0.3.1",
-    "filelock<4,>=3.0.0",
-    "six<2,>=1.9.0",
-    "importlib-metadata>=0.12; python_version < \"3.8\"",
-]
-
-[[package]]
 name = "wcwidth"
 sections = ["test"]
 version = "0.2.5"
@@ -409,27 +347,19 @@ summary = "Measures the displayed width of unicode strings in a terminal"
 
 [[package]]
 name = "zipp"
-sections = ["dev", "test"]
+sections = ["test"]
 version = "3.4.1"
 marker = "python_version < '3.8'"
 summary = "Backport of pathlib-compatible object wrapper for zip files"
 
 [metadata]
 lock_version = "2"
-content_hash = "sha256:c2f77ca8d5480143d832b6efb4becbfc37d5283e159b4bbadc91bc995d7e80f8"
+content_hash = "sha256:84a69dd14e122cca2e0115d99379c3d82f8fe37ce4da64af7f4e87790d912520"
 
 [metadata.files]
 "alabaster 0.7.12" = [
     {file = "alabaster-0.7.12-py2.py3-none-any.whl", hash = "sha256:446438bdcca0e05bd45ea2de1668c1d9b032e1a9154c2c259092d77031ddd359"},
     {file = "alabaster-0.7.12.tar.gz", hash = "sha256:a661d72d58e6ea8a57f7a86e37d86716863ee5e92788398526d58b26a4e4dc02"},
-]
-"appdirs 1.4.4" = [
-    {file = "appdirs-1.4.4-py2.py3-none-any.whl", hash = "sha256:a841dacd6b99318a741b166adb07e19ee71a274450e68237b4650ca1055ab128"},
-    {file = "appdirs-1.4.4.tar.gz", hash = "sha256:7d5d0167b2b1ba821647616af46a749d1c653740dd0d2415100fe26e27afdf41"},
-]
-"argcomplete 1.12.2" = [
-    {file = "argcomplete-1.12.2-py2.py3-none-any.whl", hash = "sha256:17f01a9b9b9ece3e6b07058eae737ad6e10de8b4e149105f84614783913aba71"},
-    {file = "argcomplete-1.12.2.tar.gz", hash = "sha256:de0e1282330940d52ea92a80fea2e4b9e0da1932aaa570f84d268939d1897b04"},
 ]
 "atomicwrites 1.4.0" = [
     {file = "atomicwrites-1.4.0-py2.py3-none-any.whl", hash = "sha256:6d1784dea7c0c8d4a5172b6c620f40b6e4cbfdf96d783691f2e1302a7b88e197"},
@@ -458,10 +388,6 @@ content_hash = "sha256:c2f77ca8d5480143d832b6efb4becbfc37d5283e159b4bbadc91bc995
 "colorama 0.4.4" = [
     {file = "colorama-0.4.4-py2.py3-none-any.whl", hash = "sha256:9f47eda37229f68eee03b24b9748937c7dc3868f906e8ba69fbcbdd3bc5dc3e2"},
     {file = "colorama-0.4.4.tar.gz", hash = "sha256:5941b2b48a20143d2267e95b1c2a7603ce057ee39fd88e7329b0c292aa16869b"},
-]
-"colorlog 4.8.0" = [
-    {file = "colorlog-4.8.0-py2.py3-none-any.whl", hash = "sha256:3dd15cb27e8119a24c1a7b5c93f9f3b455855e0f73993b1c25921b2f646f1dcd"},
-    {file = "colorlog-4.8.0.tar.gz", hash = "sha256:59b53160c60902c405cdec28d38356e09d40686659048893e026ecbd589516b1"},
 ]
 "coverage 5.5" = [
     {file = "coverage-5.5-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:b6d534e4b2ab35c9f93f46229363e17f63c53ad01330df9f2d6bd1187e5eaacf"},
@@ -525,17 +451,9 @@ content_hash = "sha256:c2f77ca8d5480143d832b6efb4becbfc37d5283e159b4bbadc91bc995
     {file = "decorator-4.4.2-py2.py3-none-any.whl", hash = "sha256:41fa54c2a0cc4ba648be4fd43cff00aedf5b9465c9bf18d64325bc225f08f760"},
     {file = "decorator-4.4.2.tar.gz", hash = "sha256:e3a62f0520172440ca0dcc823749319382e377f37f140a0b99ef45fecb84bfe7"},
 ]
-"distlib 0.3.1" = [
-    {file = "distlib-0.3.1-py2.py3-none-any.whl", hash = "sha256:8c09de2c67b3e7deef7184574fc060ab8a793e7adbb183d942c389c8b13c52fb"},
-    {file = "distlib-0.3.1.zip", hash = "sha256:edf6116872c863e1aa9d5bb7cb5e05a022c519a4594dc703843343a9ddd9bff1"},
-]
 "docutils 0.16" = [
     {file = "docutils-0.16-py2.py3-none-any.whl", hash = "sha256:0c5b78adfbf7762415433f5515cd5c9e762339e23369dbe8000d84a4bf4ab3af"},
     {file = "docutils-0.16.tar.gz", hash = "sha256:c2de3a60e9e7d07be26b7f2b00ca0309c207e06c100f9cc2a94931fc75a478fc"},
-]
-"filelock 3.0.12" = [
-    {file = "filelock-3.0.12-py3-none-any.whl", hash = "sha256:929b7d63ec5b7d6b71b0fa5ac14e030b3f70b75747cef1b10da9b879fef15836"},
-    {file = "filelock-3.0.12.tar.gz", hash = "sha256:18d82244ee114f543149c66a6e0c14e9c4f8a1044b5cdaadd0f82159d6a6ff59"},
 ]
 "idna 2.10" = [
     {file = "idna-2.10-py2.py3-none-any.whl", hash = "sha256:b97d804b1e9b523befed77c48dacec60e6dcb0b5391d57af6a65a312a90648c0"},
@@ -660,10 +578,6 @@ content_hash = "sha256:c2f77ca8d5480143d832b6efb4becbfc37d5283e159b4bbadc91bc995
     {file = "more_itertools-8.7.0-py3-none-any.whl", hash = "sha256:5652a9ac72209ed7df8d9c15daf4e1aa0e3d2ccd3c87f8265a0673cd9cbc9ced"},
     {file = "more-itertools-8.7.0.tar.gz", hash = "sha256:c5d6da9ca3ff65220c3bfd2a8db06d698f05d4d2b9be57e1deb2be5a45019713"},
 ]
-"nox 2020.12.31" = [
-    {file = "nox-2020.12.31-py3-none-any.whl", hash = "sha256:f179d6990f7a0a9cebad01b9ecea34556518b8d3340dfcafdc1d85f2c1a37ea0"},
-    {file = "nox-2020.12.31.tar.gz", hash = "sha256:58a662070767ed4786beb46ce3a789fca6f1e689ed3ac15c73c4d0094e4f9dc4"},
-]
 "packaging 20.9" = [
     {file = "packaging-20.9-py2.py3-none-any.whl", hash = "sha256:67714da7f7bc052e064859c05c595155bd1ee9f69f76557e21f051443c20947a"},
     {file = "packaging-20.9.tar.gz", hash = "sha256:5b327ac1320dc863dca72f4514ecc086f31186744b84a230374cc1fd776feae5"},
@@ -756,10 +670,6 @@ content_hash = "sha256:c2f77ca8d5480143d832b6efb4becbfc37d5283e159b4bbadc91bc995
 "urllib3 1.26.4" = [
     {file = "urllib3-1.26.4-py2.py3-none-any.whl", hash = "sha256:2f4da4594db7e1e110a944bb1b551fdf4e6c136ad42e4234131391e21eb5b0df"},
     {file = "urllib3-1.26.4.tar.gz", hash = "sha256:e7b021f7241115872f92f43c6508082facffbd1c048e3c6e2bb9c2a157e28937"},
-]
-"virtualenv 20.4.3" = [
-    {file = "virtualenv-20.4.3-py2.py3-none-any.whl", hash = "sha256:83f95875d382c7abafe06bd2a4cdd1b363e1bb77e02f155ebe8ac082a916b37c"},
-    {file = "virtualenv-20.4.3.tar.gz", hash = "sha256:49ec4eb4c224c6f7dd81bb6d0a28a09ecae5894f4e593c89b0db0885f565a107"},
 ]
 "wcwidth 0.2.5" = [
     {file = "wcwidth-0.2.5-py2.py3-none-any.whl", hash = "sha256:beb4802a9cebb9144e99086eff703a642a13d6a0052920003a230f3294bbe784"},

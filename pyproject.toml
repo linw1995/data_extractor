@@ -18,14 +18,9 @@ classifiers = [
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
 ]
-# pdm can not exclude files from .gitignore automatically
-includes = ["data_extractor/*.py", "data_extractor/py.typed"]
 keywords = ["data-extractor", "data-extraction", "xpath", "css-selectors", "jsonpath"]
 dependencies = [
     "typing-extensions==3.7.4.3",
-]
-dev-dependencies = [
-    "nox",
 ]
 requires-python = ">=3.7"
 license = {text = "MIT"}
@@ -74,6 +69,8 @@ test = [
 ]
 
 [tool.pdm]
+# pdm can not exclude files from .gitignore automatically
+includes = ["data_extractor/*.py", "data_extractor/py.typed"]
 
 [[tool.pdm.source]]
 name = "pypi"
