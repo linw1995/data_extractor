@@ -26,6 +26,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
+        pdm config use_venv true
     - uses: pre-commit/action@v2.0.0
   test:
     needs: lint
@@ -48,6 +49,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
+        pdm config use_venv true
     - name: Test with coverage
       run: |
         make cov
