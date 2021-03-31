@@ -17,24 +17,13 @@ jobs:
       uses: pdm-project/setup-pdm@v1.1
       with:
         python-version: 3.7
-    - name: Cache pre-commit
-      uses: actions/cache@v1
-      with:
-        path: ~/.cache/pre-commit
-        key: ${{ runner.os }}-pre-commit-${{ hashFiles('.pre-commit-config.yaml') }}
-        restore-keys: ${{ runner.os }}-pre-commit
     - name: Cache Nox Virtualenvs
       uses: actions/cache@v1
       with:
         path: .nox
         key: ${{ runner.os }}-nox-${{ hashFiles('**/pdm.lock') }}
         restore-keys: ${{ runner.os }}-nox
-    - name: Install dependencies
-      run: |
-        make EXTRAS= init
-    - name: Lint
-      run: |
-        make check-all
+    - uses: pre-commit/action@v2.0.0
   test:
     needs: lint
     runs-on: ubuntu-latest

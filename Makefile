@@ -29,8 +29,7 @@ lock-deps:
 # Environment setup end
 
 pre-commit:
-	pdm run pre-commit install --install-hooks
-	pdm run pre-commit install --hook-type commit-msg
+	pre-commit install --hook-type commit-msg  --overwrite
 
 test:
 	pdm run pytest -q -x --ff --nf
@@ -39,7 +38,7 @@ vtest:
 	pdm run pytest -vv -x --ff --nf
 
 check-all:
-	pdm run pre-commit run --all-files
+	pre-commit run --all-files
 
 cov:
 	rm -rf .coverage
