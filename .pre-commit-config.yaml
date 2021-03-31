@@ -66,6 +66,7 @@ repos:
     entry: nox -s build_readme
     language: system
     pass_filenames: false
+    types: [rst]
   - id: requirement
     name: requirement
     description: create requirement file for python
