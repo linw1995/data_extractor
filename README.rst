@@ -135,7 +135,7 @@ Run linters.
 
 .. code-block:: shell
 
-    make check-alll
+    make check-all
 
 .. _pre-commit: https://pre-commit.com/
 
