@@ -4,15 +4,17 @@ EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
 PYTHON = 3.9
-EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext test docs
+EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext
+DEV_EXTRAS = test docs
 EXTRAS_ARGS = $(if $(EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(EXTRAS))
+DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-ds,) $(subst $(SPACE),$(SPACE)-ds$(SPACE),$(DEV_EXTRAS))
 
 # Environment setup
 init:
 	@echo ">> installing $(if $(EXTRAS),\"$(EXTRAS)\" ,)dependencies by pdm"
 	$(if $(PYTHON),pdm use -f $(PYTHON),)
 	pdm info && pdm info --env
-	pdm sync -v -d $(EXTRAS_ARGS)
+	pdm sync -v -d $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
 	pdm config -l use_venv true
 
 deinit:

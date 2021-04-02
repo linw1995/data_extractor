@@ -49,7 +49,11 @@ jsonpath-rw-ext = [
      "jsonpath-rw >= 1.4, < 2",
      "jsonpath-rw-ext >= 1.2, < 2",
 ]
-# for development
+
+[tool.pdm]
+includes = ["data_extractor/*.py", "data_extractor/py.typed"]
+
+[tool.pdm.dev-dependencies]
 docs = [
      "lxml >= 4.3, < 5",
      "cssselect >= 1.0.3, < 2",
@@ -67,10 +71,6 @@ test = [
      "pytest >= 5.2, < 6",
      "pytest-cov >= 2.7.1, < 3",
 ]
-
-[tool.pdm]
-# pdm can not exclude files from .gitignore automatically
-includes = ["data_extractor/*.py", "data_extractor/py.typed"]
 
 [[tool.pdm.source]]
 name = "pypi"
