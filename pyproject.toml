@@ -20,7 +20,7 @@ classifiers = [
 ]
 keywords = ["data-extractor", "data-extraction", "xpath", "css-selectors", "jsonpath"]
 dependencies = [
-    "typing-extensions==3.7.4.3",
+    "typing-extensions ~= 3.7",
 ]
 requires-python = ">=3.7"
 license = {text = "MIT"}
@@ -68,7 +68,7 @@ build_readme = [
     "pygments ~= 2.8",
 ]
 test = [
-     "pytest >= 5.2, < 6",
+     "pytest >= 6, < 7",
      "pytest-cov >= 2.7.1, < 3",
 ]
 
