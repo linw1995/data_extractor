@@ -32,7 +32,7 @@ def coverage_test(session, extractor_backend):
         "pdm",
         "sync",
         "-v",
-        "-s",
+        "-ds",
         "test",
         *(("-s", extractor_backend) if extractor_backend else tuple()),
         external=True,
