@@ -4,7 +4,7 @@ Data Extractor
 
 |license| |Pypi Status| |Python version| |Package version| |PyPI - Downloads|
 |GitHub last commit| |Code style: black| |Build Status| |codecov|
-|Documentation Status|
+|Documentation Status| |PDM managed|
 
 Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 
@@ -56,3 +56,6 @@ Changelog
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/data-extractor/badge/?version=latest
     :target: https://data-extractor.readthedocs.io/en/latest/?badge=latest
+
+.. |PDM managed| image:: https://img.shields.io/badge/pdm-managed-blueviolet
+    :target: https://pdm.fming.dev
