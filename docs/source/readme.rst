@@ -14,18 +14,18 @@ Quickstarts
 .. include:: quickstarts.rst
     :start-line: 4
 
-Contributing
-<<<<<<<<<<<<
-
-.. include:: contributing.rst
-    :start-line: 4
-
 Changelog
 <<<<<<<<<
 
 .. include:: changelog.rst
     :start-line: 4
     :end-before: .. include:: history.rst
+
+Contributing
+<<<<<<<<<<<<
+
+.. include:: contributing.rst
+    :start-line: 4
 
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
     :target: https://github.com/linw1995/data_extractor/blob/master/LICENSE
