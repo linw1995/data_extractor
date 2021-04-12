@@ -201,11 +201,7 @@ dmypy.json
 ## Emacs
 .persp-confs
 ## Makefile
-.black
-.check_black
-.check_isort
-.develop
-.flake
-.isort
-.mypy
-.doc8
+## pdm
+.pdm.toml
+## MacOS
+.DS_Store

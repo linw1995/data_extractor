@@ -4,7 +4,7 @@ Data Extractor
 
 |license| |Pypi Status| |Python version| |Package version| |PyPI - Downloads|
 |GitHub last commit| |Code style: black| |Build Status| |codecov|
-|Documentation Status|
+|Documentation Status| |PDM managed|
 
 Combine **XPath**, **CSS Selectors** and **JSONPath** for Web data extracting.
 
@@ -138,6 +138,70 @@ v0.9.0
 - rename .abc to .core and mark elder duplciated #65
 
 
+Contributing
+<<<<<<<<<<<<
+
+
+Environment Setup
+~~~~~~~~~~~~~~~~~
+
+Clone the source codes from Github.
+
+.. code-block:: shell
+
+    git clone https://github.com/linw1995/data_extractor.git
+    cd data_extractor
+
+Setup the development environment.
+Please make sure you install the pdm_,
+pre-commit_ and nox_ CLIs in your environment.
+
+.. code-block:: shell
+
+    make init
+    make PYTHON=3.7 init  # for specific python version
+
+Linting
+~~~~~~~
+
+Use pre-commit_ for installing linters to ensure a good code style.
+
+.. code-block:: shell
+
+    make pre-commit
+
+Run linters. Some linters run via CLI nox_, so make sure you install it.
+
+.. code-block:: shell
+
+    make check-all
+
+Testing
+~~~~~~~
+
+Run quick tests.
+
+.. code-block:: shell
+
+    make
+
+Run quick tests with verbose.
+
+.. code-block:: shell
+
+    make vtest
+
+Run tests with coverage.
+Testing in multiple Python environments is powered by CLI nox_.
+
+.. code-block:: shell
+
+    make cov
+
+.. _pdm: https://github.com/pdm-project/pdm
+.. _pre-commit: https://pre-commit.com/
+.. _nox: https://nox.thea.codes/en/stable/
+
 .. |license| image:: https://img.shields.io/github/license/linw1995/data_extractor.svg
     :target: https://github.com/linw1995/data_extractor/blob/master/LICENSE
 
@@ -167,3 +231,6 @@ v0.9.0
 
 .. |Documentation Status| image:: https://readthedocs.org/projects/data-extractor/badge/?version=latest
     :target: https://data-extractor.readthedocs.io/en/latest/?badge=latest
+
+.. |PDM managed| image:: https://img.shields.io/badge/pdm-managed-blueviolet
+    :target: https://pdm.fming.dev

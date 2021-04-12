@@ -13,6 +13,7 @@ Contents
 
     quickstarts
     howto/index
+    contributing
     api_reference
     changelog
 
