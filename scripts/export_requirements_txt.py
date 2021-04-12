@@ -17,8 +17,12 @@ def pdm_export(args, filename):
     output = fix_end_of_file(output)
 
     p = Path(filename)
-    if p.read_text() != output:
+    is_new = not p.exists()
+    if is_new or p.read_text() != output:
         p.write_text(output)
+
+    if is_new:
+        raise RuntimeError("Create a new file")
 
 
 pdm_export(args=[], filename="requirements-mini.txt")
@@ -29,3 +33,4 @@ pdm_export(
     filename="requirements.txt",
 )
 pdm_export(args=["-d", "-ds:all"], filename="requirements-dev.txt")
+pdm_export(args=["-ds", "docs"], filename="requirements-docs.txt")

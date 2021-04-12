@@ -65,7 +65,7 @@ docs = [
 build_readme = [
     "click >= 7.1.2, < 8",
     "docutils >= 0.16",
-    "pygments~=2.8",
+    "pygments ~= 2.8",
 ]
 test = [
      "pytest >= 5.2, < 6",
