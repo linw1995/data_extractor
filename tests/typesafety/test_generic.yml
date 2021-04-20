@@ -1,0 +1,117 @@
+- case: field_extract_without_typing
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field(D())
+    rv = f.extract(1)
+    reveal_type(rv)
+  out: |
+    main:6: note: Revealed type is "Any"
+- case: field_extract_with_typing
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f_str = Field[str](D())
+    rv_str = f_str.extract(1)
+    reveal_type(rv_str)
+
+    f_int = Field(D(), type=int)
+    rv_int = f_int.extract("1")
+    reveal_type(rv_int)
+
+    f_str_2: Field[str] = Field(D())
+    rv_str_2 = f_str_2.extract("1")
+    reveal_type(rv_str_2)
+
+    reveal_type(Field[str](D()).extract(1))
+  out: |
+    main:6: note: Revealed type is "builtins.str*"
+    main:10: note: Revealed type is "builtins.int*"
+    main:14: note: Revealed type is "builtins.str*"
+    main:16: note: Revealed type is "builtins.str*"
+- case: field_extract_with_typing_alias
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    StrField = Field[str]
+    f = StrField(D())
+    rv = f.extract(1)
+    reveal_type(rv)
+  out: |
+    main:7: note: Revealed type is "builtins.str*"
+- case: field_type_hinting_conflict_with_type_param
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f_1 = Field[str](D(), type=int)
+    reveal_type(f_1)
+
+    f_2: Field[str] = Field(D(), type=int)
+    reveal_type(f_2)
+  out: |
+    main:4: error: Argument "type" to "Field" has incompatible type "Type[int]"; expected "Optional[Type[str]]"
+    main:5: note: Revealed type is "data_extractor.item.Field[builtins.str*]"
+    main:7: error: Argument "type" to "Field" has incompatible type "Type[int]"; expected "Optional[Type[str]]"
+    main:8: note: Revealed type is "data_extractor.item.Field[builtins.str]"
+- case: field_type_hinting_conflict_with_convertor_param
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f_1 = Field[str](D(), convertor=int)
+    reveal_type(f_1)
+
+    f_2: Field[str] = Field(D(), convertor=int)
+    reveal_type(f_2)
+  out: |
+    main:4: error: Argument "convertor" to "Field" has incompatible type "Type[int]"; expected "Optional[Callable[[Any], str]]"
+    main:5: note: Revealed type is "data_extractor.item.Field[builtins.str*]"
+    main:7: error: Argument "convertor" to "Field" has incompatible type "Type[int]"; expected "Optional[Callable[[Any], str]]"
+    main:8: note: Revealed type is "data_extractor.item.Field[builtins.str]"
+- case: field_extract_with_typing_while_trying_to_change_type
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field[str](D())
+    rv = f.extract(1)
+    reveal_type(rv)
+    f.type = int  # unable to change
+    rv = f.extract("1")
+    reveal_type(rv)
+  out: |
+    main:6: note: Revealed type is "builtins.str*"
+    main:7: error: Incompatible types in assignment (expression has type "Type[int]", variable has type "Optional[Type[str]]")
+    main:9: note: Revealed type is "builtins.str*"
+- case: field_extract_with_flag_is_many
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field[str](D(), is_many=True)
+    rvs = f.extract([1])
+    reveal_type(rvs)
+
+    reveal_type(Field[str](D(), is_many=True).extract([1]))
+  out: |
+    main:6: note: Revealed type is "builtins.list[builtins.str*]"
+    main:8: note: Revealed type is "builtins.list[builtins.str*]"
+- case: field_extract_while_trying_to_change_the_flag_of_is_many
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Field
+
+    f = Field[str](D(), is_many=True)
+    rvs = f.extract([1])
+    reveal_type(rvs)
+
+    f.is_many = False  # unable to change
+    rv = f.extract(1)
+    reveal_type(rv)
+  out: |
+    main:6: note: Revealed type is "builtins.list[builtins.str*]"
+    main:10: note: Revealed type is "builtins.list[builtins.str*]"

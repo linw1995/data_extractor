@@ -37,12 +37,38 @@ def coverage_test(session, extractor_backend):
         *(("-s", extractor_backend) if extractor_backend else tuple()),
         external=True,
     )
-    session.run("pytest", "-vv", "--cov=data_extractor", "--cov-append")
+    session.run(
+        "pytest",
+        "-vv",
+        "--cov=data_extractor",
+        "--cov-append",
+        "--ignore",
+        "tests/typesafety",
+    )
 
 
 @nox.session(python=pythons, reuse_venv=True)
 def coverage_report(session):
     session.run("pdm", "sync", "-v", "-s", "test", external=True)
+    session.run("coverage", "report")
+    session.run("coverage", "xml")
+    session.run("coverage", "html")
+    session.log(
+        f">> open file:/{(Path() / 'htmlcov/index.html').absolute()} to see coverage"
+    )
+
+
+@nox.session(python=pythons, reuse_venv=True)
+def test_mypy_plugin(session):
+    session.run("pdm", "sync", "-v", "-ds", "test-mypy-plugin", external=True)
+    session.run(
+        "pytest",
+        "-vv",
+        "--cov=data_extractor/contrib/mypy",
+        "--mypy-ini-file=./tests/mypy.ini",
+        "tests/typesafety",
+    )
+    # pytest-mypy-plugin not supports testing with coverage
     session.run("coverage", "report")
     session.run("coverage", "xml")
     session.run("coverage", "html")

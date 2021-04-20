@@ -47,9 +47,11 @@ repos:
   - id: mypy
     files: (data_extractor|tests)/.+\.py$
     pass_filenames: false
+    entry: env PYTHONPATH=. mypy
     args:
     - data_extractor
     - tests
+    - --show-traceback
 - repo: https://github.com/pre-commit/mirrors-isort
   rev: v5.8.0
   hooks:

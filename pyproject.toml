@@ -19,9 +19,7 @@ classifiers = [
     "Operating System :: Microsoft :: Windows",
 ]
 keywords = ["data-extractor", "data-extraction", "xpath", "css-selectors", "jsonpath"]
-dependencies = [
-    "typing-extensions ~= 3.7",
-]
+dependencies = []
 requires-python = ">=3.7"
 license = {text = "MIT"}
 dynamic = ["version"]
@@ -51,7 +49,7 @@ jsonpath-rw-ext = [
 ]
 
 [tool.pdm]
-includes = ["data_extractor/*.py", "data_extractor/py.typed"]
+includes = ["data_extractor/*.py", "data_extractor/py.typed", "data_extractor/contrib/"]
 
 [tool.pdm.dev-dependencies]
 docs = [
@@ -70,7 +68,12 @@ build_readme = [
 test = [
     "pytest >= 6, < 7",
     "pytest-cov >= 2.7.1, < 3",
+]
+test-mypy-plugin = [
+    "pytest >= 6, < 7",
+    "pytest-cov >= 2.7.1, < 3",
     "pytest-mypy-plugins ~= 1.6",
+    "mypy~=0.910",
 ]
 
 [[tool.pdm.source]]
