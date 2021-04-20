@@ -25,12 +25,13 @@ def pdm_export(args, filename):
         raise RuntimeError("Create a new file")
 
 
-pdm_export(args=[], filename="requirements-mini.txt")
+pdm_export(args=["--prod"], filename="requirements-mini.txt")
 pdm_export(
     args=[
+        "--prod",
         "-s:all",
     ],
     filename="requirements.txt",
 )
-pdm_export(args=["-d", "-ds:all"], filename="requirements-dev.txt")
+pdm_export(args=["-s:all", "-ds:all"], filename="requirements-dev.txt")
 pdm_export(args=["-ds", "docs"], filename="requirements-docs.txt")

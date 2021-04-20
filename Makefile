@@ -24,7 +24,7 @@ init:
 	@echo ">> installing $(if $(EXTRAS),\"$(EXTRAS)\" ,)dependencies by pdm"
 	$(if $(PYTHON),pdm use -f $(PYTHON),)
 	pdm info && pdm info --env
-	pdm sync -v -d $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
+	pdm sync -v $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
 	pdm config -l use_venv true
 
 deinit:
@@ -36,11 +36,12 @@ deinit:
 	rm -rf *.egg-info
 
 update-dev:
-	pdm update -d -ds:all
+	pdm update $(DEV_EXTRAS_ARGS)
 	pre-commit autoupdate
 
-update: upgrade-dev
-	pdm update -s:all
+update:
+	pdm update
+	pre-commit autoupdate
 
 # Environment setup end
 
