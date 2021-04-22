@@ -33,5 +33,5 @@ pdm_export(
     ],
     filename="requirements.txt",
 )
-pdm_export(args=["-s:all", "-ds:all"], filename="requirements-dev.txt")
-pdm_export(args=["-ds", "docs"], filename="requirements-docs.txt")
+pdm_export(args=["-s:all"], filename="requirements-dev.txt")
+pdm_export(args=["-s", "docs"], filename="requirements-docs.txt")

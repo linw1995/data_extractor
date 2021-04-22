@@ -32,7 +32,7 @@ def coverage_test(session, extractor_backend):
         "pdm",
         "sync",
         "-v",
-        "-ds",
+        "-s",
         "test",
         *(("-s", extractor_backend) if extractor_backend else tuple()),
         external=True,
@@ -42,7 +42,7 @@ def coverage_test(session, extractor_backend):
 
 @nox.session(python=pythons, reuse_venv=True)
 def coverage_report(session):
-    session.run("pdm", "sync", "-v", "-ds", "test", external=True)
+    session.run("pdm", "sync", "-v", "-s", "test", external=True)
     session.run("coverage", "report")
     session.run("coverage", "xml")
     session.run("coverage", "html")
@@ -53,7 +53,7 @@ def coverage_report(session):
 
 @nox.session(reuse_venv=True)
 def build_readme(session):
-    session.run("pdm", "sync", "-v", "-ds", "build_readme", external=True)
+    session.run("pdm", "sync", "-v", "-s", "build_readme", external=True)
     session.run(
         "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
     )

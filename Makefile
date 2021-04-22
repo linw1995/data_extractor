@@ -17,7 +17,7 @@ PYTHON = 3.9
 EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext
 DEV_EXTRAS = test docs
 EXTRAS_ARGS = $(if $(EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(EXTRAS))
-DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-ds,) $(subst $(SPACE),$(SPACE)-ds$(SPACE),$(DEV_EXTRAS))
+DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(DEV_EXTRAS))
 
 # Environment setup
 init:
