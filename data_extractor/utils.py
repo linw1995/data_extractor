@@ -21,7 +21,7 @@ from typing import (
 
 
 class __Sentinel:
-    """ Singleton. """
+    """Singleton."""
 
     def __repr__(self) -> str:
         return "sentinel"

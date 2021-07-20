@@ -6,15 +6,29 @@
 # Standard Library
 import copy
 
-from typing import Any, Dict, Iterator, List, Optional
+from typing import (
+    Any,
+    Callable,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    Optional,
+    Type,
+    TypeVar,
+    Union,
+)
 
 # Local Folder
 from .core import AbstractComplexExtractor, AbstractSimpleExtractor
 from .exceptions import ExtractError
 from .utils import Property, is_simple_extractor, sentinel
 
+RV = TypeVar("RV")
+Convertor = Callable[[Any], RV]
 
-class Field(AbstractComplexExtractor):
+
+class Field(Generic[RV], AbstractComplexExtractor):
     """
     Extract data by cooperating with extractor.
 
@@ -37,12 +51,17 @@ class Field(AbstractComplexExtractor):
     default = Property[Any]()
     is_many = Property[bool]()
 
+    type = Property[Optional[Type[RV]]]()
+    convertor = Property[Optional[Convertor[RV]]]()
+
     def __init__(
         self,
         extractor: AbstractSimpleExtractor = None,
         name: str = None,
         default: Any = sentinel,
         is_many: bool = False,
+        type: Type[RV] = None,
+        convertor: Convertor[RV] = None,
     ):
         super().__init__()
 
@@ -56,6 +75,36 @@ class Field(AbstractComplexExtractor):
         self.name = name
         self.default = default
         self.is_many = is_many
+        self.type = type
+        self.convertor = convertor
+
+    def __class_getitem__(cls, rv_type: Type[RV]):
+        # super_class_getitem = Generic.__class_getitem__.__func__  # type: ignore
+        # return super_class_getitem(cls, rv_type)
+
+        def new_init(
+            self,
+            extractor: AbstractSimpleExtractor = None,
+            name: str = None,
+            default: Any = sentinel,
+            is_many: bool = False,
+            type: Type[RV] = None,
+            convertor: Convertor[RV] = None,
+        ):
+            cls.__init__(
+                self,
+                extractor=extractor,
+                name=name,
+                default=default,
+                is_many=is_many,
+                type=type or rv_type,
+                convertor=convertor,
+            )
+
+        if rv_type is RV:  # type: ignore
+            return cls
+        else:
+            return type(cls.__name__, (cls,), {"__init__": new_init})
 
     def __repr__(self) -> str:
         args = [f"{self.extractor!r}"]
@@ -70,7 +119,7 @@ class Field(AbstractComplexExtractor):
 
         return f"{self.__class__.__name__}({', '.join(args)})"
 
-    def extract(self, element: Any) -> Any:
+    def extract(self, element: Any) -> Union[RV, List[RV]]:
         if self.extractor is None:
             if isinstance(element, list):
                 rv = element
@@ -90,8 +139,15 @@ class Field(AbstractComplexExtractor):
 
         return self._extract(rv[0])
 
-    def _extract(self, element: Any) -> Any:
-        return element
+    def _extract(self, element: Any) -> RV:
+        if self.convertor is not None:
+            return self.convertor(element)
+        else:
+            cls = self.type
+            if cls is not None and callable(cls):
+                return cls(element)  # type: ignore
+            else:
+                return element
 
     def __deepcopy__(self, memo: Dict[int, Any]) -> AbstractComplexExtractor:
         deepcopy_method = self.__deepcopy__
@@ -106,12 +162,37 @@ class Field(AbstractComplexExtractor):
         return cp
 
 
-class Item(Field):
+class Item(Field[RV]):
     """
     Extract data by cooperating with extractors, fields and items.
     """
 
-    def _extract(self, element: Any) -> Any:
+    def __init__(
+        self,
+        extractor=None,
+        name=None,
+        default=sentinel,
+        is_many=False,
+        type=None,
+        convertor=None,
+    ):
+        super().__init__(
+            extractor=extractor,
+            name=name,
+            default=default,
+            is_many=is_many,
+            type=type,
+            convertor=convertor or self.default_convertor,
+        )
+
+    def default_convertor(self, rv: Dict[str, Any]) -> RV:
+        cls = self.type
+        if cls is not None and callable(cls):
+            return cls(**rv)  # type: ignore
+
+        return rv  # type: ignore
+
+    def _extract(self, element: Any) -> RV:
         rv = {}
         for field in self.field_names():
             try:
@@ -124,7 +205,7 @@ class Item(Field):
                 exc._append(extractor=self)
                 raise exc
 
-        return rv
+        return super()._extract(rv)
 
     @classmethod
     def field_names(cls) -> Iterator[str]:
@@ -146,8 +227,8 @@ class Item(Field):
         # set for fixing in SimpeExtractor.extract method signature
         Property.change_internal_value(duplicated, "is_many", True)
 
-        def extract(self: AbstractSimpleExtractor, element: Any) -> List[Any]:
-            return duplicated.extract(element)
+        def extract(self: AbstractSimpleExtractor, element: Any) -> List[RV]:
+            return duplicated.extract(element)  # type: ignore
 
         def getter(self: AbstractSimpleExtractor, name: str) -> Any:
             if (

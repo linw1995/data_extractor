@@ -14,6 +14,12 @@ Quickstarts
 .. include:: quickstarts.rst
     :start-line: 4
 
+Contributing
+<<<<<<<<<<<<
+
+.. include:: contributing.rst
+    :start-line: 4
+
 Changelog
 <<<<<<<<<
 
