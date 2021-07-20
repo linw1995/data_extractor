@@ -10,6 +10,7 @@ from mypy.nodes import (
     MemberExpr,
     MypyFile,
     NameExpr,
+    SymbolNode,
     TypeAlias,
     TypeInfo,
 )
@@ -25,8 +26,11 @@ class RelationshipVisitor(TraverserVisitor):
     def __init__(self) -> None:
         self.relationships: Dict[str, str] = {}
 
-    def is_data_extractor_cls(self, obj: TypeInfo) -> bool:
-        return obj.fullname in ("data_extractor.item.Field", "data_extractor.item.Item")
+    def is_data_extractor_cls(self, obj: Optional[SymbolNode]) -> bool:
+        return obj is not None and obj.fullname in (
+            "data_extractor.item.Field",
+            "data_extractor.item.Item",
+        )
 
     def is_field_assignment_stmt(self, stmt: AssignmentStmt) -> bool:
         if not isinstance(stmt.rvalue, CallExpr):
@@ -36,25 +40,27 @@ class RelationshipVisitor(TraverserVisitor):
         callee_expr = call_expr.callee
         if isinstance(callee_expr, NameExpr):
             callee_node = callee_expr.node
-            if isinstance(callee_node, TypeInfo) and self.is_data_extractor_cls(
-                callee_node
-            ):
-                return True
-            elif isinstance(callee_node, TypeAlias) and self.is_data_extractor_cls(
-                callee_node.target.type
-            ):
-                return True
-        elif isinstance(callee_expr, IndexExpr) and self.is_data_extractor_cls(
-            callee_expr.base.node
-        ):
-            return True
-
+            if isinstance(callee_node, TypeInfo):
+                if self.is_data_extractor_cls(callee_node):
+                    return True
+            elif isinstance(callee_node, TypeAlias):
+                target = callee_node.target
+                if isinstance(target, Instance):
+                    if self.is_data_extractor_cls(target.type):
+                        return True
+        elif isinstance(callee_expr, IndexExpr):
+            base = callee_expr.base
+            if isinstance(base, NameExpr):
+                if self.is_data_extractor_cls(base.node):
+                    return True
         return False
 
     def anal_assignment_stmt(self, stmt: AssignmentStmt) -> None:
         if self.is_field_assignment_stmt(stmt):
             rvalue_loc = str((stmt.rvalue.line, stmt.rvalue.column))
             for lvalue in stmt.lvalues:
+                if not isinstance(lvalue, NameExpr):
+                    continue
                 expr = lvalue.node
                 if isinstance(expr, VarExpr):
                     lvalue_loc = str((expr.line, expr.column))
@@ -78,7 +84,11 @@ class DataExtractorPlugin(Plugin):
     cache: Dict[str, Dict[str, str]] = {}
 
     def get_current_code(self, ctx: FunctionContext) -> MypyFile:
-        return ctx.api.modules[ctx.api.tscope.module]
+        api = ctx.api
+        assert isinstance(api, TypeChecker)
+        module_name = api.tscope.module
+        assert module_name is not None
+        return api.modules[module_name]
 
     def anal_code(self, code: MypyFile) -> Dict[str, str]:
         if code.fullname not in self.cache:
@@ -148,7 +158,9 @@ class DataExtractorPlugin(Plugin):
 
         sym_field_class = callee.node
         if isinstance(sym_field_class, TypeAlias):
-            sym_field_class = sym_field_class.target.type
+            target = sym_field_class.target
+            assert isinstance(target, Instance)
+            sym_field_class = target.type
         assert isinstance(sym_field_class, TypeInfo)
 
         if self.check_is_many(ctx):

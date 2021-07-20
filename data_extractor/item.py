@@ -190,7 +190,7 @@ class Item(Field[RV]):
         if cls is not None and callable(cls):
             return cls(**rv)  # type: ignore
 
-        return rv
+        return rv  # type: ignore
 
     def _extract(self, element: Any) -> RV:
         rv = {}
@@ -228,7 +228,7 @@ class Item(Field[RV]):
         Property.change_internal_value(duplicated, "is_many", True)
 
         def extract(self: AbstractSimpleExtractor, element: Any) -> List[RV]:
-            return duplicated.extract(element)
+            return duplicated.extract(element)  # type: ignore
 
         def getter(self: AbstractSimpleExtractor, name: str) -> Any:
             if (
