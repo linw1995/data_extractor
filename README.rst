@@ -165,7 +165,7 @@ Testing in multiple Python environments is powered by CLI nox_.
 Changelog
 <<<<<<<<<
 
-Unreleased
+v0.10.0
 ~~~~~~~~~~
 
 **Feature**
@@ -188,18 +188,6 @@ Unreleased
 **Document**
 
 - fix wrong docstring of "data_extractor.utils.Property"
-
-v0.9.0
-~~~~~~
-
-**Fix**
-
-- type annotations #63 #64
-
-**Refactor**
-
-- .utils.Property with "Customized names" support #64
-- rename .abc to .core and mark elder duplciated #65
 
 
 Contributing
