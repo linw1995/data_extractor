@@ -79,9 +79,6 @@ class Field(Generic[RV], AbstractComplexExtractor):
         self.convertor = convertor
 
     def __class_getitem__(cls, rv_type: Type[RV]):
-        # super_class_getitem = Generic.__class_getitem__.__func__  # type: ignore
-        # return super_class_getitem(cls, rv_type)
-
         def new_init(
             self,
             extractor: AbstractSimpleExtractor = None,
@@ -102,6 +99,7 @@ class Field(Generic[RV], AbstractComplexExtractor):
             )
 
         if rv_type is RV:  # type: ignore
+            # it is a type-unbound container class
             return cls
         else:
             return type(cls.__name__, (cls,), {"__init__": new_init})
@@ -145,6 +143,7 @@ class Field(Generic[RV], AbstractComplexExtractor):
         else:
             cls = self.type
             if cls is not None and callable(cls):
+                # TODO: inspect function signature for supporting better conversion
                 return cls(element)  # type: ignore
             else:
                 return element
@@ -188,6 +187,7 @@ class Item(Field[RV]):
     def default_convertor(self, rv: Dict[str, Any]) -> RV:
         cls = self.type
         if cls is not None and callable(cls):
+            # TODO: inspect function signature for supporting better conversion
             return cls(**rv)  # type: ignore
 
         return rv  # type: ignore
