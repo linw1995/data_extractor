@@ -62,3 +62,28 @@ jobs:
         token: ${{ secrets.CODECOV_TOKEN }}
         # Specify whether or not CI build should fail if Codecov runs into an error during upload
         fail_ci_if_error: false
+  test-mypy-plugin:
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.7, 3.8, 3.9]
+    steps:
+    - uses: actions/checkout@v1
+    - name: Set up PDM
+      uses: pdm-project/setup-pdm@v1.1
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Cache Nox Virtualenvs
+      uses: actions/cache@v1
+      with:
+        path: .nox
+        key: ${{ runner.os }}-${{ matrix.python-version }}-nox-${{ hashFiles('**/pdm.lock') }}
+        restore-keys: ${{ runner.os }}-${{ matrix.python-version }}-nox
+    - name: Install nox
+      run: |
+        pip install nox
+        pdm config use_venv true
+    - name: Test
+      run: |
+        make PYTHON=${{ matrix.python-version }} test-mypy-plugin
