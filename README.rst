@@ -165,6 +165,13 @@ Testing in multiple Python environments is powered by CLI nox_.
 Changelog
 <<<<<<<<<
 
+v0.10.1
+~~~~~~~
+
+**Fix**
+
+- typo in .utils.Property
+
 v0.10.0
 ~~~~~~~~~~
 
