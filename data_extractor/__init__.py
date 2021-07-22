@@ -11,7 +11,7 @@ from .core import (
     ComplexExtractorMeta,
 )
 from .exceptions import ExprError, ExtractError
-from .item import Field, Item
+from .item import RV, Convertor, Field, Item
 from .json import (
     JSONExtractor,
     JSONPathExtractor,
@@ -40,6 +40,7 @@ __all__ = (
     "AttrCSSExtractor",
     "CSSExtractor",
     "ComplexExtractorMeta",
+    "Convertor",
     "Element",
     "ExprError",
     "ExtractError",
@@ -50,6 +51,7 @@ __all__ = (
     "JSONPathRWExtExtractor",
     "JSONPathRWExtractor",
     "LazyStr",
+    "RV",
     "TextCSSExtractor",
     "XPathExtractor",
     "is_complex_extractor",
