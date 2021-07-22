@@ -108,7 +108,7 @@ class Property(Generic[T]):
         https://docs.python.org/3/howto/descriptor.html#customized-names
         """
         self.public_name = name
-        self.pravite_name = f"__property_{name}"
+        self.private_name = f"__property_{name}"
 
     @overload
     def __get__(self, obj: None, cls: Type["AbstractExtractors"]) -> "Property[T]":
@@ -125,17 +125,17 @@ class Property(Generic[T]):
             return self
 
         try:
-            return getattr(obj, self.pravite_name)
+            return getattr(obj, self.private_name)
         except AttributeError as exc:
             # raise right AttributeError
             msg: str = exc.args[0]
-            raise AttributeError(msg.replace(self.pravite_name, self.public_name))
+            raise AttributeError(msg.replace(self.private_name, self.public_name))
 
     def __set__(self, obj: Any, value: T) -> T:
-        if hasattr(obj, self.pravite_name):
+        if hasattr(obj, self.private_name):
             raise AttributeError("can't set attribute")
         else:
-            setattr(obj, self.pravite_name, value)
+            setattr(obj, self.private_name, value)
             return value
 
     @staticmethod
@@ -146,7 +146,7 @@ class Property(Generic[T]):
         if not isinstance(attr, Property):
             raise AttributeError(f"Type of attribute {property_name!r} is not Property")
 
-        setattr(obj, attr.pravite_name, value)
+        setattr(obj, attr.private_name, value)
 
 
 def _missing_dependency(dependency: str) -> None:
