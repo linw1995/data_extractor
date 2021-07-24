@@ -222,9 +222,10 @@ class DataExtractorPlugin(Plugin):
             return origin
 
     def is_extract_method(self, fullname: str) -> bool:
-        return fullname.endswith("extract") and self.is_extractor_cls(
-            fullname.removesuffix(".extract")
-        )
+        suffix = ".extract"
+        if fullname.endswith(suffix):
+            return self.is_extractor_cls(fullname[: -len(suffix)])
+        return False
 
     def get_method_signature_hook(
         self, fullname: str
