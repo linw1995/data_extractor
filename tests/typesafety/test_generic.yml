@@ -115,3 +115,37 @@
   out: |
     main:6: note: Revealed type is "builtins.list[builtins.str*]"
     main:10: note: Revealed type is "builtins.list[builtins.str*]"
+- case: subclass_field_extract_with_flag_is_many
+  main: |
+    from tests.utils import D
+    from data_extractor import Field, RV
+
+    class CField(Field[RV]):
+        pass
+
+    f1 = CField[str](D())
+    rv = f1.extract([1])
+    reveal_type(rv)
+    f2 = CField[str](D(), is_many=True)
+    rvs = f2.extract([1])
+    reveal_type(rvs)
+  out: |
+    main:9: note: Revealed type is "builtins.str*"
+    main:12: note: Revealed type is "builtins.list[builtins.str*]"
+- case: item_extract_with_flag_is_many
+  main: |
+    from tests.utils import D
+    from data_extractor import RV, Item
+
+    class C(Item[RV]):
+        pass
+
+    f1 = C(D())
+    rv = f1.extract([1])
+    reveal_type(rv)
+    f2 = C(D(), is_many=True)
+    rvs = f2.extract([1])
+    reveal_type(rvs)
+  out: |
+    main:9: note: Revealed type is "Any"
+    main:12: note: Revealed type is "builtins.list[Any]"

@@ -139,7 +139,7 @@ class DataExtractorPlugin(Plugin):
 
         return False
 
-    def make_field_type_annotations(self, ctx: FunctionContext) -> MypyType:
+    def prepare_type_annotations(self, ctx: FunctionContext) -> MypyType:
         # check parameter "is_many"
         expr = ctx.context
         assert isinstance(expr, CallExpr)
@@ -171,17 +171,24 @@ class DataExtractorPlugin(Plugin):
         rv_type = self.check_field_generic_type(ctx)
         return rv_type
 
+    def is_extractor_cls(self, fullname: str) -> bool:
+        node = self.lookup_fully_qualified(fullname)
+        if node is not None:
+            typenode = node.node
+            if isinstance(typenode, TypeInfo):
+                return typenode.has_base("data_extractor.item.Field")
+
+        return False
+
     def get_function_hook(
         self, fullname: str
     ) -> Optional[Callable[[FunctionContext], MypyType]]:
-        if fullname == "data_extractor.item.Field":
-            return self.make_field_type_annotations
+        if self.is_extractor_cls(fullname):
+            return self.prepare_type_annotations
 
         return super().get_function_hook(fullname)
 
-    def apply_is_many_on_field_extract_method(
-        self, ctx: MethodSigContext
-    ) -> CallableType:
+    def apply_is_many_on_extract_method(self, ctx: MethodSigContext) -> CallableType:
         origin: CallableType = ctx.default_signature
         origin_ret_type = origin.ret_type
         assert isinstance(origin_ret_type, UnionType)
@@ -214,11 +221,16 @@ class DataExtractorPlugin(Plugin):
             api.fail("Cant determine extract method return type", context=ctx.context)
             return origin
 
+    def is_extract_method(self, fullname: str) -> bool:
+        return fullname.endswith("extract") and self.is_extractor_cls(
+            fullname.removesuffix(".extract")
+        )
+
     def get_method_signature_hook(
         self, fullname: str
     ) -> Optional[Callable[[MethodSigContext], CallableType]]:
-        if fullname == "data_extractor.item.Field.extract":
-            return self.apply_is_many_on_field_extract_method
+        if self.is_extract_method(fullname):
+            return self.apply_is_many_on_extract_method
 
         return super().get_method_signature_hook(fullname)
 
