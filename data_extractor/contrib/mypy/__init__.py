@@ -320,7 +320,7 @@ class DataExtractorPlugin(Plugin):
                 assert isinstance(index, NameExpr)
                 name = index.fullname
                 assert name is not None
-                named_type = api.named_type(name, [])
+                named_type = api.named_type_or_none(name, [])
                 assert named_type is not None
                 rvalue_type = named_type
             else:
@@ -344,8 +344,9 @@ class DataExtractorPlugin(Plugin):
         self, fullname: str
     ) -> Optional[Callable[[DynamicClassDefContext], None]]:
         logger.debug("dynamic_class_hook %r", fullname)
-        if self.is_extractor_cls(fullname, is_item_subcls=True):
-            return partial(self.prepare_typeddict, fullname=fullname)
+        if self.options.python_version >= (3, 8):
+            if self.is_extractor_cls(fullname, is_item_subcls=True):
+                return partial(self.prepare_typeddict, fullname=fullname)
 
         return super().get_dynamic_class_hook(fullname)
 
