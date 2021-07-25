@@ -147,5 +147,5 @@
     rvs = f2.extract([1])
     reveal_type(rvs)
   out: |
-    main:9: note: Revealed type is "Any"
-    main:12: note: Revealed type is "builtins.list[Any]"
+    main:9: note: Revealed type is "TypedDict({})"
+    main:12: note: Revealed type is "builtins.list[TypedDict({})]"
