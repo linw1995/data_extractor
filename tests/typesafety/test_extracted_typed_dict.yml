@@ -1,0 +1,30 @@
+- case: item_extracted_result_is_typeddict
+  skip: sys.version_info.minor < 8
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Item, Field
+
+    class Point2D(Item):
+        x = Field[int](D())
+        y = Field[int](D())
+
+    p = Point2D(D())
+    rv = p.extract({"x": 1, "y": 3})
+    reveal_type(rv)
+  out: |
+    main:10: note: Revealed type is "TypedDict({'x': builtins.int, 'y': builtins.int})"
+- case: item_extracted_many_results_are_typeddict
+  skip: sys.version_info.minor < 8
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Item, Field
+
+    class Point2D(Item):
+        x = Field[int](D())
+        y = Field[int](D())
+
+    p = Point2D(D(), is_many=True)
+    rvs = p.extract([{"x": 1, "y": 3}])
+    reveal_type(rvs)
+  out: |
+    main:10: note: Revealed type is "builtins.list[TypedDict({'x': builtins.int, 'y': builtins.int})]"
