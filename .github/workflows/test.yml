@@ -57,12 +57,11 @@ jobs:
       run: |
         make PYTHON=${{ matrix.python-version }} cov
     - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1.0.5
+      uses: codecov/codecov-action@v2
       with:
-        # Repository upload token - get it from codecov.io
         token: ${{ secrets.CODECOV_TOKEN }}
-        # Specify whether or not CI build should fail if Codecov runs into an error during upload
-        fail_ci_if_error: false
+        flags: main,unittest,${{ matrix.python-version }}
+        fail_ci_if_error: true
   test-mypy-plugin:
     needs: lint
     runs-on: ubuntu-latest
@@ -88,3 +87,9 @@ jobs:
     - name: Test
       run: |
         make PYTHON=${{ matrix.python-version }} test-mypy-plugin
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v2
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        flags: plugin-mypy,unittest,${{ matrix.python-version }}
+        fail_ci_if_error: true
