@@ -65,15 +65,10 @@ def test_mypy_plugin(session):
         "pytest",
         "-vv",
         "--cov=data_extractor/contrib/mypy",
+        "--cov-append",
+        "--mypy-same-process",
         "--mypy-ini-file=./tests/mypy.ini",
         "tests/typesafety",
-    )
-    # pytest-mypy-plugin not supports testing with coverage
-    session.run("coverage", "report")
-    session.run("coverage", "xml")
-    session.run("coverage", "html")
-    session.log(
-        f">> open file:/{(Path() / 'htmlcov/index.html').absolute()} to see coverage"
     )
 
 
