@@ -66,6 +66,12 @@ test-mypy-plugin:
 	rm -rf .coverage
 	nox -p $(PYTHON) -s test_mypy_plugin coverage_report
 
+test-mypy-plugin-full:
+	rm -rf .coverage
+	nox -p 3.7 -s test_mypy_plugin
+	nox -p 3.8 -s test_mypy_plugin
+	nox -p 3.9 -s test_mypy_plugin coverage_report
+
 cov:
 	rm -rf .coverage
 	nox -p $(PYTHON) -s coverage_test coverage_report
