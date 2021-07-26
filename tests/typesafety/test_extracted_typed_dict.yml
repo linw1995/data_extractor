@@ -7,12 +7,14 @@
     class Point2D(Item):
         x = Field[int](D())
         y = Field[int](D())
+        _dummy = Field(D())
+        _dummy_val = 1
 
     p = Point2D(D())
     rv = p.extract({"x": 1, "y": 3})
     reveal_type(rv)
   out: |
-    main:10: note: Revealed type is "TypedDict({'x': builtins.int, 'y': builtins.int})"
+    main:12: note: Revealed type is "TypedDict({'x': builtins.int, 'y': builtins.int, '_dummy': Any})"
 - case: item_extracted_many_results_are_typeddict
   skip: sys.version_info.minor < 8
   main: |
@@ -22,9 +24,11 @@
     class Point2D(Item):
         x = Field[int](D())
         y = Field[int](D())
+        _dummy = Field(D())
+        _dummy_val = 1
 
     p = Point2D(D(), is_many=True)
     rvs = p.extract([{"x": 1, "y": 3}])
     reveal_type(rvs)
   out: |
-    main:10: note: Revealed type is "builtins.list[TypedDict({'x': builtins.int, 'y': builtins.int})]"
+    main:12: note: Revealed type is "builtins.list[TypedDict({'x': builtins.int, 'y': builtins.int, '_dummy': Any})]"
