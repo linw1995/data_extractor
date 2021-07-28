@@ -15,6 +15,16 @@ os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 os.environ.pop("PYTHONPATH", None)
 
 
+def venv_setup_on_create(session, install):
+    cwd = session.env["PWD"]
+    session.cd(session.create_tmp())
+    if session.run(
+        "python", "-Esc", "import data_extractor", success_codes=(1, 0), silent=True
+    ):
+        install(session)
+    session.cd(cwd)
+
+
 @nox.session(python=pythons, reuse_venv=True)
 @nox.parametrize(
     "extractor_backend",
@@ -28,14 +38,17 @@ os.environ.pop("PYTHONPATH", None)
     ],
 )
 def coverage_test(session, extractor_backend):
-    session.run(
-        "pdm",
-        "sync",
-        "-v",
-        "-s",
-        "test",
-        *(("-s", extractor_backend) if extractor_backend else tuple()),
-        external=True,
+    venv_setup_on_create(
+        session,
+        lambda s: s.run(
+            "pdm",
+            "sync",
+            "-v",
+            "-s",
+            "test",
+            *(("-s", extractor_backend) if extractor_backend else tuple()),
+            external=True,
+        ),
     )
     session.run(
         "pytest",
@@ -49,7 +62,10 @@ def coverage_test(session, extractor_backend):
 
 @nox.session(python=pythons, reuse_venv=True)
 def coverage_report(session):
-    session.run("pdm", "sync", "-v", "-s", "test", external=True)
+    venv_setup_on_create(
+        session,
+        lambda s: s.run("pdm", "sync", "-v", "-s", "test", external=True),
+    )
     session.run("coverage", "report")
     session.run("coverage", "xml")
     session.run("coverage", "html")
@@ -60,7 +76,11 @@ def coverage_report(session):
 
 @nox.session(python=pythons, reuse_venv=True)
 def test_mypy_plugin(session):
-    session.run("pdm", "sync", "-v", "-ds", "test-mypy-plugin", external=True)
+    venv_setup_on_create(
+        session,
+        lambda s: s.run("pdm", "sync", "-v", "-ds", "test-mypy-plugin", external=True),
+    )
+
     session.run(
         "pytest",
         "-vv",
@@ -74,7 +94,10 @@ def test_mypy_plugin(session):
 
 @nox.session(reuse_venv=True)
 def build_readme(session):
-    session.run("pdm", "sync", "-v", "-s", "build_readme", external=True)
+    venv_setup_on_create(
+        session,
+        lambda s: s.run("pdm", "sync", "-v", "-s", "build_readme", external=True),
+    )
     session.run(
         "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
     )
