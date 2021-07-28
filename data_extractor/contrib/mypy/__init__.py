@@ -2,22 +2,25 @@
 import logging
 
 from functools import partial
-from typing import Callable, Dict, List, Optional, Type
+from typing import Callable, Dict, List, Optional, Type, Union
 
 # Third Party Library
-from mypy.checker import TypeChecker
+from mypy.checker import TypeChecker, is_true_literal
 from mypy.nodes import (
     AssignmentStmt,
     CallExpr,
+    ClassDef,
+    Expression,
     IndexExpr,
     MemberExpr,
     MypyFile,
     NameExpr,
+    RefExpr,
     SymbolNode,
     TypeAlias,
     TypeInfo,
+    Var,
 )
-from mypy.nodes import Var as VarExpr
 from mypy.options import Options
 from mypy.plugin import (
     DynamicClassDefContext,
@@ -36,8 +39,10 @@ logger = logging.getLogger(__name__)
 
 
 class RelationshipVisitor(TraverserVisitor):
+    relationships: Dict[str, List[str]]
+
     def __init__(self) -> None:
-        self.relationships: Dict[str, str] = {}
+        self.relationships = {}
 
     def is_data_extractor_cls(self, obj: Optional[SymbolNode]) -> bool:
         return obj is not None and obj.fullname in (
@@ -46,38 +51,76 @@ class RelationshipVisitor(TraverserVisitor):
         )
 
     def is_field_assignment_stmt(self, stmt: AssignmentStmt) -> bool:
-        if not isinstance(stmt.rvalue, CallExpr):
+        rvalue = stmt.rvalue
+        if not isinstance(rvalue, CallExpr):
             return False
 
-        call_expr: CallExpr = stmt.rvalue
-        callee_expr = call_expr.callee
-        if isinstance(callee_expr, NameExpr):
-            callee_node = callee_expr.node
-            if isinstance(callee_node, TypeInfo):
-                if self.is_data_extractor_cls(callee_node):
-                    return True
-            elif isinstance(callee_node, TypeAlias):
-                target = callee_node.target
-                if isinstance(target, Instance):
-                    if self.is_data_extractor_cls(target.type):
-                        return True
-        elif isinstance(callee_expr, IndexExpr):
-            base = callee_expr.base
-            if isinstance(base, NameExpr):
-                if self.is_data_extractor_cls(base.node):
-                    return True
+        node: Union[Expression, SymbolNode] = rvalue.callee
+        if isinstance(node, IndexExpr):
+            logger.debug("node=%r", node)
+            base = node.base
+            assert base is not None
+            node = base
+
+        if isinstance(node, RefExpr):
+            logger.debug("node=%r", node)
+            node_ = node.node
+            if node_ is None:
+                return False
+            node = node_
+
+        if isinstance(node, TypeInfo):
+            logger.debug("node=%r", node)
+            return self.is_data_extractor_cls(node)
+        elif isinstance(node, TypeAlias):
+            logger.debug("node=%r", node)
+            target = node.target
+            if isinstance(target, Instance):
+                return target.type.has_base("data_extractor.item.Field")
+
         return False
 
-    def anal_assignment_stmt(self, stmt: AssignmentStmt) -> None:
-        if self.is_field_assignment_stmt(stmt):
-            rvalue_loc = str((stmt.rvalue.line, stmt.rvalue.column))
-            for lvalue in stmt.lvalues:
+    def locate_field_in_classdef(self, defn: ClassDef, name: str) -> str:
+        for block in defn.defs.body:
+            if not isinstance(block, AssignmentStmt):
+                continue
+
+            for lvalue in block.lvalues:
                 if not isinstance(lvalue, NameExpr):
                     continue
-                expr = lvalue.node
-                if isinstance(expr, VarExpr):
-                    lvalue_loc = str((expr.line, expr.column))
-                    self.relationships[rvalue_loc] = lvalue_loc
+
+                if lvalue.name == name:
+                    if block.type is not None:
+                        return str((block.type.line, block.type.column))
+                    return str((block.line, block.column))
+
+        raise ValueError(f"Field name = {name!r} not exists in defn = {defn!s}")
+
+    def anal_assignment_stmt(self, stmt: AssignmentStmt) -> None:
+        logger.debug("stmt=%s", stmt)
+        if self.is_field_assignment_stmt(stmt):
+            rvalue_loc = str((stmt.rvalue.line, stmt.rvalue.column))
+            logger.debug("stmt=%r, rloc=%r", stmt, rvalue_loc)
+            for lvalue in stmt.lvalues:
+                logger.debug(f"lvalue = {lvalue!s}")
+                assert isinstance(lvalue, RefExpr)
+                if isinstance(lvalue, MemberExpr):
+                    expr = lvalue.expr
+                    assert isinstance(expr, NameExpr)
+                    node_ = expr.node
+                    assert node_ is not None
+                    node = node_
+                    assert isinstance(node, TypeInfo)
+                    lvalue_loc = self.locate_field_in_classdef(node.defn, lvalue.name)
+                elif isinstance(lvalue, NameExpr):
+                    n = lvalue.node
+                    if isinstance(n, Var):
+                        lvalue_loc = str((n.line, n.column))
+                    else:
+                        logger.warning(f"n = { n!r}, stmt = {stmt!s}")
+                        continue
+
+                self.relationships.setdefault(rvalue_loc, []).append(lvalue_loc)
 
     def visit_assignment_stmt(self, o: AssignmentStmt) -> None:
         self.anal_assignment_stmt(o)
@@ -85,7 +128,7 @@ class RelationshipVisitor(TraverserVisitor):
 
 
 class DataExtractorPlugin(Plugin):
-    cache: Dict[str, Dict[str, str]]
+    cache: Dict[str, Dict[str, List[str]]]
     item_typeddict_mapping: Dict[str, TypedDictType]
 
     def __init__(self, options: Options) -> None:
@@ -100,7 +143,8 @@ class DataExtractorPlugin(Plugin):
         assert module_name is not None
         return api.modules[module_name]
 
-    def anal_code(self, code: MypyFile) -> Dict[str, str]:
+    def anal_code(self, code: MypyFile) -> Dict[str, List[str]]:
+        logger.debug(f"code.fullname = {code.fullname!r}, self.cache = {self.cache!r}")
         if code.fullname not in self.cache:
             try:
                 visitor = RelationshipVisitor()
@@ -136,25 +180,16 @@ class DataExtractorPlugin(Plugin):
         is_many_idx = ctx.callee_arg_names.index("is_many")
         is_many_exprs = ctx.args[is_many_idx]
         if is_many_exprs:
-            is_many_expr = is_many_exprs[0]
-            if isinstance(is_many_expr, NameExpr):
-                if is_many_expr.fullname == "builtins.True":
-                    return True
+            return is_true_literal(is_many_exprs[0])
 
         return False
 
     def prepare_type_annotations(self, ctx: FunctionContext, fullname: str) -> MypyType:
-        logger.debug("prepare_type_annotations %r", fullname)
+        logger.debug("fullname=%r", fullname)
 
         # check parameter "is_many"
         expr = ctx.context
         assert isinstance(expr, CallExpr)
-        relationship = self.anal_code(self.get_current_code(ctx))
-        lvalue_key = str((expr.line, expr.column))
-        if lvalue_key in relationship:
-            key = relationship[lvalue_key]
-        else:
-            key = lvalue_key
 
         callee = expr.callee
         if isinstance(callee, IndexExpr):
@@ -168,10 +203,22 @@ class DataExtractorPlugin(Plugin):
             sym_field_class = target.type
         assert isinstance(sym_field_class, TypeInfo)
 
-        if self.check_is_many(ctx):
-            sym_field_class.metadata[key] = {"is_many": True}
-        else:
-            sym_field_class.metadata[key] = {"is_many": False}
+        relationship = self.anal_code(self.get_current_code(ctx))
+        lvalue_key = str((expr.line, expr.column))
+        keys = [lvalue_key]
+        if lvalue_key in relationship:
+            keys.extend(relationship[lvalue_key])
+
+        for key in keys:
+            logger.debug(
+                f"lvalue_key = {lvalue_key!r}, "
+                f"key = {key!r}, relationship = {relationship!r}"
+            )
+
+            if self.check_is_many(ctx):
+                sym_field_class.metadata[key] = {"is_many": True}
+            else:
+                sym_field_class.metadata[key] = {"is_many": False}
 
         rv_type = self.check_field_generic_type(ctx)
         return rv_type
@@ -191,7 +238,7 @@ class DataExtractorPlugin(Plugin):
     def get_function_hook(
         self, fullname: str
     ) -> Optional[Callable[[FunctionContext], MypyType]]:
-        logger.debug("get_function_hook %r", fullname)
+        logger.debug("fullname=%r", fullname)
         if self.is_extractor_cls(fullname):
             return partial(self.prepare_type_annotations, fullname=fullname)
 
@@ -215,14 +262,13 @@ class DataExtractorPlugin(Plugin):
             assert isinstance(expr, CallExpr)
             callee = expr.callee
             assert isinstance(callee, MemberExpr)
-            name_expr = callee.expr
-            assert isinstance(name_expr, NameExpr)
-            obj = name_expr.node
-            assert isinstance(obj, VarExpr)
+            callee_expr = callee.expr
+            assert isinstance(callee_expr, NameExpr)
+            obj = callee_expr.node
+            assert isinstance(obj, Var)
             key = str((obj.line, obj.column))
-            # metadata = obj.type.type.metadata
 
-        logger.debug("apply_is_many %r %r %r", fullname, key, metadata)
+        logger.debug("fullname=%r, key=%r, metadata=%r", fullname, key, metadata)
         if key in metadata:
             is_many = metadata[key]["is_many"]
             ret_type = origin_ret_type.items[int(is_many)]
@@ -247,18 +293,19 @@ class DataExtractorPlugin(Plugin):
         # apply item typeddict
         item_classname = fullname[: -len(".extract")]
         if item_classname in self.item_typeddict_mapping:
-            logger.debug("apply_extract_method %r %r", fullname, rv.ret_type)
+            logger.debug("fullname=%r, ret_type=%r", fullname, rv.ret_type)
             original = rv.ret_type
             typeddict = self.item_typeddict_mapping[item_classname]
             ret_type: Optional[MypyType]
-            if isinstance(original, AnyType):
-                ret_type = typeddict
+            if isinstance(original, AnyType):  # is_many=False
+                rv = rv.copy_modified(ret_type=typeddict)
             else:
                 assert isinstance(original, Instance)
-                if original.type.name == "list":
+                if original.type.name == "list":  # is_many=True
                     ret_type = original
                     ret_type.args = (typeddict,)
-                else:
+                    rv = rv.copy_modified(ret_type=ret_type)
+                else:  # pragma: no cover
                     api = ctx.api
                     assert isinstance(api, TypeChecker)
                     api.fail(
@@ -266,11 +313,11 @@ class DataExtractorPlugin(Plugin):
                     )
                     ret_type = None
 
-            if ret_type is not None:
-                rv = rv.copy_modified(ret_type=ret_type)
-
         logger.debug(
-            "apply_extract_method %r %r %r", fullname, rv, self.item_typeddict_mapping
+            "fullname=%r, rv=%r, item_typeddict_mapping=%r",
+            fullname,
+            rv,
+            self.item_typeddict_mapping,
         )
         return rv
 
@@ -282,7 +329,7 @@ class DataExtractorPlugin(Plugin):
         return super().get_method_signature_hook(fullname)
 
     def prepare_typeddict(self, ctx: DynamicClassDefContext, fullname: str) -> None:
-        logger.debug("prepare_typeddict %r", fullname)
+        logger.debug("fullname=%r", fullname)
         if fullname in self.item_typeddict_mapping:
             return
 
@@ -329,12 +376,16 @@ class DataExtractorPlugin(Plugin):
         )
         assert typeinfo.typeddict_type is not None
         self.item_typeddict_mapping[fullname] = typeinfo.typeddict_type
-        logger.debug("prepare_typeddict %r %r", fullname, self.item_typeddict_mapping)
+        logger.debug(
+            "fullname=%r, item_typeddict_mapping=%r",
+            fullname,
+            self.item_typeddict_mapping,
+        )
 
     def get_dynamic_class_hook(
         self, fullname: str
     ) -> Optional[Callable[[DynamicClassDefContext], None]]:
-        logger.debug("dynamic_class_hook %r", fullname)
+        logger.debug("fullname=%r", fullname)
         if self.options.python_version >= (3, 8):
             if self.is_extractor_cls(fullname, is_item_subcls=True):
                 return partial(self.prepare_typeddict, fullname=fullname)

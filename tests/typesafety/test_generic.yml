@@ -168,3 +168,47 @@
   out: |
     main:9: note: Revealed type is "Any"
     main:12: note: Revealed type is "builtins.list[Any]"
+- case: field_is_many_work_with_assign_expr
+  main: |
+    from tests.utils import D
+    from data_extractor import Field
+
+    f2 = f1 = Field(D(), is_many=True)
+    rv1 = f1.extract([1])
+    reveal_type(rv1)
+    rv2 = f2.extract([1])
+    reveal_type(rv2)
+  out: |
+    main:6: note: Revealed type is "builtins.list[Any]"
+    main:8: note: Revealed type is "builtins.list[Any]"
+- case: field_is_many_work_with_assign_expr_in_classdef
+  main: |
+    from tests.utils import D
+    from data_extractor import Field
+
+    class B:
+        f2 = f1 = Field(D(), is_many=True)
+
+    rv1 = B.f1.extract([1])
+    reveal_type(rv1)
+    rv2 = B.f2.extract([1])
+    reveal_type(rv2)
+  out: |
+    main:8: note: Revealed type is "builtins.list[Any]"
+    main:10: note: Revealed type is "builtins.list[Any]"
+- case: field_is_many_work_with_member_assign_expr
+  main: |
+    from tests.utils import D
+    from data_extractor import Field
+
+    class C:
+        f1: Field
+
+    f2 = C.f1 = Field(D(), is_many=True)
+    rv1 = C.f1.extract([1])
+    reveal_type(rv1)
+    rv2 = f2.extract([1])
+    reveal_type(rv2)
+  out: |
+    main:9: note: Revealed type is "builtins.list[Any]"
+    main:11: note: Revealed type is "builtins.list[Any]"
