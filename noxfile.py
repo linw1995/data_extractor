@@ -16,7 +16,7 @@ os.environ.pop("PYTHONPATH", None)
 
 
 def venv_setup_on_create(session, install):
-    cwd = session.env["PWD"]
+    cwd = os.getcwd()
     session.cd(session.create_tmp())
     if session.run(
         "python", "-Esc", "import data_extractor", success_codes=(1, 0), silent=True
