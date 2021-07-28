@@ -57,6 +57,7 @@ def coverage_test(session, extractor_backend):
         "--cov-append",
         "--ignore",
         "tests/typesafety",
+        *session.posargs,
     )
 
 
@@ -88,7 +89,7 @@ def test_mypy_plugin(session):
         "--cov-append",
         "--mypy-same-process",
         "--mypy-ini-file=./tests/mypy.ini",
-        "tests/typesafety",
+        *(session.posargs if session.posargs else ["tests/typesafety"]),
     )
 
 

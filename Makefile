@@ -64,14 +64,18 @@ vtest:
 
 test-mypy-plugin:
 	rm -rf .coverage
-	nox -p $(PYTHON) -s test_mypy_plugin coverage_report
+	nox -p $(PYTHON) -s test_mypy_plugin coverage_report -- $(TARGET)
 
 test-mypy-plugin-full:
 	rm -rf .coverage
-	nox -p 3.7 -s test_mypy_plugin
-	nox -p 3.8 -s test_mypy_plugin
-	nox -p 3.9 -s test_mypy_plugin coverage_report
+	nox -s test_mypy_plugin -- $(TARGET)
+	nox -p 3.9 -s coverage_report
 
 cov:
 	rm -rf .coverage
-	nox -p $(PYTHON) -s coverage_test coverage_report
+	nox -p $(PYTHON) -s coverage_test coverage_report -- $(TARGET)
+
+cov-full:
+	rm -rf .coverage
+	nox -s coverage_test -- $(TARGET)
+	nox -p 3.9 -s coverage_report
