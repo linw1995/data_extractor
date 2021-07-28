@@ -84,15 +84,6 @@ class RelationshipVisitor(TraverserVisitor):
         super().visit_assignment_stmt(o)
 
 
-class ModificationVisitor(TraverserVisitor):
-    def __init__(self, type_info: TypeInfo, attr_name: str):
-        self.type_info = type_info
-        self.attr_name = attr_name
-
-    def visit_assignment_stmt(self, o):
-        return super().visit_assignment_stmt(o)
-
-
 class DataExtractorPlugin(Plugin):
     cache: Dict[str, Dict[str, str]]
     item_typeddict_mapping: Dict[str, TypedDictType]
