@@ -62,12 +62,12 @@ class RelationshipVisitor(TraverserVisitor):
             assert base is not None
             node = base
 
-        if isinstance(node, RefExpr):
-            logger.debug("node=%r", node)
-            node_ = node.node
-            if node_ is None:
-                return False
-            node = node_
+        assert isinstance(node, RefExpr)
+        logger.debug("node=%r", node)
+        node_ = node.node
+        if node_ is None:
+            return False
+        node = node_
 
         if isinstance(node, TypeInfo):
             logger.debug("node=%r", node)
@@ -75,10 +75,10 @@ class RelationshipVisitor(TraverserVisitor):
         elif isinstance(node, TypeAlias):
             logger.debug("node=%r", node)
             target = node.target
-            if isinstance(target, Instance):
-                return target.type.has_base("data_extractor.item.Field")
-
-        return False
+            assert isinstance(target, Instance)
+            return target.type.has_base("data_extractor.item.Field")
+        else:
+            return False
 
     def locate_field_in_classdef(self, defn: ClassDef, name: str) -> str:
         for block in defn.defs.body:
@@ -90,9 +90,8 @@ class RelationshipVisitor(TraverserVisitor):
                     continue
 
                 if lvalue.name == name:
-                    if block.type is not None:
-                        return str((block.type.line, block.type.column))
-                    return str((block.line, block.column))
+                    assert block.type is not None
+                    return str((block.type.line, block.type.column))
 
         raise ValueError(f"Field name = {name!r} not exists in defn = {defn!s}")
 
@@ -102,6 +101,7 @@ class RelationshipVisitor(TraverserVisitor):
             rvalue_loc = str((stmt.rvalue.line, stmt.rvalue.column))
             logger.debug("stmt=%r, rloc=%r", stmt, rvalue_loc)
             for lvalue in stmt.lvalues:
+                lvalue_loc = ""
                 logger.debug(f"lvalue = {lvalue!s}")
                 assert isinstance(lvalue, RefExpr)
                 if isinstance(lvalue, MemberExpr):
@@ -113,12 +113,13 @@ class RelationshipVisitor(TraverserVisitor):
                     assert isinstance(node, TypeInfo)
                     lvalue_loc = self.locate_field_in_classdef(node.defn, lvalue.name)
                 elif isinstance(lvalue, NameExpr):
-                    n = lvalue.node
-                    if isinstance(n, Var):
-                        lvalue_loc = str((n.line, n.column))
-                    else:
-                        logger.warning(f"n = { n!r}, stmt = {stmt!s}")
-                        continue
+                    node = lvalue.node
+                    assert isinstance(node, SymbolNode)
+                    lvalue_loc = str((node.line, node.column))
+
+                if not lvalue_loc:  # pragma: no cover
+                    logger.debug(f"n = { node!r}, stmt = {stmt!s}")
+                    continue
 
                 self.relationships.setdefault(rvalue_loc, []).append(lvalue_loc)
 
@@ -148,7 +149,7 @@ class DataExtractorPlugin(Plugin):
         if code.fullname not in self.cache:
             try:
                 visitor = RelationshipVisitor()
-            except TypeError:
+            except TypeError:  # pragma: no cover
                 # Only supports versions that are bigger than 0.820
                 return {}
 
@@ -158,18 +159,17 @@ class DataExtractorPlugin(Plugin):
         return self.cache[code.fullname]
 
     def check_field_generic_type(self, ctx: FunctionContext) -> MypyType:
-        self.anal_code(self.get_current_code(ctx))
         rv_type = ctx.default_return_type
-        if not isinstance(rv_type, Instance):
+        if self.options.disallow_any_generics:
             return rv_type
 
+        self.anal_code(self.get_current_code(ctx))
+
+        assert isinstance(rv_type, Instance)
         if rv_type.args and not isinstance(rv_type.args[0], UninhabitedType):
             return rv_type
 
-        if not self.options.disallow_any_generics:
-            return self.apply_any_generic(type=rv_type)
-        else:
-            return rv_type
+        return self.apply_any_generic(type=rv_type)
 
     def apply_any_generic(self, type: Instance) -> Instance:
         any_type = AnyType(TypeOfAny.special_form)
