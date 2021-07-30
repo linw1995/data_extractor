@@ -107,9 +107,9 @@ class RelationshipVisitor(TraverserVisitor):
                 if isinstance(lvalue, MemberExpr):
                     expr = lvalue.expr
                     assert isinstance(expr, NameExpr)
-                    node_ = expr.node
-                    assert node_ is not None
-                    node = node_
+                    node = expr.node
+                    if node is None:
+                        return
                     assert isinstance(node, TypeInfo)
                     lvalue_loc = self.locate_field_in_classdef(node.defn, lvalue.name)
                 elif isinstance(lvalue, NameExpr):

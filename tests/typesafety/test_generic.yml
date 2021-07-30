@@ -198,17 +198,44 @@
     main:10: note: Revealed type is "builtins.list[Any]"
 - case: field_is_many_work_with_member_assign_expr
   main: |
+    from typing import Any
+
     from tests.utils import D
     from data_extractor import Field
 
     class C:
-        f1: Field
+        def bar(self):
+            pass
 
-    f2 = C.f1 = Field(D(), is_many=True)
+        f: int = 0
+        f1: Field
+        f3: Any
+
+    C.f3 = f2 = C.f1 = Field(D(), is_many=True)
     rv1 = C.f1.extract([1])
     reveal_type(rv1)
     rv2 = f2.extract([1])
     reveal_type(rv2)
+    rv3 = C.f3.extract([1])
+    reveal_type(rv3)
+
+    C.f = Field(D())
+    c.f = Field(D())
   out: |
-    main:9: note: Revealed type is "builtins.list[Any]"
-    main:11: note: Revealed type is "builtins.list[Any]"
+    main:16: note: Revealed type is "builtins.list[Any]"
+    main:18: note: Revealed type is "builtins.list[Any]"
+    main:20: note: Revealed type is "builtins.list[Any]"
+    main:22: error: Incompatible types in assignment (expression has type "Field[Any]", variable has type "int")
+    main:23: error: Name "c" is not defined
+- case: disallow_any_generic
+  main: |
+    from data_extractor import Field
+    f1 = Field()
+    f2 = Field[int]()
+    rv = f2.extract([1])
+    reveal_type(rv)
+  mypy_config: |
+    disallow_any_generics=true
+  out: |
+    main:2: error: Need type annotation for "f1"
+    main:5: note: Revealed type is "builtins.int*"
