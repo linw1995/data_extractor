@@ -33,7 +33,7 @@ from mypy.semanal_typeddict import TypedDictAnalyzer
 from mypy.traverser import TraverserVisitor
 from mypy.types import AnyType, CallableType, Instance
 from mypy.types import Type as MypyType
-from mypy.types import TypedDictType, TypeOfAny, UninhabitedType, UnionType
+from mypy.types import TypedDictType, TypeOfAny, TypeType, UninhabitedType, UnionType
 
 logger = logging.getLogger(__name__)
 
@@ -50,35 +50,46 @@ class RelationshipVisitor(TraverserVisitor):
             "data_extractor.item.Item",
         )
 
-    def is_field_assignment_stmt(self, stmt: AssignmentStmt) -> bool:
+    def is_making_extractor_assignment_stmt(self, stmt: AssignmentStmt) -> bool:
         rvalue = stmt.rvalue
         if not isinstance(rvalue, CallExpr):
             return False
 
-        node: Union[Expression, SymbolNode] = rvalue.callee
+        node: Union[Expression, SymbolNode, MypyType] = rvalue.callee
         if isinstance(node, IndexExpr):
-            logger.debug("node=%r", node)
+            logger.debug("node=%s", node)
             base = node.base
             assert base is not None
             node = base
 
         assert isinstance(node, RefExpr)
-        logger.debug("node=%r", node)
+        logger.debug("node=%s", node)
         node_ = node.node
         if node_ is None:
             return False
         node = node_
 
+        logger.debug("node=%r", node)
+        if isinstance(node, Var):
+            tt = node.type
+            logger.debug("tt=%s", tt)
+            if not isinstance(tt, TypeType):
+                return False
+            node = tt.item
+
+        logger.debug("node=%r", node)
+        if isinstance(node, TypeAlias):
+            node = node.target
+
+        logger.debug("node=%r", node)
+        if isinstance(node, Instance):
+            return node.type.has_base("data_extractor.item.Field")
+
+        logger.debug("node=%r", node)
         if isinstance(node, TypeInfo):
-            logger.debug("node=%r", node)
             return self.is_data_extractor_cls(node)
-        elif isinstance(node, TypeAlias):
-            logger.debug("node=%r", node)
-            target = node.target
-            assert isinstance(target, Instance)
-            return target.type.has_base("data_extractor.item.Field")
-        else:
-            return False
+
+        return False
 
     def locate_field_in_classdef(self, defn: ClassDef, name: str) -> str:
         for block in defn.defs.body:
@@ -97,9 +108,9 @@ class RelationshipVisitor(TraverserVisitor):
 
     def anal_assignment_stmt(self, stmt: AssignmentStmt) -> None:
         logger.debug("stmt=%s", stmt)
-        if self.is_field_assignment_stmt(stmt):
+        if self.is_making_extractor_assignment_stmt(stmt):
             rvalue_loc = str((stmt.rvalue.line, stmt.rvalue.column))
-            logger.debug("stmt=%r, rloc=%r", stmt, rvalue_loc)
+            logger.debug("stmt=%s, rloc=%r", stmt, rvalue_loc)
             for lvalue in stmt.lvalues:
                 lvalue_loc = ""
                 logger.debug(f"lvalue = {lvalue!s}")
@@ -118,7 +129,7 @@ class RelationshipVisitor(TraverserVisitor):
                     lvalue_loc = str((node.line, node.column))
 
                 if not lvalue_loc:  # pragma: no cover
-                    logger.debug(f"n = { node!r}, stmt = {stmt!s}")
+                    logger.debug(f"n = {node!s}, stmt = {stmt!s}")
                     continue
 
                 self.relationships.setdefault(rvalue_loc, []).append(lvalue_loc)
@@ -196,13 +207,18 @@ class DataExtractorPlugin(Plugin):
             callee = callee.base
         assert isinstance(callee, NameExpr)
 
-        sym_field_class = callee.node
+        sym_field_class: Union[MypyType, SymbolNode, None] = callee.node
         if isinstance(sym_field_class, TypeAlias):
-            target = sym_field_class.target
-            assert isinstance(target, Instance)
-            sym_field_class = target.type
-        assert isinstance(sym_field_class, TypeInfo)
+            sym_field_class = sym_field_class.target
+        elif isinstance(sym_field_class, Var):
+            typetype = sym_field_class.type
+            assert isinstance(typetype, TypeType)
+            sym_field_class = typetype.item
 
+        if isinstance(sym_field_class, Instance):
+            sym_field_class = sym_field_class.type
+
+        assert isinstance(sym_field_class, TypeInfo)
         relationship = self.anal_code(self.get_current_code(ctx))
         lvalue_key = str((expr.line, expr.column))
         keys = [lvalue_key]

@@ -239,3 +239,30 @@
   out: |
     main:2: error: Need type annotation for "f1"
     main:5: note: Revealed type is "builtins.int*"
+- case: extractor_cls_as_func_argument
+  main: |
+    from typing import Type
+    from data_extractor import Field
+
+    def bar1(CF):
+        f1 = CF(is_many=True)
+        rv1 = f1.extract([1])
+        reveal_type(rv1)
+
+    def bar2(CF: Type[Field[int]]):
+        f2 = CF(is_many=False)
+        rv2 = f2.extract([1])
+        reveal_type(rv2)
+  out: |
+    main:7: note: 'reveal_type' always outputs 'Any' in unchecked functions
+    main:7: note: Revealed type is "Any"
+    main:12: note: Revealed type is "builtins.int*"
+- case: item_classdef_not_effects_normal_function_call
+  main: |
+    import inspect
+    from data_extractor import Item, Field
+
+    class User(Item):
+        uid = Field()
+
+    _ = inspect.currentframe()
