@@ -32,3 +32,19 @@
     reveal_type(rvs)
   out: |
     main:12: note: Revealed type is "builtins.list[TypedDict({'x': builtins.int, 'y': builtins.int, '_dummy': Any})]"
+- case: name_paramater_overwrite_typeddict_type
+  skip: sys.version_info.minor < 8
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Item, Field
+
+    class NamedPoint(Item):
+        x = Field[int](D())
+        y = Field[int](D())
+        name_ = Field[str](D(), name="name")
+
+    p = NamedPoint(D())
+    rv = p.extract([{"x": 1, "y": 3, "name": "A"}])
+    reveal_type(rv)
+  out: |
+    main:11: note: Revealed type is "TypedDict({'x': builtins.int, 'y': builtins.int, 'name': builtins.str})"

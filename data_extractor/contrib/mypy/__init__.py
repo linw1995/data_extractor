@@ -16,6 +16,7 @@ from mypy.nodes import (
     MypyFile,
     NameExpr,
     RefExpr,
+    StrExpr,
     SymbolNode,
     TypeAlias,
     TypeInfo,
@@ -344,6 +345,17 @@ class DataExtractorPlugin(Plugin):
             return partial(self.apply_extract_method, fullname=fullname)
         return super().get_method_signature_hook(fullname)
 
+    def get_name_arg(self, call: CallExpr) -> str:
+        name = ""
+        try:
+            idx = call.arg_names.index("name")
+            arg = call.args[idx]
+            assert isinstance(arg, StrExpr)
+            name = arg.value
+        except ValueError:
+            pass
+        return name
+
     def prepare_typeddict(self, ctx: DynamicClassDefContext, fullname: str) -> None:
         logger.debug("fullname=%r", fullname)
         if fullname in self.item_typeddict_mapping:
@@ -367,6 +379,9 @@ class DataExtractorPlugin(Plugin):
             if not isinstance(rvalue, CallExpr):
                 continue
 
+            param_name = self.get_name_arg(rvalue)
+            logger.debug("param_name = %r from rvalue = %s", param_name, rvalue)
+
             rvalue_type: MypyType
             callee = rvalue.callee
             if isinstance(callee, IndexExpr):
@@ -380,10 +395,14 @@ class DataExtractorPlugin(Plugin):
             else:
                 rvalue_type = AnyType(TypeOfAny.special_form)
 
-            for lvalue in block.lvalues:
-                assert isinstance(lvalue, NameExpr)
-                items.append(lvalue.name)
+            if param_name:
+                items.append(param_name)
                 types.append(rvalue_type)
+            else:
+                for lvalue in block.lvalues:
+                    assert isinstance(lvalue, NameExpr)
+                    items.append(lvalue.name)
+                    types.append(rvalue_type)
 
         callee = ctx.call.callee
         assert isinstance(callee, NameExpr)
