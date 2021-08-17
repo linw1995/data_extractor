@@ -40,7 +40,7 @@ cssselect = [
      "cssselect >= 1.0.3, < 2",
 ]
 jsonpath-extractor = [
-     "jsonpath-extractor >= 0.5, < 0.8",
+     "jsonpath-extractor >= 0.5, < 0.9",
 ]
 jsonpath-rw = [
      "jsonpath-rw >= 1.4, < 2",
@@ -57,7 +57,7 @@ includes = ["data_extractor/*.py", "data_extractor/py.typed"]
 docs = [
      "lxml >= 4.3, < 5",
      "cssselect >= 1.0.3, < 2",
-     "jsonpath-extractor >= 0.5, < 0.8",
+     "jsonpath-extractor >= 0.5, < 0.9",
      "jsonpath-rw >= 1.4, < 2",
      "jsonpath-rw-ext >= 1.2, < 2",
      "sphinx >= 2.2, < 3"
