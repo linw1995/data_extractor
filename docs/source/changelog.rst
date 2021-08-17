@@ -2,6 +2,13 @@
 Changelog
 =========
 
+v0.10.2
+~~~~~~~
+
+**Build**
+
+- upgrade jsonpath-extractor to v0.8.0
+
 v0.10.1
 ~~~~~~~
 
