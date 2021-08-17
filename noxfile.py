@@ -44,9 +44,9 @@ def coverage_test(session, extractor_backend):
             "pdm",
             "sync",
             "-v",
-            "-s",
+            "-G",
             "test",
-            *(("-s", extractor_backend) if extractor_backend else tuple()),
+            *(("-G", extractor_backend) if extractor_backend else tuple()),
             external=True,
         ),
     )
@@ -65,7 +65,7 @@ def coverage_test(session, extractor_backend):
 def coverage_report(session):
     venv_setup_on_create(
         session,
-        lambda s: s.run("pdm", "sync", "-v", "-s", "test", external=True),
+        lambda s: s.run("pdm", "sync", "-v", "-G", "test", external=True),
     )
     session.run("coverage", "report")
     session.run("coverage", "xml")
@@ -97,7 +97,7 @@ def test_mypy_plugin(session):
 def build_readme(session):
     venv_setup_on_create(
         session,
-        lambda s: s.run("pdm", "sync", "-v", "-s", "build_readme", external=True),
+        lambda s: s.run("pdm", "sync", "-v", "-G", "build_readme", external=True),
     )
     session.run(
         "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
