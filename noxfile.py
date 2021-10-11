@@ -79,7 +79,7 @@ def coverage_report(session):
 def test_mypy_plugin(session):
     venv_setup_on_create(
         session,
-        lambda s: s.run("pdm", "sync", "-v", "-ds", "test-mypy-plugin", external=True),
+        lambda s: s.run("pdm", "sync", "-v", "-G", "test-mypy-plugin", external=True),
     )
 
     session.run(
