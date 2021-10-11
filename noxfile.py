@@ -89,7 +89,8 @@ def test_mypy_plugin(session):
         "--cov-append",
         "--mypy-same-process",
         "--mypy-ini-file=./tests/mypy.ini",
-        *(session.posargs if session.posargs else ["tests/typesafety"]),
+        "tests/typesafety",
+        *(session.posargs if session.posargs else tuple()),
     )
 
 
