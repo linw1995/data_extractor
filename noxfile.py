@@ -9,7 +9,7 @@ import nox
 nox.options.stop_on_first_error = True
 
 
-pythons = ["3.7", "3.8", "3.9"]
+pythons = ["3.7", "3.8", "3.9", "3.10"]
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 os.environ.pop("PYTHONPATH", None)
