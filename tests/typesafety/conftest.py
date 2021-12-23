@@ -6,7 +6,7 @@ import pytest
 
 from _pytest.nodes import Node
 
-xfail: tuple[str, ...] = tuple()
+xfail: List[str] = []
 
 
 def pytest_collection_modifyitems(config, items: List[Node]):
