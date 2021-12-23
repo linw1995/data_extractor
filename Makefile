@@ -15,11 +15,11 @@ help:
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-PYTHON = 3.9
+PYTHON = 3.10
 EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext
 DEV_EXTRAS = test test-mypy-plugin docs
-EXTRAS_ARGS = $(if $(EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(EXTRAS))
-DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-s,) $(subst $(SPACE),$(SPACE)-s$(SPACE),$(DEV_EXTRAS))
+EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))
+DEV_EXTRAS_ARGS = $(if $(DEV_EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(DEV_EXTRAS))
 
 # Environment setup
 init:

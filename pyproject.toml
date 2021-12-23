@@ -1,6 +1,5 @@
 [project]
 name = "data_extractor"
-version = {use_scm = true}
 authors = [
     {name = "林玮 (Jade Lin)", email = "linw1995@icloud.com"},
 ]
@@ -14,6 +13,7 @@ classifiers = [
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
     "Development Status :: 4 - Beta",
     "Operating System :: POSIX",
     "Operating System :: MacOS :: MacOS X",
@@ -39,7 +39,7 @@ cssselect = [
      "cssselect >= 1.0.3, < 2",
 ]
 jsonpath-extractor = [
-     "jsonpath-extractor >= 0.5, < 0.8",
+     "jsonpath-extractor >= 0.5, < 0.9",
 ]
 jsonpath-rw = [
      "jsonpath-rw >= 1.4, < 2",
@@ -51,12 +51,13 @@ jsonpath-rw-ext = [
 
 [tool.pdm]
 includes = ["data_extractor/*.py", "data_extractor/py.typed", "data_extractor/contrib/"]
+version = {use_scm = true}
 
 [tool.pdm.dev-dependencies]
 docs = [
      "lxml >= 4.3, < 5",
      "cssselect >= 1.0.3, < 2",
-     "jsonpath-extractor >= 0.5, < 0.8",
+     "jsonpath-extractor >= 0.5, < 0.9",
      "jsonpath-rw >= 1.4, < 2",
      "jsonpath-rw-ext >= 1.2, < 2",
      "sphinx >= 2.2, < 3"
