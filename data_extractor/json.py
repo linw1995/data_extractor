@@ -37,6 +37,7 @@ class JSONExtractor(AbstractSimpleExtractor):
                 "package is needed, run pip to install it. "
             )
 
+        obj: JSONExtractor
         if cls is JSONExtractor:
             # invoke the json extractor backend for object creation
             # TODO: cache renamed type

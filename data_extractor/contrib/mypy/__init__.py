@@ -32,7 +32,7 @@ from mypy.plugin import (
 from mypy.semanal import SemanticAnalyzerInterface
 from mypy.semanal_typeddict import TypedDictAnalyzer
 from mypy.traverser import TraverserVisitor
-from mypy.types import AnyType, CallableType, Instance
+from mypy.types import AnyType, CallableType, FunctionLike, Instance
 from mypy.types import Type as MypyType
 from mypy.types import TypedDictType, TypeOfAny, TypeType, UninhabitedType, UnionType
 
@@ -340,7 +340,7 @@ class DataExtractorPlugin(Plugin):
 
     def get_method_signature_hook(
         self, fullname: str
-    ) -> Optional[Callable[[MethodSigContext], CallableType]]:
+    ) -> Optional[Callable[[MethodSigContext], FunctionLike]]:
         if self.is_extract_method(fullname):
             return partial(self.apply_extract_method, fullname=fullname)
         return super().get_method_signature_hook(fullname)

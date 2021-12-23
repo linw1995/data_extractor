@@ -253,7 +253,7 @@ class Item(Field[RV]):
             },
         )
         # wrapper class no needs for initialization
-        obj = base.__new__(new_cls)
+        obj: AbstractSimpleExtractor = base.__new__(new_cls)
         if not hasattr(obj, "expr"):
             # handle case of Item with extractor=None.
             # and its expr property will raise AttributeError,
