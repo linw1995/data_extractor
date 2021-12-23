@@ -6,7 +6,7 @@ import pytest
 
 from _pytest.nodes import Node
 
-xfail = ("item_in-place_extracting",)
+xfail: tuple[str, ...] = tuple()
 
 
 def pytest_collection_modifyitems(config, items: List[Node]):

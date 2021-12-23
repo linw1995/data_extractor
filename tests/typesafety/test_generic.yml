@@ -254,8 +254,8 @@
         rv2 = f2.extract([1])
         reveal_type(rv2)
   out: |
-    main:7: note: 'reveal_type' always outputs 'Any' in unchecked functions
     main:7: note: Revealed type is "Any"
+    main:7: note: 'reveal_type' always outputs 'Any' in unchecked functions
     main:12: note: Revealed type is "builtins.int*"
 - case: item_classdef_not_effects_normal_function_call
   main: |
