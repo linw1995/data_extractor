@@ -98,14 +98,12 @@ class RelationshipVisitor(TraverserVisitor):
                 continue
 
             for lvalue in block.lvalues:
-                if not isinstance(lvalue, NameExpr):
-                    continue
-
+                assert isinstance(lvalue, NameExpr)
                 if lvalue.name == name:
                     assert block.type is not None
                     return str((block.type.line, block.type.column))
-
-        raise ValueError(f"Field name = {name!r} not exists in defn = {defn!s}")
+        else:  # pragma: no cover
+            raise ValueError(f"Field name = {name!r} not exists in defn = {defn!s}")
 
     def anal_assignment_stmt(self, stmt: AssignmentStmt) -> None:
         logger.debug("stmt=%s", stmt)
