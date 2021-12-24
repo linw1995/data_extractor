@@ -32,7 +32,7 @@ from mypy.plugin import (
 from mypy.semanal import SemanticAnalyzerInterface
 from mypy.semanal_typeddict import TypedDictAnalyzer
 from mypy.traverser import TraverserVisitor
-from mypy.types import AnyType, CallableType, Instance
+from mypy.types import AnyType, CallableType, FunctionLike, Instance
 from mypy.types import Type as MypyType
 from mypy.types import TypedDictType, TypeOfAny, TypeType, UninhabitedType, UnionType
 
@@ -98,14 +98,12 @@ class RelationshipVisitor(TraverserVisitor):
                 continue
 
             for lvalue in block.lvalues:
-                if not isinstance(lvalue, NameExpr):
-                    continue
-
+                assert isinstance(lvalue, NameExpr)
                 if lvalue.name == name:
                     assert block.type is not None
                     return str((block.type.line, block.type.column))
-
-        raise ValueError(f"Field name = {name!r} not exists in defn = {defn!s}")
+        else:  # pragma: no cover
+            raise ValueError(f"Field name = {name!r} not exists in defn = {defn!s}")
 
     def anal_assignment_stmt(self, stmt: AssignmentStmt) -> None:
         logger.debug("stmt=%s", stmt)
@@ -340,7 +338,7 @@ class DataExtractorPlugin(Plugin):
 
     def get_method_signature_hook(
         self, fullname: str
-    ) -> Optional[Callable[[MethodSigContext], CallableType]]:
+    ) -> Optional[Callable[[MethodSigContext], FunctionLike]]:
         if self.is_extract_method(fullname):
             return partial(self.apply_extract_method, fullname=fullname)
         return super().get_method_signature_hook(fullname)

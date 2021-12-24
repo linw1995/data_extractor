@@ -22,16 +22,39 @@
     from data_extractor.item import Item, Field
 
     class Point2D(Item):
-        x = Field[int](D())
-        y = Field[int](D())
+        def distance(self, point) -> int:
+           ...
         _dummy = Field(D())
         _dummy_val = 1
+        x = Field[int](D())
+        y = Field[int](D())
 
     p = Point2D(D(), is_many=True)
     rvs = p.extract([{"x": 1, "y": 3}])
     reveal_type(rvs)
   out: |
-    main:12: note: Revealed type is "builtins.list[TypedDict({'x': builtins.int, 'y': builtins.int, '_dummy': Any})]"
+    main:14: note: Revealed type is "builtins.list[TypedDict({'_dummy': Any, 'x': builtins.int, 'y': builtins.int})]"
+- case: item_in-place_extracting
+  skip: sys.version_info.minor < 8
+  main: |
+    from tests.utils import D
+    from data_extractor.item import Item, Field
+
+    class Point2D(Item):
+        def distance(self, point) -> int:
+            ...
+        _dummy = Field(D())
+        _dummy_val = 1
+        x = Field[int](D())
+        y = Field[int](D())
+
+    rvs = Point2D(D(), is_many=True).extract([{"x": 1, "y": 3}])
+    reveal_type(rvs)
+    rv = Point2D(D()).extract([{"x": 1, "y": 3}])
+    reveal_type(rv)
+  out: |
+    main:13: note: Revealed type is "builtins.list[TypedDict({'_dummy': Any, 'x': builtins.int, 'y': builtins.int})]"
+    main:15: note: Revealed type is "TypedDict({'_dummy': Any, 'x': builtins.int, 'y': builtins.int})"
 - case: name_paramater_overwrite_typeddict_type
   skip: sys.version_info.minor < 8
   main: |
