@@ -288,7 +288,7 @@ dependencies = [
 
 [[package]]
 name = "setuptools"
-version = "60.0.4"
+version = "60.1.0"
 requires_python = ">=3.7"
 summary = "Easily download, build, install, upgrade, and uninstall Python packages"
 
@@ -850,9 +850,9 @@ content_hash = "sha256:6b834c1a617a3f62205e27588e2b481520ba9cd06806ab51bc0732fbd
     {file = "requests-2.26.0-py2.py3-none-any.whl", hash = "sha256:6c1246513ecd5ecd4528a0906f910e8f0f9c6b8ec72030dc9fd154dc1a6efd24"},
     {file = "requests-2.26.0.tar.gz", hash = "sha256:b8aa58f8cf793ffd8782d3d8cb19e66ef36f7aba4353eec859e74678b01b07a7"},
 ]
-"setuptools 60.0.4" = [
-    {file = "setuptools-60.0.4-py3-none-any.whl", hash = "sha256:dae4d7933ca671d51fa44c10b4ef8165319d9be3aa41807dd4c73f1c1ba81dc3"},
-    {file = "setuptools-60.0.4.tar.gz", hash = "sha256:8244876a37456ccbcbe1247b4cba1b015f4e42dfebfadd6a5488bfc12060f21b"},
+"setuptools 60.1.0" = [
+    {file = "setuptools-60.1.0-py3-none-any.whl", hash = "sha256:ad0ea3d172404abb14d8f7bd7f54f2ccd4ed9dd00c9da0b1398862e69eb22c03"},
+    {file = "setuptools-60.1.0.tar.gz", hash = "sha256:a4377723c53721515f72a3dfc1bfacdcd61edfa19a4cccf82e72e4f50d9cecbd"},
 ]
 "six 1.16.0" = [
     {file = "six-1.16.0-py2.py3-none-any.whl", hash = "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"},

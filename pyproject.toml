@@ -84,7 +84,7 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [build-system]
-requires = ["pdm-pep517"]
+requires = ["pdm-pep517[setuptools]"]
 build-backend = "pdm.pep517.api"
 
 [tool.commitizen]
