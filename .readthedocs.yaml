@@ -1,14 +1,15 @@
 version: 2
 
 build:
-  image: latest
+  tools:
+    python: "3.10"
 
 python:
-  version: 3
   install:
-    - requirements: ./requirements-docs.txt
     - method: pip
       path: .
+      extra_requirements:
+        - docs
 
 sphinx:
   builder: html
