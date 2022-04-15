@@ -79,9 +79,9 @@ imagesize==1.3.0 \
 iniconfig==1.1.1 \
     --hash=sha256:011e24c64b7f47f6ebd835bb12a743f2fbe9a26d4cecaa7f53bc4f35ee9da8b3 \
     --hash=sha256:bc3af051d7d14b2ee5ef9969666def0cd1a000e121eaea580d4a313df4b37f32
-Jinja2==3.1.1 \
-    --hash=sha256:539835f51a74a69f41b848a9645dbdc35b4f20a3b601e2d9a7e22947b15ff119 \
-    --hash=sha256:640bed4bb501cbd17194b3cace1dc2126f5b619cf068a726b98192a0fde74ae9
+Jinja2==3.0.3 \
+    --hash=sha256:077ce6014f7b40d03b47d1f1ca4b0fc8328a692bd284016f806ed0eaca390ad8 \
+    --hash=sha256:611bb273cd68f3b993fabdc4064fc858c5b47a973cb5aa7999ec1ba405c87cd7
 jsonpath-extractor==0.8.0 \
     --hash=sha256:e82fcd6ae89123eb5ea09a2afb76d2884346369d0cd0c9509efff65c49fd15b6 \
     --hash=sha256:08c53808f981fbd27f3488687940607b6213da38cc8c67e56cb41610acd53783

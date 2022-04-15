@@ -55,12 +55,13 @@ version = {use_scm = true}
 
 [tool.pdm.dev-dependencies]
 docs = [
-     "lxml >= 4.3, < 5",
-     "cssselect >= 1.0.3, < 2",
-     "jsonpath-extractor >= 0.5, < 0.9",
-     "jsonpath-rw >= 1.4, < 2",
-     "jsonpath-rw-ext >= 1.2, < 2",
-     "sphinx >= 2.2, < 3"
+    "lxml >= 4.3, < 5",
+    "cssselect >= 1.0.3, < 2",
+    "jsonpath-extractor >= 0.5, < 0.9",
+    "jsonpath-rw >= 1.4, < 2",
+    "jsonpath-rw-ext >= 1.2, < 2",
+    "sphinx >= 2.2, < 3",
+    "Jinja2<3.1",
 ]
 build_readme = [
     "click >= 7.1.2, < 8",
