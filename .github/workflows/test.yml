@@ -15,9 +15,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Set up PDM
-      uses: pdm-project/setup-pdm@v2.5
+      uses: pdm-project/setup-pdm@v3
       with:
-        python-version: 3.7
+        python-version: 3.11
     - name: Cache Nox Virtualenvs
       uses: actions/cache@v1
       with:
@@ -27,7 +27,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - uses: pre-commit/action@v2.0.0
       env:
         SKIP: export_requirements_txt
@@ -36,11 +36,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
     steps:
     - uses: actions/checkout@v1
     - name: Set up PDM
-      uses: pdm-project/setup-pdm@v2.5
+      uses: pdm-project/setup-pdm@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache Nox Virtualenvs
@@ -52,7 +52,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - name: Test with coverage
       run: |
         make PYTHON=${{ matrix.python-version }} cov
@@ -67,11 +67,11 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.7, 3.8, 3.9, "3.10"]
+        python-version: [3.7, 3.8, 3.9, "3.10", "3.11"]
     steps:
     - uses: actions/checkout@v1
     - name: Set up PDM
-      uses: pdm-project/setup-pdm@v2.5
+      uses: pdm-project/setup-pdm@v3
       with:
         python-version: ${{ matrix.python-version }}
     - name: Cache Nox Virtualenvs
@@ -83,7 +83,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - name: Test
       run: |
         make PYTHON=${{ matrix.python-version }} test-mypy-plugin
