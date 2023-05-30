@@ -23,7 +23,7 @@
 
     class Point2D(Item):
         def distance(self, point) -> int:
-           ...
+            return 1
         _dummy = Field(D())
         _dummy_val = 1
         x = Field[int](D())
@@ -42,7 +42,7 @@
 
     class Point2D(Item):
         def distance(self, point) -> int:
-            ...
+            return 1
         _dummy = Field(D())
         _dummy_val = 1
         x = Field[int](D())

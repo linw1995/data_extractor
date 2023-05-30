@@ -56,12 +56,12 @@ class Field(Generic[RV], AbstractComplexExtractor):
 
     def __init__(
         self,
-        extractor: AbstractSimpleExtractor = None,
-        name: str = None,
+        extractor: Optional[AbstractSimpleExtractor] = None,
+        name: Optional[str] = None,
         default: Any = sentinel,
         is_many: bool = False,
-        type: Type[RV] = None,
-        convertor: Convertor[RV] = None,
+        type: Optional[Type[RV]] = None,
+        convertor: Optional[Convertor[RV]] = None,
     ):
         super().__init__()
 
@@ -81,12 +81,12 @@ class Field(Generic[RV], AbstractComplexExtractor):
     def __class_getitem__(cls, rv_type: Type[RV]):
         def new_init(
             self,
-            extractor: AbstractSimpleExtractor = None,
-            name: str = None,
+            extractor: Optional[AbstractSimpleExtractor] = None,
+            name: Optional[str] = None,
             default: Any = sentinel,
             is_many: bool = False,
-            type: Type[RV] = None,
-            convertor: Convertor[RV] = None,
+            type: Optional[Type[RV]] = None,
+            convertor: Optional[Convertor[RV]] = None,
         ):
             cls.__init__(
                 self,

@@ -405,7 +405,12 @@ class DataExtractorPlugin(Plugin):
         callee = ctx.call.callee
         assert isinstance(callee, NameExpr)
         typeinfo = analyzer.build_typeddict_typeinfo(
-            callee.name, items, types, set(items), -1
+            callee.name,
+            items,
+            types,
+            set(items),
+            -1,
+            None,
         )
         assert typeinfo.typeddict_type is not None
         self.item_typeddict_mapping[fullname] = typeinfo.typeddict_type

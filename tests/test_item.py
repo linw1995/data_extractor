@@ -1118,7 +1118,6 @@ def test_avoid_method_overwriting_field(stack_frame_support):
 
 @pytest.mark.usefixtures("json_extractor_backend")
 def test_avoid_field_overwriting_method(stack_frame_support):
-
     data = {"baz": "baz", "boo": "boo"}
 
     exc = None
