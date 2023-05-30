@@ -27,7 +27,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - uses: pre-commit/action@v2.0.0
       env:
         SKIP: export_requirements_txt
@@ -52,7 +52,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - name: Test with coverage
       run: |
         make PYTHON=${{ matrix.python-version }} cov
@@ -83,7 +83,7 @@ jobs:
     - name: Install nox
       run: |
         pip install nox
-        pdm config use_venv true
+        pdm config python.use_venv true
     - name: Test
       run: |
         make PYTHON=${{ matrix.python-version }} test-mypy-plugin
