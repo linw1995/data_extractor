@@ -1,6 +1,6 @@
 help:
 	@echo "PYTHON=X.Y init		setup development environemnt with specific Python version"
-	@echo "init			setup development environment with defualt Python version 3.9"
+	@echo "init			setup development environment with defualt Python version 3.11"
 	@echo "update-dev		update devepoment dependencies via pdm and via pre-commit"
 	@echo "update			update all dependencies via pdm and via pre-commit"
 	@echo "pre-commit		setup git hooks"
@@ -8,14 +8,14 @@ help:
 	@echo "test			run quick tests"
 	@echo "vtest			run quick tests with verbose"
 	@echo "PYTHON=X.Y cov		run tests with coverage and with specific Python version"
-	@echo "cov			run tests with coverage and with default Python version 3.9"
+	@echo "cov			run tests with coverage and with default Python version 3.11"
 	@echo "test-mypy-plugin	run mypy plugin tests"
 	@echo "type-check		run static type checking"
 
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-PYTHON = 3.10
+PYTHON = 3.11
 EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext
 DEV_EXTRAS = test test-mypy-plugin docs
 EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))
