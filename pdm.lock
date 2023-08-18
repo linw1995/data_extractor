@@ -2,11 +2,11 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "build_readme", "cssselect", "docs", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "lxml", "test", "test-mypy-plugin"]
+groups = ["default", "build_readme", "cssselect", "docs", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "lxml", "test", "test-mypy-plugin", "dev"]
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:2956a3a70ed673db9fe6475a9d8b8fa87b68d1990ad7b921f77fc49eddc231f5"
+content_hash = "sha256:dc7606ab8fab837510e8b14b84eff5b3b45dfe0b4a028c505f30998af79d749c"
 
 [[package]]
 name = "alabaster"
