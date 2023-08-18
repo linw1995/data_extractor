@@ -50,6 +50,15 @@ jsonpath-rw-ext = [
      "jsonpath-rw-ext >= 1.2, < 2",
 ]
 
+[build-system]
+requires = ["pdm-pep517[setuptools]"]
+build-backend = "pdm.pep517.api"
+
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.9.0"
+tag_format = "v$version"
+
 [tool.pdm]
 includes = ["data_extractor/*.py", "data_extractor/py.typed", "data_extractor/contrib/"]
 version = {use_scm = true}
@@ -63,6 +72,7 @@ docs = [
     "jsonpath-rw-ext >= 1.2, < 2",
     "sphinx >= 2.2, < 3",
     "Jinja2<3.1",
+    "certifi==2023.7.22",
 ]
 build_readme = [
     "click >= 7.1.2, < 8",
@@ -84,12 +94,3 @@ test-mypy-plugin = [
 name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-[build-system]
-requires = ["pdm-pep517[setuptools]"]
-build-backend = "pdm.pep517.api"
-
-[tool.commitizen]
-name = "cz_conventional_commits"
-version = "0.9.0"
-tag_format = "v$version"
