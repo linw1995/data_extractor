@@ -6,7 +6,7 @@ groups = ["default", "build_readme", "cssselect", "docs", "jsonpath-extractor", 
 cross_platform = true
 static_urls = false
 lock_version = "4.3"
-content_hash = "sha256:dc7606ab8fab837510e8b14b84eff5b3b45dfe0b4a028c505f30998af79d749c"
+content_hash = "sha256:f67119ece8ee6a013861d3c93f4538eeec2c12aec20c86a3469948618dd89d2d"
 
 [[package]]
 name = "alabaster"
