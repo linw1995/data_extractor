@@ -842,7 +842,7 @@ def test_field_overwrites_method_in_item(stack_frame_support):
         class User(Item):
             baz = Field(JSONExtractor("baz"))
 
-            def baz(self):  # type: ignore
+            def baz(self):  # type: ignore # noqa: F811
                 pass
 
     except Exception as exc_:
@@ -1094,7 +1094,7 @@ def test_avoid_method_overwriting_field(stack_frame_support):
         class User(Item):
             baz = Field(JSONExtractor("baz"))
 
-            def baz(self):  # type: ignore
+            def baz(self):  # type: ignore # noqa: F811
                 pass
 
     except Exception as exc_:
