@@ -855,7 +855,7 @@ def test_field_overwrites_method_in_item(stack_frame_support):
         assert exc.filename == __file__
         assert exc.lineno == frame.f_lineno - 11
         assert exc.offset == 12
-        assert exc.text == "def baz(self):  # type: ignore"
+        assert exc.text == "def baz(self):  # type: ignore # noqa: F811"
     else:
         assert exc is None
 
