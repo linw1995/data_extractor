@@ -56,27 +56,41 @@ def complex_extractor(request):
 
 @pytest.fixture(
     params=[
-        AttrCSSExtractor(expr="div.class", attr="id")
-        if not _missing_cssselect
-        else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
-        CSSExtractor(expr="div.class")
-        if not _missing_cssselect
-        else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
-        JSONPathExtractor(expr="boo")
-        if not _missing_jsonpath
-        else pytest.param("Missing 'jsonpath-extractor'", marks=pytest.mark.skip()),
-        JSONPathRWExtractor(expr="boo")
-        if not _missing_jsonpath_rw
-        else pytest.param("Missing 'jsonpath-rw'", marks=pytest.mark.skip()),
-        JSONPathRWExtExtractor(expr="boo")
-        if not _missing_jsonpath_rw_ext
-        else pytest.param("Missing 'jsonpath-rw-ext'", marks=pytest.mark.skip()),
-        TextCSSExtractor(expr="div.class")
-        if not _missing_cssselect
-        else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip()),
-        XPathExtractor(expr="//div")
-        if not _missing_lxml
-        else pytest.param("Missing 'lxml'", marks=pytest.mark.skip()),
+        (
+            AttrCSSExtractor(expr="div.class", attr="id")
+            if not _missing_cssselect
+            else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip())
+        ),
+        (
+            CSSExtractor(expr="div.class")
+            if not _missing_cssselect
+            else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip())
+        ),
+        (
+            JSONPathExtractor(expr="boo")
+            if not _missing_jsonpath
+            else pytest.param("Missing 'jsonpath-extractor'", marks=pytest.mark.skip())
+        ),
+        (
+            JSONPathRWExtractor(expr="boo")
+            if not _missing_jsonpath_rw
+            else pytest.param("Missing 'jsonpath-rw'", marks=pytest.mark.skip())
+        ),
+        (
+            JSONPathRWExtExtractor(expr="boo")
+            if not _missing_jsonpath_rw_ext
+            else pytest.param("Missing 'jsonpath-rw-ext'", marks=pytest.mark.skip())
+        ),
+        (
+            TextCSSExtractor(expr="div.class")
+            if not _missing_cssselect
+            else pytest.param("Missing 'cssselect'", marks=pytest.mark.skip())
+        ),
+        (
+            XPathExtractor(expr="//div")
+            if not _missing_lxml
+            else pytest.param("Missing 'lxml'", marks=pytest.mark.skip())
+        ),
     ],
     ids=repr,
 )
