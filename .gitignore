@@ -205,3 +205,10 @@ dmypy.json
 .pdm.toml
 ## MacOS
 .DS_Store
+## misc
+.dream2nix/
+.pdm-python
+pdm.toml
+result
+.envrc
+.direnv

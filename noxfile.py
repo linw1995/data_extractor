@@ -9,7 +9,7 @@ import nox
 nox.options.stop_on_first_error = True
 
 
-pythons = ["3.7", "3.8", "3.9", "3.10", "3.11"]
+pythons = ["3.9", "3.10", "3.11", "3.12"]
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 os.environ.pop("PYTHONPATH", None)
@@ -25,7 +25,7 @@ def venv_setup_on_create(session, install):
     session.cd(cwd)
 
 
-@nox.session(python=pythons, reuse_venv=True)
+@nox.session(python=pythons, venv_backend="venv")
 @nox.parametrize(
     "extractor_backend",
     [
@@ -61,7 +61,7 @@ def coverage_test(session, extractor_backend):
     )
 
 
-@nox.session(python=pythons, reuse_venv=True)
+@nox.session(python=pythons, venv_backend="venv")
 def coverage_report(session):
     venv_setup_on_create(
         session,
@@ -75,7 +75,7 @@ def coverage_report(session):
     )
 
 
-@nox.session(python=pythons, reuse_venv=True)
+@nox.session(python=pythons, venv_backend="venv")
 def test_mypy_plugin(session):
     venv_setup_on_create(
         session,
@@ -94,7 +94,7 @@ def test_mypy_plugin(session):
     )
 
 
-@nox.session(reuse_venv=True)
+@nox.session(python=pythons, venv_backend="venv")
 def build_readme(session):
     venv_setup_on_create(
         session,
