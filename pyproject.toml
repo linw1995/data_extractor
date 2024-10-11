@@ -8,12 +8,11 @@ classifiers = [
   "License :: OSI Approved :: MIT License",
   "Programming Language :: Python",
   "Programming Language :: Python :: 3",
-  "Programming Language :: Python :: 3.7",
-  "Programming Language :: Python :: 3.8",
   "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
-  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3.12",
+  "Development Status :: 5 - Production/Stable",
   "Operating System :: POSIX",
   "Operating System :: MacOS :: MacOS X",
   "Operating System :: Microsoft :: Windows",
@@ -26,7 +25,7 @@ keywords = [
   "jsonpath",
 ]
 dependencies = []
-requires-python = ">=3.7"
+requires-python = ">=3.9"
 license = { text = "MIT" }
 dynamic = ["version"]
 
