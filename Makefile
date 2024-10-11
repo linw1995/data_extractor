@@ -15,7 +15,7 @@ help:
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-PYTHON = 3.11
+PYTHON = 3.12
 EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext
 DEV_EXTRAS = test test-mypy-plugin docs
 EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))

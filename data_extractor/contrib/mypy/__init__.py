@@ -424,9 +424,8 @@ class DataExtractorPlugin(Plugin):
         self, fullname: str
     ) -> Optional[Callable[[DynamicClassDefContext], None]]:
         logger.debug("fullname=%r", fullname)
-        if self.options.python_version >= (3, 8):
-            if self.is_extractor_cls(fullname, is_item_subcls=True):
-                return partial(self.prepare_typeddict, fullname=fullname)
+        if self.is_extractor_cls(fullname, is_item_subcls=True):
+            return partial(self.prepare_typeddict, fullname=fullname)
 
         return super().get_dynamic_class_hook(fullname)
 
