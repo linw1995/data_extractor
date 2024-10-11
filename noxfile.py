@@ -94,7 +94,7 @@ def test_mypy_plugin(session):
     )
 
 
-@nox.session(python=pythons, venv_backend="venv")
+@nox.session(python=pythons[-1:], venv_backend="venv")
 def build_readme(session):
     venv_setup_on_create(
         session,
