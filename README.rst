@@ -101,7 +101,7 @@ Usage
 Changelog
 <<<<<<<<<
 
-v0.11.0
+v1.0.0
 ~~~~~~~~~~
 
 **Feature**
