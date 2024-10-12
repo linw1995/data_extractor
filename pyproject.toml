@@ -75,7 +75,6 @@ test-mypy-plugin = [
   "pytest-mypy-plugins ~= 1.6",
   "mypy~=0.930",
 ]
-dev = ["certifi==2023.7.22"]
 
 [[tool.pdm.source]]
 name = "pypi"
