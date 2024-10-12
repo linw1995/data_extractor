@@ -133,7 +133,6 @@
     main:9: note: Revealed type is "builtins.str"
     main:12: note: Revealed type is "builtins.list[builtins.str]"
 - case: item_extract_with_flag_is_many
-  skip: sys.version_info.minor < 8
   main: |
     from tests.utils import D
     from data_extractor import RV, Item
@@ -150,24 +149,6 @@
   out: |
     main:9: note: Revealed type is "TypedDict({})"
     main:12: note: Revealed type is "builtins.list[TypedDict({})]"
-- case: item_extract_with_flag_is_many/compat
-  skip: sys.version_info.minor >= 8
-  main: |
-    from tests.utils import D
-    from data_extractor import RV, Item
-
-    class C(Item[RV]):
-        pass
-
-    f1 = C(D())
-    rv = f1.extract([1])
-    reveal_type(rv)
-    f2 = C(D(), is_many=True)
-    rvs = f2.extract([1])
-    reveal_type(rvs)
-  out: |
-    main:9: note: Revealed type is "Any"
-    main:12: note: Revealed type is "builtins.list[Any]"
 - case: field_is_many_work_with_assign_expr
   main: |
     from tests.utils import D
