@@ -221,7 +221,7 @@ class ComplexExtractorMeta(SimpleExtractorMeta):
 
 class AbstractSimpleExtractor(metaclass=SimpleExtractorMeta):
     """
-    Abstract Simple Extractor Clase.
+    Abstract Simple Extractor Class.
 
     Its metaclass is :class:`data_extractor.core.SimpleExtractorMeta`
 
