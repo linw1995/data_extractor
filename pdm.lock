@@ -2,10 +2,10 @@
 # It is not intended for manual editing.
 
 [metadata]
-groups = ["default", "build_readme", "cssselect", "dev", "docs", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "lxml", "test", "test-mypy-plugin"]
+groups = ["default", "build_readme", "cssselect", "docs", "jsonpath-extractor", "jsonpath-rw", "jsonpath-rw-ext", "lxml", "test", "test-mypy-plugin"]
 strategy = ["inherit_metadata"]
 lock_version = "4.5.0"
-content_hash = "sha256:6809c85284c6572b5c8bf6d8b6637a34231cd722368b158094a73fedcf4865df"
+content_hash = "sha256:677f637658ffdfec2dad0966440262dc042ea8efff739da1e40a4f9fdd313f90"
 
 [[metadata.targets]]
 requires_python = ">=3.9"
@@ -62,13 +62,13 @@ files = [
 
 [[package]]
 name = "certifi"
-version = "2023.7.22"
+version = "2024.8.30"
 requires_python = ">=3.6"
 summary = "Python package for providing Mozilla's CA Bundle."
-groups = ["dev", "docs"]
+groups = ["docs"]
 files = [
-    {file = "certifi-2023.7.22-py3-none-any.whl", hash = "sha256:92d6037539857d8206b8f6ae472e8b77db8058fec5937a1ef3f54304089edbb9"},
-    {file = "certifi-2023.7.22.tar.gz", hash = "sha256:539cc1d13202e33ca466e88b2807e29f4c13049d6d87031a3c110744495cb082"},
+    {file = "certifi-2024.8.30-py3-none-any.whl", hash = "sha256:922820b53db7a7257ffbda3f597266d435245903d80737e34f8a45ff3e3230d8"},
+    {file = "certifi-2024.8.30.tar.gz", hash = "sha256:bec941d2aa8195e248a60b31ff9f0558284cf01a52591ceda73ea9afffd69fd9"},
 ]
 
 [[package]]
