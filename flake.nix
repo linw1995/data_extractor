@@ -18,7 +18,7 @@
   in {
     packages = eachSystem (system: {
       default = dream2nix.lib.evalModules {
-        packageSets.nixpkgs = nixpkgs.legacyPackages.${system};
+        packageSets.nixpkgs = import nixpkgs {inherit system;};
         modules = [
           ./default.nix
           {
@@ -33,16 +33,19 @@
       pkgs = import nixpkgs {inherit system;};
     in {
       default = pkgs.mkShell {
-        inputsFrom = [self.packages.${system}.default.devShell];
-        buildInputs = with pkgs; [
+        inputsFrom = [
+          self.packages.${system}.default.devShell
+        ];
+
+        packages = with pkgs; [
+          pre-commit
+          python312Packages.nox
+
           python39
           python310
           python311
           python312
-        ];
-        packages = with pkgs; [
-          pre-commit
-          python312Packages.nox
+          python313
         ];
       };
     });

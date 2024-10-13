@@ -15,7 +15,7 @@ help:
 EMPTY :=
 SPACE := $(EMPTY) $(EMPTY)
 
-PYTHON = 3.12
+PYTHON = 3.13
 EXTRAS = lxml cssselect jsonpath-extractor jsonpath-rw jsonpath-rw-ext
 DEV_EXTRAS = test test-mypy-plugin docs
 EXTRAS_ARGS = $(if $(EXTRAS),-G,) $(subst $(SPACE),$(SPACE)-G$(SPACE),$(EXTRAS))
@@ -26,7 +26,7 @@ init:
 	@echo ">> installing $(if $(EXTRAS),\"$(EXTRAS)\" ,)$(if $(DEV_EXTRAS),\"$(DEV_EXTRAS)\" ,)dependencies by pdm"
 	$(if $(PYTHON),pdm use -f $(PYTHON),)
 	pdm info && pdm info --env
-	pdm sync -v $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
+	pdm install $(EXTRAS_ARGS) $(DEV_EXTRAS_ARGS)
 	pdm config -l python.use_venv true
 
 deinit:
