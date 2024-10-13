@@ -101,13 +101,13 @@ Usage
 Changelog
 <<<<<<<<<
 
-v1.0.0
-~~~~~~~~~~
+v1.0.1
+~~~~~~
 
-**Feature**
+**Build**
 
-- Generic extractor with convertor (#83)
-- mypy plugin for type annotation of extracting result (#83)
+- Supports Python 3.13
+
 
 
 Contributing

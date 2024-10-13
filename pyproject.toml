@@ -12,6 +12,7 @@ classifiers = [
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
   "Development Status :: 5 - Production/Stable",
   "Operating System :: POSIX",
   "Operating System :: MacOS :: MacOS X",
@@ -35,8 +36,8 @@ repository = "https://github.com/linw1995/data_extractor"
 documentation = "https://data-extractor.readthedocs.io/en/latest/"
 
 [project.optional-dependencies]
-lxml = ["lxml >= 4.3, < 5"]
-cssselect = ["lxml >= 4.3, < 5", "cssselect >= 1.0.3, < 2"]
+lxml = ["lxml >= 4.3, < 6"]
+cssselect = ["lxml >= 4.3, < 6", "cssselect >= 1.0.3, < 2"]
 jsonpath-extractor = ["jsonpath-extractor >= 0.5, < 0.9"]
 jsonpath-rw = ["jsonpath-rw >= 1.4, < 2"]
 jsonpath-rw-ext = ["jsonpath-rw >= 1.4, < 2", "jsonpath-rw-ext >= 1.2, < 2"]
@@ -60,7 +61,7 @@ version = { use_scm = true }
 
 [tool.pdm.dev-dependencies]
 docs = [
-  "lxml >= 4.3, < 5",
+  "lxml >= 4.3, < 6",
   "cssselect >= 1.0.3, < 2",
   "jsonpath-extractor >= 0.5, < 0.9",
   "jsonpath-rw >= 1.4, < 2",
@@ -80,7 +81,3 @@ test-mypy-plugin = [
 name = "pypi"
 url = "https://pypi.org/simple"
 verify_ssl = true
-
-
-[tool.pdm.options]
-lock = ["-S", "inherit_metadata,no_cross_platform"]

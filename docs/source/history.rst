@@ -2,6 +2,14 @@
 History
 =======
 
+v1.0.0
+~~~~~~
+
+**Feature**
+
+- Generic extractor with convertor (#83)
+- mypy plugin for type annotation of extracting result (#83)
+
 v0.10.2
 ~~~~~~~
 

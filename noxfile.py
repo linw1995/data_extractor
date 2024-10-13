@@ -9,7 +9,7 @@ import nox
 nox.options.stop_on_first_error = True
 
 
-pythons = ["3.9", "3.10", "3.11", "3.12"]
+pythons = ["3.9", "3.10", "3.11", "3.12", "3.13"]
 
 os.environ.update({"PDM_IGNORE_SAVED_PYTHON": "1"})
 os.environ.pop("PYTHONPATH", None)
@@ -43,7 +43,6 @@ def coverage_test(session, extractor_backend):
         lambda s: s.run(
             "pdm",
             "sync",
-            "-v",
             "-G",
             "test",
             *(("-G", extractor_backend) if extractor_backend else tuple()),
@@ -65,7 +64,7 @@ def coverage_test(session, extractor_backend):
 def coverage_report(session):
     venv_setup_on_create(
         session,
-        lambda s: s.run("pdm", "sync", "-v", "-G", "test", external=True),
+        lambda s: s.run("pdm", "sync", "-G", "test", external=True),
     )
     session.run("coverage", "report")
     session.run("coverage", "xml")
@@ -79,7 +78,7 @@ def coverage_report(session):
 def test_mypy_plugin(session):
     venv_setup_on_create(
         session,
-        lambda s: s.run("pdm", "sync", "-v", "-G", "test-mypy-plugin", external=True),
+        lambda s: s.run("pdm", "sync", "-G", "test-mypy-plugin", external=True),
     )
 
     session.run(
@@ -98,7 +97,7 @@ def test_mypy_plugin(session):
 def build_readme(session):
     venv_setup_on_create(
         session,
-        lambda s: s.run("pdm", "sync", "-v", "-G", "build_readme", external=True),
+        lambda s: s.run("pdm", "sync", "-G", "build_readme", external=True),
     )
     session.run(
         "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
