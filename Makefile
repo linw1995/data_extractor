@@ -38,7 +38,7 @@ deinit:
 	rm -rf *.egg-info
 
 update-dev:
-	pdm update $(DEV_EXTRAS_ARGS)
+	pdm update $(DEV_EXTRAS_ARGS) $(EXTRAS_ARGS)
 	pre-commit autoupdate
 
 update:
@@ -69,7 +69,7 @@ test-mypy-plugin:
 test-mypy-plugin-full:
 	rm -rf .coverage
 	nox -s test_mypy_plugin -- $(TARGET)
-	nox -p 3.9 -s coverage_report
+	nox -p 3.10 -s coverage_report
 
 cov:
 	rm -rf .coverage
@@ -78,4 +78,4 @@ cov:
 cov-full:
 	rm -rf .coverage
 	nox -s coverage_test -- $(TARGET)
-	nox -p 3.9 -s coverage_report
+	nox -p 3.10 -s coverage_report
