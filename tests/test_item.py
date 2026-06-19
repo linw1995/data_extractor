@@ -148,7 +148,6 @@ def test_field_xpath_extract_result_not_list(element0):
     assert field.extract(element0) == "Title 1"
 
 
-@need_lxml
 @pytest.fixture
 def element1():
     try:
@@ -172,7 +171,6 @@ def element1():
     return fromstring(text)
 
 
-@need_lxml
 @pytest.fixture
 def Article0():
     class Article(Item):
