@@ -2,7 +2,7 @@
 import logging
 
 from functools import partial
-from typing import Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type, Union, cast
 
 # Third Party Library
 from mypy.checker import TypeChecker, is_true_literal
@@ -404,14 +404,7 @@ class DataExtractorPlugin(Plugin):
 
         callee = ctx.call.callee
         assert isinstance(callee, NameExpr)
-        typeinfo = analyzer.build_typeddict_typeinfo(
-            callee.name,
-            items,
-            types,
-            set(items),
-            -1,
-            None,
-        )
+        typeinfo = self.build_typeddict_typeinfo(analyzer, callee.name, items, types)
         assert typeinfo.typeddict_type is not None
         self.item_typeddict_mapping[fullname] = typeinfo.typeddict_type
         logger.debug(
@@ -428,6 +421,19 @@ class DataExtractorPlugin(Plugin):
             return partial(self.prepare_typeddict, fullname=fullname)
 
         return super().get_dynamic_class_hook(fullname)
+
+    def build_typeddict_typeinfo(
+        self,
+        analyzer: TypedDictAnalyzer,
+        name: str,
+        items: List[str],
+        types: List[MypyType],
+    ) -> TypeInfo:
+        builder = cast(Any, analyzer.build_typeddict_typeinfo)
+        try:
+            return builder(name, items, types, set(items), -1, None)
+        except TypeError:
+            return builder(name, dict(zip(items, types)), set(items), set(), -1, None)
 
 
 def plugin(version: str) -> Type[Plugin]:

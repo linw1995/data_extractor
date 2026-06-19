@@ -469,12 +469,9 @@ def test_field_overwrites_item_parameter_type_creation(
         assert exc.filename == __file__
         assert exc.lineno == frame.f_lineno - 8
         assert exc.offset == 8
-        assert (
-            exc.text
-            == """
+        assert exc.text == """
         type("Parameter", (Item,), {item_property: Field(XPathExtractor("./span[@class='name']"))})  # noqa: E501
         """.strip()
-        )
     else:
         assert exc.filename is None
         assert exc.lineno is None
@@ -490,11 +487,9 @@ def test_field_overwrites_item_parameter_type_creation(
     "template, text_template",
     [
         (
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
         type("Parameter",(Item,),{%r: Field(XPathExtractor("./span[@class='name']"))})
-        """.strip()
-            ),
+        """.strip()),
             """%s=Field(XPathExtractor("./span[@class='name']"))""",
         ),
         (
@@ -522,22 +517,18 @@ def test_field_overwrites_item_property_in_repl_by_xpath(
     "template, text_template",
     [
         (
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 class User(Item):
                     uid = Field(JSONExtractor("id")); %s = Field(JSONExtractor("name"))
-                """.strip()
-            ),
+                """.strip()),
             "%s=Field(JSONExtractor('name'))",
         ),
         (
-            textwrap.dedent(
-                """
+            textwrap.dedent("""
                 class User(Item):
                     uid = Field(JSONExtractor("id"))
                     %s = Field(JSONExtractor("name"))
-                """.strip()
-            ),
+                """.strip()),
             "%s=Field(JSONExtractor('name'))",
         ),
     ],

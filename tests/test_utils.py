@@ -39,7 +39,6 @@ def test_lazy_str():
     string = ""
 
     def func():
-        nonlocal string
         return string
 
     ls = LazyStr(func=func)
