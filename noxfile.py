@@ -97,7 +97,7 @@ def test_mypy_plugin(session):
 def build_readme(session):
     venv_setup_on_create(
         session,
-        lambda s: s.run("pdm", "sync", "-G", "build_readme", external=True),
+        lambda s: s.run("pdm", "sync", "-G", "build-readme", external=True),
     )
     session.run(
         "python", "scripts/build_readme.py", "README.template.rst", "README.rst"
