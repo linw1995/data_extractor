@@ -1,5 +1,4 @@
 # Standard Library
-import inspect
 import logging
 
 from functools import partial
@@ -431,10 +430,10 @@ class DataExtractorPlugin(Plugin):
         types: List[MypyType],
     ) -> TypeInfo:
         builder = cast(Any, analyzer.build_typeddict_typeinfo)
-        if "readonly_keys" in inspect.signature(builder).parameters:
+        try:
+            return builder(name, items, types, set(items), -1, None)
+        except TypeError:
             return builder(name, dict(zip(items, types)), set(items), set(), -1, None)
-
-        return builder(name, items, types, set(items), -1, None)
 
 
 def plugin(version: str) -> Type[Plugin]:
