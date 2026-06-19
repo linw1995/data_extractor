@@ -42,13 +42,10 @@ def test_exception_trace(json0):
     assert exc.extractors[2] is extractor
     assert exc.element == {"id": 3, "name": "Janine Gross"}
 
-    assert (
-        str(exc.args[0])
-        == """
+    assert str(exc.args[0]) == """
 ExtractError(Field(JSONExtractor('gender')), element={'id': 3, 'name': 'Janine Gross'})
 |-UserResponse(JSONExtractor('data'))
   |-User(JSONExtractor('users[*]'), is_many=True)
     |-Field(JSONExtractor('gender'))
       |-{'id': 3, 'name': 'Janine Gross'}
     """.strip()
-    )
